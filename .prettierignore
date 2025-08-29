@@ -1,0 +1,185 @@
+# Prettier ignore patterns for HealthCoachAI
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+**/dist/
+**/build/
+
+# Coverage reports
+coverage/
+**/coverage/
+
+# Logs
+*.log
+logs/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+temp/
+
+# Mobile specific
+apps/mobile/ios/Pods/
+apps/mobile/ios/build/
+apps/mobile/android/.gradle/
+apps/mobile/android/app/build/
+apps/mobile/android/gradle/
+*.apk
+*.ipa
+
+# Generated files
+*.generated.ts
+*.generated.js
+*.g.dart
+*.freezed.dart
+*.chopper.dart
+
+# Package manager files
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+Podfile.lock
+pubspec.lock
+
+# Infrastructure
+infra/terraform/.terraform/
+infra/terraform/*.tfstate
+infra/terraform/*.tfstate.backup
+infra/terraform/terraform.tfvars
+
+# Environment and config files
+.env
+.env.*
+!.env.example
+!.env.template
+
+# Secrets and certificates
+secrets/
+*.key
+*.pem
+*.p8
+*.p12
+*.mobileprovision
+google-services.json
+GoogleService-Info.plist
+
+# Database files
+*.sql
+*.db
+*.sqlite
+*.sqlite3
+
+# Large media files
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+*.tif
+*.svg
+*.ico
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.webm
+*.mp3
+*.wav
+*.flac
+*.aac
+*.ogg
+*.pdf
+
+# Compressed files
+*.zip
+*.tar.gz
+*.tgz
+*.7z
+*.rar
+*.jar
+*.war
+*.ear
+
+# Binary files
+*.exe
+*.dll
+*.so
+*.dylib
+*.class
+*.o
+*.a
+*.lib
+
+# Documentation build outputs
+docs/_build/
+docs/build/
+_site/
+.jekyll-cache/
+
+# Next.js
+.next/
+out/
+
+# Nuxt.js
+.nuxt/
+
+# Gatsby
+public/
+
+# VuePress
+.vuepress/dist/
+
+# Docusaurus
+.docusaurus/
+
+# Storybook
+storybook-static/
+
+# Test artifacts
+test-results/
+playwright-report/
+.nyc_output/
+
+# Linting and formatting cache
+.eslintcache
+.stylelintcache
+
+# Other caches
+.cache/
+.parcel-cache/
+
+# Editor configs (these should be formatted differently)
+.editorconfig
+
+# Git files
+.gitignore
+.gitattributes
+.gitleaks.toml
+
+# CI/CD specific files that shouldn't be formatted
+.github/workflows/*.yml
+.github/workflows/*.yaml

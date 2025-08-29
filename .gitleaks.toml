@@ -1,0 +1,311 @@
+# HealthCoachAI Gitleaks Configuration
+# Comprehensive secret detection configuration for the HealthCoachAI repository
+
+title = "HealthCoachAI Gitleaks Config"
+
+[extend]
+# Use the default gitleaks config as a base
+useDefault = true
+
+# Custom rules specific to HealthCoachAI
+[[rules]]
+description = "OpenAI API Key"
+id = "openai-api-key"
+regex = '''sk-[A-Za-z0-9]{48}'''
+keywords = ["sk-"]
+
+[[rules]]
+description = "Anthropic API Key"
+id = "anthropic-api-key"
+regex = '''sk-ant-api[0-9]{2}-[A-Za-z0-9_-]{95}'''
+keywords = ["sk-ant"]
+
+[[rules]]
+description = "Google Cloud API Key"
+id = "google-api-key"
+regex = '''AIza[0-9A-Za-z_-]{35}'''
+keywords = ["AIza"]
+
+[[rules]]
+description = "Google Vertex AI Credentials"
+id = "google-vertex-credentials"
+regex = '''"type":\s*"service_account"'''
+keywords = ["service_account", "private_key_id"]
+
+[[rules]]
+description = "Firebase Config"
+id = "firebase-config"
+regex = '''"apiKey":\s*"AIza[0-9A-Za-z_-]{35}"'''
+keywords = ["firebase", "apiKey"]
+
+[[rules]]
+description = "AWS Access Key"
+id = "aws-access-key"
+regex = '''AKIA[0-9A-Z]{16}'''
+keywords = ["AKIA"]
+
+[[rules]]
+description = "AWS Secret Key"
+id = "aws-secret-key"
+regex = '''[A-Za-z0-9/+=]{40}'''
+keywords = ["aws_secret", "AWS_SECRET"]
+
+[[rules]]
+description = "JWT Secret"
+id = "jwt-secret"
+regex = '''jwt[_-]?secret[_-]?[A-Za-z0-9]{32,}'''
+keywords = ["jwt_secret", "JWT_SECRET", "jwtSecret"]
+
+[[rules]]
+description = "Database URL with Password"
+id = "database-url"
+regex = '''postgres://[^:]+:[^@]+@[^/]+/[^?]+'''
+keywords = ["postgres://", "postgresql://"]
+
+[[rules]]
+description = "Redis URL with Auth"
+id = "redis-url"
+regex = '''redis://[^:]+:[^@]+@[^/]+'''
+keywords = ["redis://"]
+
+[[rules]]
+description = "Apple Developer Keys"
+id = "apple-dev-key"
+regex = '''-----BEGIN PRIVATE KEY-----[A-Za-z0-9+/=\s]+-----END PRIVATE KEY-----'''
+keywords = ["BEGIN PRIVATE KEY"]
+
+[[rules]]
+description = "Apple Team ID"
+id = "apple-team-id"
+regex = '''[A-Z0-9]{10}'''
+keywords = ["APPLE_TEAM_ID", "apple_team_id"]
+
+[[rules]]
+description = "Fitbit Client Secret"
+id = "fitbit-client-secret"
+regex = '''[a-f0-9]{64}'''
+keywords = ["FITBIT_CLIENT_SECRET", "fitbit_client_secret"]
+
+[[rules]]
+description = "Sentry DSN"
+id = "sentry-dsn"
+regex = '''https://[a-f0-9]{32}@[a-f0-9]+\.ingest\.sentry\.io/[0-9]+'''
+keywords = ["sentry", "dsn"]
+
+[[rules]]
+description = "Stripe Keys"
+id = "stripe-key"
+regex = '''sk_live_[0-9a-zA-Z]{99}|pk_live_[0-9a-zA-Z]{99}'''
+keywords = ["sk_live", "pk_live"]
+
+[[rules]]
+description = "Twilio Auth Token"
+id = "twilio-auth-token"
+regex = '''[a-f0-9]{32}'''
+keywords = ["TWILIO_AUTH_TOKEN", "twilio_auth_token"]
+
+[[rules]]
+description = "OpenWeather API Key"
+id = "openweather-api-key"
+regex = '''[a-f0-9]{32}'''
+keywords = ["OPENWEATHER_API_KEY", "openweather_api_key"]
+
+[[rules]]
+description = "Health API Keys (Generic)"
+id = "health-api-key"
+regex = '''[A-Za-z0-9]{40,}'''
+keywords = ["health_api_key", "HEALTH_API_KEY", "medical_api_key"]
+
+# Allowlist patterns for false positives
+[allowlist]
+description = "Allowlisted files and patterns"
+files = [
+    '''\.env\.example$''',
+    '''\.env\.template$''',
+    '''\.env\.sample$''',
+    '''\.env\.local\.example$''',
+    '''README\.md$''',
+    '''SECURITY_PRIVACY\.md$''',
+    '''docs/.*\.md$''',
+    '''/test/.*\.ts$''',
+    '''/tests/.*\.ts$''',
+    '''\.test\.ts$''',
+    '''\.spec\.ts$''',
+    '''jest\.config\.js$''',
+    '''jest\.setup\.js$''',
+    '''tsconfig\.json$''',
+    '''package\.json$''',
+    '''pnpm-lock\.yaml$''',
+    '''\.gitleaks\.toml$'''
+]
+
+# Specific patterns to allowlist
+regexes = [
+    '''changeme''',
+    '''placeholder''',
+    '''example''',
+    '''dummy''',
+    '''fake''',
+    '''test''',
+    '''mock''',
+    '''your-key-here''',
+    '''insert-key-here''',
+    '''CHANGE_ME''',
+    '''PLACEHOLDER''',
+    '''EXAMPLE''',
+    '''TODO''',
+    '''FIXME''',
+    '''XXX''',
+    '''sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX''',
+    '''AIzaXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX''',
+    '''AKIAXXXXXXXXXXXXXXXXX''',
+    '''postgres://user:password@localhost:5432/dbname''',
+    '''postgresql://user:password@localhost:5432/dbname''',
+    '''redis://user:password@localhost:6379''',
+    '''https://your-sentry-dsn@sentry.io/project-id''',
+    '''sk_test_''',
+    '''pk_test_''',
+    '''rk_test_''',
+    '''whsec_test_''',
+    '''acct_test_''',
+    '''connect_test_''',
+    '''src_test_''',
+    '''tgn_test_''',
+    '''tokn_test_'''
+]
+
+# Paths to ignore completely
+paths = [
+    '''node_modules/''',
+    '''dist/''',
+    '''build/''',
+    '''coverage/''',
+    '''.next/''',
+    '''.nuxt/''',
+    '''.git/''',
+    '''vendor/''',
+    '''tmp/''',
+    '''temp/''',
+    '''.tmp/''',
+    '''.cache/''',
+    '''logs/''',
+    '''*.log''',
+    '''*.pyc''',
+    '''*.pyo''',
+    '''*.pyd''',
+    '''__pycache__/''',
+    '''.pytest_cache/''',
+    '''.mypy_cache/''',
+    '''.DS_Store''',
+    '''Thumbs.db''',
+    '''*.swp''',
+    '''*.swo''',
+    '''*~''',
+    '''*.backup''',
+    '''*.bak''',
+    '''*.orig''',
+    '''*.rej''',
+    '''*.zip''',
+    '''*.tar.gz''',
+    '''*.tgz''',
+    '''*.7z''',
+    '''*.rar''',
+    '''*.jar''',
+    '''*.war''',
+    '''*.ear''',
+    '''*.class''',
+    '''*.so''',
+    '''*.dylib''',
+    '''*.dll''',
+    '''*.exe''',
+    '''*.o''',
+    '''*.a''',
+    '''*.lib''',
+    '''*.img''',
+    '''*.iso''',
+    '''*.dmg''',
+    '''*.png''',
+    '''*.jpg''',
+    '''*.jpeg''',
+    '''*.gif''',
+    '''*.bmp''',
+    '''*.tiff''',
+    '''*.tif''',
+    '''*.svg''',
+    '''*.ico''',
+    '''*.mp4''',
+    '''*.avi''',
+    '''*.mov''',
+    '''*.wmv''',
+    '''*.flv''',
+    '''*.webm''',
+    '''*.mp3''',
+    '''*.wav''',
+    '''*.flac''',
+    '''*.aac''',
+    '''*.ogg''',
+    '''*.pdf''',
+    '''*.doc''',
+    '''*.docx''',
+    '''*.xls''',
+    '''*.xlsx''',
+    '''*.ppt''',
+    '''*.pptx''',
+    '''*.rtf''',
+    '''*.odt''',
+    '''*.ods''',
+    '''*.odp''',
+    '''apps/mobile/ios/Pods/''',
+    '''apps/mobile/android/.gradle/''',
+    '''apps/mobile/android/app/build/''',
+    '''infra/terraform/.terraform/''',
+    '''infra/terraform/terraform.tfstate''',
+    '''infra/terraform/terraform.tfstate.backup''',
+    '''**/.terraform/''',
+    '''**/*.tfstate''',
+    '''**/*.tfstate.backup'''
+]
+
+# Entropy detection settings
+[allowlist.entropy]
+# Allow lower entropy for specific patterns
+Min = 3.5
+
+# Stop words that should not trigger entropy detection
+stopwords = [
+    "example",
+    "test",
+    "demo",
+    "placeholder",
+    "changeme",
+    "password",
+    "secret",
+    "token",
+    "key",
+    "localhost",
+    "127.0.0.1",
+    "0.0.0.0",
+    "admin",
+    "user",
+    "guest",
+    "anonymous",
+    "default",
+    "development",
+    "staging",
+    "production",
+    "true",
+    "false",
+    "null",
+    "undefined",
+    "empty",
+    "none",
+    "healthcoachai",
+    "backend",
+    "frontend",
+    "mobile",
+    "database",
+    "redis",
+    "postgres",
+    "mysql",
+    "mongodb"
+]

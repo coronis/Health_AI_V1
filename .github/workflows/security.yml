@@ -1,0 +1,184 @@
+name: Security Scanning
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Run security scan daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  secret-scanning:
+    name: Secret Detection
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+  dependency-scanning:
+    name: Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.19.0'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: '8.15.0'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run npm audit
+        run: pnpm audit --audit-level moderate
+        continue-on-error: true
+
+      - name: Run Snyk vulnerability scan
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=medium
+        continue-on-error: true
+
+  sast-scanning:
+    name: Static Application Security Testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep SAST
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/secrets
+            p/owasp-top-ten
+            p/nodejs
+            p/typescript
+            p/react
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+
+      - name: Run CodeQL Analysis
+        uses: github/codeql-action/init@v2
+        with:
+          languages: javascript, typescript
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+
+  container-scanning:
+    name: Container Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'schedule'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -f services/backend/Dockerfile -t healthcoachai-backend:${{ github.sha }} .
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'healthcoachai-backend:${{ github.sha }}'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  security-scorecard:
+    name: OSSF Security Scorecard
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    permissions:
+      security-events: write
+      id-token: write
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Run OSSF Scorecard
+        uses: ossf/scorecard-action@v2.3.1
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          publish_results: true
+
+      - name: Upload OSSF Scorecard results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: results.sarif
+
+  security-policy-check:
+    name: Security Policy Compliance
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for SECURITY.md
+        run: |
+          if [ ! -f SECURITY_PRIVACY.md ]; then
+            echo "❌ SECURITY_PRIVACY.md not found"
+            exit 1
+          fi
+          echo "✅ SECURITY_PRIVACY.md found"
+
+      - name: Check for .gitleaks.toml
+        run: |
+          if [ ! -f .gitleaks.toml ]; then
+            echo "❌ .gitleaks.toml configuration not found"
+            exit 1
+          fi
+          echo "✅ Gitleaks configuration found"
+
+      - name: Verify no hardcoded secrets in environment files
+        run: |
+          # Check for potential hardcoded secrets in .env.example files
+          if grep -r "sk-\|pk_\|ghp_\|gho_\|ghu_\|ghs_" --include="*.env*" . ; then
+            echo "❌ Potential hardcoded secrets found in environment files"
+            exit 1
+          fi
+          echo "✅ No hardcoded secrets found in environment files"
+
+      - name: Check for proper gitignore patterns
+        run: |
+          if ! grep -q "\.env$" .gitignore; then
+            echo "❌ .env not properly ignored"
+            exit 1
+          fi
+          if ! grep -q "secrets/" .gitignore; then
+            echo "❌ secrets/ directory not properly ignored"
+            exit 1
+          fi
+          echo "✅ Security-sensitive patterns properly ignored"

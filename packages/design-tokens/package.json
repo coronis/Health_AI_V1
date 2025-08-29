@@ -1,0 +1,59 @@
+{
+  "name": "@healthcoachai/design-tokens",
+  "version": "1.0.0",
+  "description": "Design tokens for HealthCoachAI applications",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./colors": {
+      "import": "./dist/colors/index.js",
+      "require": "./dist/colors/index.js",
+      "types": "./dist/colors/index.d.ts"
+    },
+    "./typography": {
+      "import": "./dist/typography/index.js",
+      "require": "./dist/typography/index.js",
+      "types": "./dist/typography/index.d.ts"
+    },
+    "./spacing": {
+      "import": "./dist/spacing/index.js",
+      "require": "./dist/spacing/index.js",
+      "types": "./dist/spacing/index.d.ts"
+    }
+  },
+  "keywords": [
+    "design-tokens",
+    "design-system",
+    "colors",
+    "typography",
+    "spacing",
+    "healthcoachai"
+  ],
+  "license": "PROPRIETARY",
+  "devDependencies": {
+    "@types/jest": "^29.5.8",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.3.3"
+  }
+}

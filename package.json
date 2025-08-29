@@ -1,0 +1,78 @@
+{
+  "name": "health-coach-ai",
+  "version": "0.1.0",
+  "description": "HealthCoachAI - Comprehensive health, nutrition and fitness coaching application",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@8.15.0",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "scripts": {
+    "dev": "pnpm run --parallel dev",
+    "build": "pnpm run --recursive build",
+    "test": "pnpm run --recursive test",
+    "test:watch": "pnpm run --recursive test:watch",
+    "test:coverage": "pnpm run --recursive test:coverage",
+    "lint": "pnpm run --recursive lint",
+    "lint:fix": "pnpm run --recursive lint:fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "pnpm run --recursive typecheck",
+    "clean": "pnpm run --recursive clean && rm -rf node_modules",
+    "prepare": "husky install",
+    "precommit": "lint-staged",
+    "ci:lint": "pnpm run lint && pnpm run format:check",
+    "ci:test": "pnpm run test:coverage",
+    "ci:build": "pnpm run build",
+    "ci:typecheck": "pnpm run typecheck",
+    "bootstrap": "./scripts/bootstrap.sh",
+    "setup:dev": "./scripts/setup_dev_env.sh"
+  },
+  "workspaces": [
+    "services/*",
+    "apps/*",
+    "packages/*",
+    "libs/*",
+    "tools/*"
+  ],
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-security": "^2.1.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.2.4",
+    "typescript": "^5.3.3"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/coronis/Health_AI_V1.git"
+  },
+  "keywords": [
+    "health",
+    "nutrition",
+    "fitness",
+    "ai",
+    "mobile",
+    "react-native",
+    "nodejs",
+    "typescript"
+  ],
+  "license": "PROPRIETARY",
+  "author": "HealthCoachAI Team"
+}

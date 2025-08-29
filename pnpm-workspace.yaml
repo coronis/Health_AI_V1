@@ -1,0 +1,30 @@
+packages:
+  - 'services/*'
+  - 'apps/*'
+  - 'packages/*'
+  - 'libs/*'
+  - 'tools/*'
+
+# Enable strict mode for better dependency management
+strict-peer-dependencies: true
+
+# Use hoisted node_modules structure
+shamefully-hoist: false
+
+# Enable resolution-mode for better compatibility
+resolution-mode: highest
+
+# Configure public registry
+registry: 'https://registry.npmjs.org/'
+
+# Store configuration
+store-dir: ~/.pnpm-store
+
+# Cache configuration
+verify-store-integrity: true
+
+# Auto install peers
+auto-install-peers: true
+
+# Prevent publishing packages
+publish: false

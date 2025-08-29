@@ -1,0 +1,36 @@
+# Security Team
+/.github/workflows/security.yml @security-team
+/docs/security/ @security-team
+/SECURITY_PRIVACY.md @security-team
+
+# Backend Team
+/services/backend/ @backend-team
+/libs/ @backend-team
+/infra/ @backend-team @devops-team
+
+# Mobile Team
+/apps/mobile/ @mobile-team
+/packages/design-tokens/ @mobile-team @design-team
+
+# AI/ML Team
+/services/ai-router/ @ai-team
+/n8n/ @ai-team @backend-team
+
+# DevOps Team
+/.github/workflows/ @devops-team
+/infra/ @devops-team
+/scripts/ @devops-team
+
+# Design Team
+/packages/design-tokens/ @design-team
+/packages/shared/design-system/ @design-team
+
+# Documentation
+/docs/ @tech-leads
+/*.md @tech-leads
+
+# Configuration and Security
+/.gitleaks.toml @security-team @devops-team
+/tsconfig*.json @backend-team
+/package.json @tech-leads
+/.github/ @tech-leads @devops-team
