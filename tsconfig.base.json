@@ -1,0 +1,48 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "useUnknownInCatchVariables": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "target": "ES2022",
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "inlineSources": false,
+    "sourceMap": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "@healthcoach/shared/*": ["./packages/shared/src/*"],
+      "@healthcoach/ui/*": ["./packages/ui/src/*"],
+      "@healthcoach/types/*": ["./packages/types/src/*"],
+      "@healthcoach/config/*": ["./packages/config/src/*"],
+      "@healthcoach/database/*": ["./packages/database/src/*"],
+      "@healthcoach/auth/*": ["./packages/auth/src/*"],
+      "@healthcoach/ai/*": ["./packages/ai/src/*"],
+      "@healthcoach/nutrition/*": ["./packages/nutrition/src/*"],
+      "@healthcoach/fitness/*": ["./packages/fitness/src/*"],
+      "@healthcoach/notifications/*": ["./packages/notifications/src/*"]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    ".next",
+    "coverage",
+    "*.tsbuildinfo"
+  ]
+}

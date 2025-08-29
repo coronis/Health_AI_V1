@@ -1,0 +1,94 @@
+# Set the default behavior for all files
+* text=auto eol=lf
+
+# Explicitly set line endings for specific file types
+*.js text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.jsx text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.xml text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.sql text eol=lf
+*.sh text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.mov binary
+*.mp4 binary
+*.mp3 binary
+*.flv binary
+*.fla binary
+*.swf binary
+*.gz binary
+*.zip binary
+*.7z binary
+*.ttf binary
+*.eot binary
+*.woff binary
+*.woff2 binary
+*.pyc binary
+*.pdf binary
+*.ez binary
+*.bz2 binary
+*.swp binary
+*.swo binary
+
+# Archive files
+*.tar binary
+*.tgz binary
+
+# iOS/macOS specific
+*.pbxproj merge=union
+*.plist text
+*.storyboard text
+*.xcworkspacedata text
+*.xcscheme text
+
+# Android specific  
+*.gradle text
+*.pro text
+*.properties text
+*.xml text
+
+# React Native specific
+metro.config.js text
+babel.config.js text
+react-native.config.js text
+
+# Documentation
+*.md text
+*.txt text
+LICENSE text
+README text
+CHANGELOG text
+
+# Configuration files
+.gitignore text
+.gitattributes text
+.editorconfig text
+.eslintrc.* text
+.prettierrc.* text
+tsconfig*.json text
+package.json text
+package-lock.json text
+yarn.lock text
+pnpm-lock.yaml text
+*.config.js text
+*.config.ts text
+Dockerfile text
+docker-compose*.yml text
+
+# Environment files
+.env* text
+.nvmrc text

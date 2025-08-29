@@ -1,0 +1,77 @@
+# Code Owners for HealthCoachAI
+# This file defines who should review changes to specific parts of the codebase
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global owners - will be requested for all changes unless more specific rules apply
+* @healthcoach/core-team
+
+# Root configuration files
+/*.json @healthcoach/platform-team @healthcoach/core-team
+/*.yaml @healthcoach/platform-team @healthcoach/core-team
+/*.yml @healthcoach/platform-team @healthcoach/core-team
+/*.toml @healthcoach/platform-team @healthcoach/core-team
+/.github/ @healthcoach/platform-team @healthcoach/core-team
+/scripts/ @healthcoach/platform-team
+
+# Documentation
+/docs/ @healthcoach/docs-team @healthcoach/core-team
+*.md @healthcoach/docs-team
+README.md @healthcoach/core-team
+CONTRIBUTING.md @healthcoach/core-team
+SECURITY*.md @healthcoach/security-team @healthcoach/core-team
+
+# Mobile applications
+/apps/mobile/ @healthcoach/mobile-team @healthcoach/core-team
+/apps/mobile/ios/ @healthcoach/ios-team @healthcoach/mobile-team
+/apps/mobile/android/ @healthcoach/android-team @healthcoach/mobile-team
+
+# Backend services
+/services/ @healthcoach/backend-team @healthcoach/core-team
+/services/backend/ @healthcoach/backend-team
+/services/auth/ @healthcoach/backend-team @healthcoach/security-team
+/services/ai-router/ @healthcoach/ai-team @healthcoach/backend-team
+
+# Infrastructure and DevOps
+/infra/ @healthcoach/platform-team @healthcoach/security-team
+/infra/terraform/ @healthcoach/platform-team
+/infra/kubernetes/ @healthcoach/platform-team
+/infra/docker/ @healthcoach/platform-team
+/.github/workflows/ @healthcoach/platform-team @healthcoach/core-team
+
+# Shared packages
+/packages/shared/ @healthcoach/core-team
+/packages/ui/ @healthcoach/frontend-team @healthcoach/mobile-team
+/packages/database/ @healthcoach/backend-team @healthcoach/data-team
+/packages/auth/ @healthcoach/backend-team @healthcoach/security-team
+/packages/ai/ @healthcoach/ai-team @healthcoach/backend-team
+/packages/nutrition/ @healthcoach/nutrition-team @healthcoach/ai-team
+/packages/fitness/ @healthcoach/fitness-team @healthcoach/ai-team
+/packages/config/ @healthcoach/platform-team @healthcoach/security-team
+
+# AI and ML related
+/packages/ai/ @healthcoach/ai-team
+/services/ai-router/ @healthcoach/ai-team
+/data/models/ @healthcoach/ai-team @healthcoach/data-team
+
+# Data and analytics
+/data/ @healthcoach/data-team @healthcoach/backend-team
+/packages/analytics/ @healthcoach/data-team
+
+# Security sensitive files
+/packages/auth/ @healthcoach/security-team @healthcoach/backend-team
+/infra/security/ @healthcoach/security-team @healthcoach/platform-team
+.gitleaks.toml @healthcoach/security-team @healthcoach/platform-team
+SECURITY.md @healthcoach/security-team @healthcoach/core-team
+
+# Testing
+/tests/ @healthcoach/qa-team @healthcoach/core-team
+**/*.test.* @healthcoach/qa-team
+**/*.spec.* @healthcoach/qa-team
+/tools/testing/ @healthcoach/qa-team @healthcoach/platform-team
+
+# Build and tooling
+/tools/ @healthcoach/platform-team
+turbo.json @healthcoach/platform-team @healthcoach/core-team
+/.eslintrc.* @healthcoach/platform-team
+/.prettierrc.* @healthcoach/platform-team
+/tsconfig*.json @healthcoach/platform-team @healthcoach/core-team

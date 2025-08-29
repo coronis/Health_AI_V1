@@ -1,0 +1,42 @@
+# Dependencies and build outputs
+node_modules/
+dist/
+build/
+.next/
+*.tsbuildinfo
+
+# Platform-specific build files
+*.xcworkspace
+*.xcodeproj/xcuserdata/
+android/app/build/
+ios/build/
+DerivedData/
+
+# Logs and cache
+*.log
+.cache/
+.turbo/
+coverage/
+
+# Environment and secrets
+.env*
+!.env.example
+
+# IDE and editor files  
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Test results
+junit.xml
+test-results/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
