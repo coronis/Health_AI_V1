@@ -170,7 +170,7 @@ export const darkTheme = {
   surface: {
     primary: neutralColors.gray[800],
     secondary: neutralColors.gray[700],
-    elevated: neutralColors.gray[750] || neutralColors.gray[700],
+    elevated: neutralColors.gray[700],
   },
   text: {
     primary: neutralColors.gray[50],

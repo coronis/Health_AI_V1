@@ -4,14 +4,16 @@ about: Create a development task
 title: '[TASK] '
 labels: ['task', 'needs-triage']
 assignees: []
-
 ---
 
 ## Task Description
+
 A clear and concise description of the development task.
 
 ## Phase
+
 Which development phase does this task belong to?
+
 - [ ] Phase 0: Documentation and Planning
 - [ ] Phase 1: Program Setup & Governance
 - [ ] Phase 2: Core Backend Architecture & Data Modeling
@@ -30,18 +32,23 @@ Which development phase does this task belong to?
 - [ ] Phase 15: Performance/Security Hardening & Launch
 
 ## Deliverables
+
 List the specific deliverables for this task:
+
 - [ ] Deliverable 1
 - [ ] Deliverable 2
 - [ ] Deliverable 3
 
 ## Acceptance Criteria
+
 - [ ] Criterion 1
 - [ ] Criterion 2
 - [ ] Criterion 3
 
 ## Technical Requirements
+
 ### Components Affected
+
 - [ ] Backend (Node.js/NestJS)
 - [ ] Mobile iOS (SwiftUI)
 - [ ] Mobile Android (Kotlin/Compose)
@@ -54,11 +61,14 @@ List the specific deliverables for this task:
 - [ ] Documentation
 
 ### Dependencies
+
 List any dependencies or prerequisites:
+
 - [ ] Dependency 1
 - [ ] Dependency 2
 
 ### Testing Requirements
+
 - [ ] Unit tests (≥85% coverage)
 - [ ] Integration tests
 - [ ] E2E tests
@@ -66,6 +76,7 @@ List any dependencies or prerequisites:
 - [ ] Performance tests
 
 ## Definition of Done
+
 - [ ] Code written and reviewed
 - [ ] Tests written and passing
 - [ ] Documentation updated
@@ -76,16 +87,19 @@ List any dependencies or prerequisites:
 - [ ] All acceptance criteria met
 
 ## Estimated Effort
+
 - [ ] Small (< 1 day)
 - [ ] Medium (1-3 days)
 - [ ] Large (3-5 days)
 - [ ] Extra Large (> 5 days)
 
 ## Priority
+
 - [ ] Critical
 - [ ] High
 - [ ] Medium
 - [ ] Low
 
 ## Additional Notes
+
 Any additional context, links to documentation, or special considerations.

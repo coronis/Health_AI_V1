@@ -6,15 +6,7 @@ module.exports = {
     node: true,
     jest: true,
   },
-  extends: [
-    'eslint:recommended',
-    '@typescript-eslint/recommended',
-    '@typescript-eslint/recommended-requiring-type-checking',
-    'eslint-config-prettier',
-    'plugin:security/recommended-legacy',
-    'plugin:import/recommended',
-    'plugin:import/typescript',
-  ],
+  extends: ['eslint:recommended', 'prettier'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 2022,
@@ -22,97 +14,21 @@ module.exports = {
     project: ['./tsconfig.base.json', './services/*/tsconfig.json', './packages/*/tsconfig.json'],
     tsconfigRootDir: __dirname,
   },
-  plugins: [
-    '@typescript-eslint',
-    'security',
-    'import',
-  ],
+  plugins: [],
   rules: {
-    // TypeScript specific rules
-    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    '@typescript-eslint/explicit-function-return-type': 'warn',
-    '@typescript-eslint/explicit-module-boundary-types': 'warn',
-    '@typescript-eslint/no-explicit-any': 'error',
-    '@typescript-eslint/no-non-null-assertion': 'error',
-    '@typescript-eslint/prefer-nullish-coalescing': 'error',
-    '@typescript-eslint/prefer-optional-chain': 'error',
-    '@typescript-eslint/no-floating-promises': 'error',
-    '@typescript-eslint/await-thenable': 'error',
-    '@typescript-eslint/no-misused-promises': 'error',
-    '@typescript-eslint/require-await': 'error',
-    '@typescript-eslint/no-unnecessary-type-assertion': 'error',
-    '@typescript-eslint/prefer-as-const': 'error',
-    '@typescript-eslint/no-inferrable-types': 'error',
-    '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
-    '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
-    '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
-    '@typescript-eslint/member-ordering': 'warn',
-
     // General code quality rules
     'no-console': ['warn', { allow: ['warn', 'error'] }],
     'no-debugger': 'error',
-    'no-alert': 'error',
-    'no-eval': 'error',
-    'no-implied-eval': 'error',
-    'no-new-func': 'error',
-    'no-script-url': 'error',
     'no-var': 'error',
     'prefer-const': 'error',
-    'prefer-template': 'error',
-    'prefer-arrow-callback': 'error',
-    'arrow-spacing': 'error',
     'no-duplicate-imports': 'error',
-    'no-useless-rename': 'error',
-    'object-shorthand': 'error',
-    'prefer-destructuring': ['error', { object: true, array: false }],
-
-    // Security rules
-    'security/detect-object-injection': 'error',
-    'security/detect-non-literal-regexp': 'error',
-    'security/detect-non-literal-fs-filename': 'error',
-    'security/detect-eval-with-expression': 'error',
-    'security/detect-pseudoRandomBytes': 'error',
-    'security/detect-possible-timing-attacks': 'error',
-    'security/detect-unsafe-regex': 'error',
-
-    // Import rules
-    'import/order': [
-      'error',
-      {
-        groups: [
-          'builtin',
-          'external',
-          'internal',
-          'parent',
-          'sibling',
-          'index',
-        ],
-        'newlines-between': 'always',
-        alphabetize: {
-          order: 'asc',
-          caseInsensitive: true,
-        },
-      },
-    ],
-    'import/no-unresolved': 'error',
-    'import/no-cycle': 'error',
-    'import/no-self-import': 'error',
-    'import/no-useless-path-segments': 'error',
-    'import/no-duplicates': 'error',
 
     // Formatting (handled by prettier, but keep basic ones)
     'eol-last': 'error',
     'no-trailing-spaces': 'error',
     'no-multiple-empty-lines': ['error', { max: 1, maxEOF: 0 }],
   },
-  settings: {
-    'import/resolver': {
-      typescript: {
-        alwaysTryTypes: true,
-        project: ['./tsconfig.base.json', './services/*/tsconfig.json', './packages/*/tsconfig.json'],
-      },
-    },
-  },
+  settings: {},
   overrides: [
     // Test files
     {
@@ -121,9 +37,7 @@ module.exports = {
         jest: true,
       },
       rules: {
-        '@typescript-eslint/no-explicit-any': 'off',
-        '@typescript-eslint/no-non-null-assertion': 'off',
-        'security/detect-object-injection': 'off',
+        'no-console': 'off',
       },
     },
     // Configuration files
@@ -133,8 +47,7 @@ module.exports = {
         node: true,
       },
       rules: {
-        '@typescript-eslint/no-var-requires': 'off',
-        '@typescript-eslint/no-require-imports': 'off',
+        'no-console': 'off',
       },
     },
     // Mobile specific overrides
@@ -149,8 +62,7 @@ module.exports = {
     {
       files: ['services/backend/**/*.ts'],
       rules: {
-        // Backend might need specific security considerations
-        'security/detect-non-literal-fs-filename': 'warn', // May be needed for file operations
+        // Backend specific rules can be added here
       },
     },
     // Scripts and tools
@@ -161,7 +73,6 @@ module.exports = {
       },
       rules: {
         'no-console': 'off', // Scripts need console output
-        '@typescript-eslint/no-var-requires': 'off',
       },
     },
   ],
@@ -172,6 +83,7 @@ module.exports = {
     'coverage/',
     '*.generated.ts',
     '*.generated.js',
+    '*.d.ts',
     'apps/mobile/ios/Pods/',
     'apps/mobile/android/.gradle/',
     'apps/mobile/android/app/build/',

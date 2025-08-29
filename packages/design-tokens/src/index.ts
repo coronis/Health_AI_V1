@@ -27,9 +27,9 @@ export const designSystem = {
   accessibility: {
     minTouchTarget: '44px', // WCAG AA minimum
     contrastRatio: {
-      normal: 4.5,  // WCAG AA
-      large: 3,     // WCAG AA for large text
-      enhanced: 7,  // WCAG AAA
+      normal: 4.5, // WCAG AA
+      large: 3, // WCAG AA for large text
+      enhanced: 7, // WCAG AAA
     },
   },
 } as const;

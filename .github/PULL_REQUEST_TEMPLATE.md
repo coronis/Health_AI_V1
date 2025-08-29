@@ -1,10 +1,13 @@
 ## Description
+
 Brief description of the changes made in this PR.
 
 ## Type of Change
+
 - [ ] Bug fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
+- [ ] Breaking change (fix or feature that would cause existing functionality to
+      not work as expected)
 - [ ] Documentation update
 - [ ] Performance improvement
 - [ ] Code refactoring
@@ -12,7 +15,9 @@ Brief description of the changes made in this PR.
 - [ ] Infrastructure changes
 
 ## Phase
+
 Which development phase does this PR belong to?
+
 - [ ] Phase 0: Documentation and Planning
 - [ ] Phase 1: Program Setup & Governance
 - [ ] Phase 2: Core Backend Architecture & Data Modeling
@@ -31,28 +36,34 @@ Which development phase does this PR belong to?
 - [ ] Phase 15: Performance/Security Hardening & Launch
 
 ## Related Issues
-Closes #[issue number]
-Related to #[issue number]
+
+Closes #[issue number] Related to #[issue number]
 
 ## Changes Made
+
 Detailed list of changes:
+
 - Change 1
 - Change 2
 - Change 3
 
 ## Testing
+
 ### Test Coverage
+
 - [ ] Unit tests added/updated
 - [ ] Integration tests added/updated
 - [ ] E2E tests added/updated
 - [ ] Manual testing completed
 
 ### Test Results
+
 - [ ] All existing tests pass
 - [ ] New tests pass
 - [ ] Coverage requirements met (≥85% for non-critical, ≥90% for critical paths)
 
 ## Security Checklist
+
 - [ ] No sensitive data exposed in code
 - [ ] No hardcoded secrets or API keys
 - [ ] Input validation implemented where needed
@@ -61,6 +72,7 @@ Detailed list of changes:
 - [ ] OWASP guidelines followed
 
 ## Performance
+
 - [ ] Performance impact assessed
 - [ ] No significant performance regression
 - [ ] Caching implemented where appropriate
@@ -68,6 +80,7 @@ Detailed list of changes:
 - [ ] Mobile performance targets met (60fps, <3s launch)
 
 ## Accessibility
+
 - [ ] WCAG 2.1 AA compliance verified
 - [ ] Screen reader compatibility tested
 - [ ] Keyboard navigation works
@@ -75,6 +88,7 @@ Detailed list of changes:
 - [ ] Dynamic type support implemented (mobile)
 
 ## Code Quality
+
 - [ ] Code follows established style guide
 - [ ] Linting passes
 - [ ] TypeScript types properly defined
@@ -83,18 +97,21 @@ Detailed list of changes:
 - [ ] Documentation comments added
 
 ## Database Changes
+
 - [ ] Database migrations included
 - [ ] Migration tested (up and down)
 - [ ] Rollback strategy documented
 - [ ] Performance impact on large datasets considered
 
 ## API Changes
+
 - [ ] API documentation updated
 - [ ] Backward compatibility maintained
 - [ ] Versioning strategy followed
 - [ ] OpenAPI schema updated
 
 ## Mobile Specific
+
 - [ ] iOS build succeeds
 - [ ] Android build succeeds
 - [ ] UI tested on different screen sizes
@@ -102,19 +119,24 @@ Detailed list of changes:
 - [ ] Offline functionality works
 
 ## Deployment
+
 - [ ] Environment variables documented
 - [ ] Configuration changes noted
 - [ ] Infrastructure changes documented
 - [ ] Rollback plan documented
 
 ## Screenshots/Videos
+
 If applicable, add screenshots or videos demonstrating the changes.
 
 ## Additional Notes
+
 Any additional information that reviewers should know.
 
 ## Reviewer Checklist
+
 For reviewers to complete:
+
 - [ ] Code reviewed for logic and style
 - [ ] Security implications considered
 - [ ] Performance impact assessed

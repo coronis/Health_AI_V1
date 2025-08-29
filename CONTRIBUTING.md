@@ -1,6 +1,7 @@
 # Contributing to HealthCoachAI
 
-We welcome contributions to HealthCoachAI! This document provides guidelines for contributing to our project.
+We welcome contributions to HealthCoachAI! This document provides guidelines for
+contributing to our project.
 
 ## Table of Contents
 
@@ -15,7 +16,9 @@ We welcome contributions to HealthCoachAI! This document provides guidelines for
 
 ## Code of Conduct
 
-By participating in this project, you agree to abide by our Code of Conduct. We are committed to providing a welcoming and inclusive environment for all contributors.
+By participating in this project, you agree to abide by our Code of Conduct. We
+are committed to providing a welcoming and inclusive environment for all
+contributors.
 
 ### Our Standards
 
@@ -40,24 +43,27 @@ Before contributing, ensure you have the following installed:
 
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
+
    ```bash
    git clone https://github.com/YOUR_USERNAME/Health_AI_V1.git
    cd Health_AI_V1
    ```
 
 3. **Set up the development environment**:
+
    ```bash
    # Use the correct Node.js version
    nvm use
-   
+
    # Install dependencies
    pnpm install
-   
+
    # Run the bootstrap script
    ./scripts/bootstrap.sh
    ```
 
 4. **Set up your development environment**:
+
    ```bash
    ./scripts/setup_dev_env.sh
    ```
@@ -188,28 +194,30 @@ pnpm run test path/to/test.spec.ts
 - **Use TypeScript for test files**
 
 Example test structure:
+
 ```typescript
 describe('UserService', () => {
   describe('createUser', () => {
     it('should create a user with valid data', async () => {
       // Arrange
       const userData = { name: 'John Doe', email: 'john@example.com' };
-      
+
       // Act
       const result = await userService.createUser(userData);
-      
+
       // Assert
       expect(result).toBeDefined();
       expect(result.email).toBe(userData.email);
     });
-    
+
     it('should throw error for invalid email', async () => {
       // Arrange
       const invalidData = { name: 'John', email: 'invalid-email' };
-      
+
       // Act & Assert
-      await expect(userService.createUser(invalidData))
-        .rejects.toThrow('Invalid email format');
+      await expect(userService.createUser(invalidData)).rejects.toThrow(
+        'Invalid email format'
+      );
     });
   });
 });
@@ -251,6 +259,7 @@ If you discover a security vulnerability:
 ### Before Submitting
 
 1. **Ensure your code follows our standards**:
+
    ```bash
    pnpm run lint
    pnpm run format:check
@@ -258,11 +267,13 @@ If you discover a security vulnerability:
    ```
 
 2. **Run all tests**:
+
    ```bash
    pnpm run test:coverage
    ```
 
 3. **Build the project**:
+
    ```bash
    pnpm run build
    ```
@@ -272,6 +283,7 @@ If you discover a security vulnerability:
 ### Creating a Pull Request
 
 1. **Push your branch** to your fork:
+
    ```bash
    git push origin feature/your-feature-description
    ```
@@ -302,7 +314,8 @@ If you discover a security vulnerability:
 
 ## Phase-Based Development
 
-HealthCoachAI follows a phase-based development approach. Each phase has specific deliverables and acceptance criteria.
+HealthCoachAI follows a phase-based development approach. Each phase has
+specific deliverables and acceptance criteria.
 
 ### Current Phases
 
@@ -322,6 +335,7 @@ HealthCoachAI follows a phase-based development approach. Each phase has specifi
 ### Phase Completion Criteria
 
 Each phase must meet:
+
 - [ ] All deliverables completed
 - [ ] Tests passing with required coverage
 - [ ] Security requirements met
@@ -373,7 +387,8 @@ We value all contributions to HealthCoachAI. Contributors will be:
 - **Listed in our contributors file**
 - **Mentioned in release notes** for significant contributions
 - **Invited to contributor events** (when applicable)
-- **Considered for maintainer status** based on consistent, quality contributions
+- **Considered for maintainer status** based on consistent, quality
+  contributions
 
 ## Questions?
 

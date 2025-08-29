@@ -1,9 +1,9 @@
 packages:
-  - 'services/*'
-  - 'apps/*'
-  - 'packages/*'
-  - 'libs/*'
-  - 'tools/*'
+  - "services/*"
+  - "apps/*"
+  - "packages/*"
+  - "libs/*"
+  - "tools/*"
 
 # Enable strict mode for better dependency management
 strict-peer-dependencies: true
@@ -15,7 +15,7 @@ shamefully-hoist: false
 resolution-mode: highest
 
 # Configure public registry
-registry: 'https://registry.npmjs.org/'
+registry: "https://registry.npmjs.org/"
 
 # Store configuration
 store-dir: ~/.pnpm-store

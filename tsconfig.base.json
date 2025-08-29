@@ -42,13 +42,7 @@
     "baseUrl": ".",
     "typeRoots": ["./types", "./node_modules/@types"]
   },
-  "include": [
-    "services/**/*",
-    "packages/**/*",
-    "libs/**/*",
-    "tools/**/*",
-    "types/**/*"
-  ],
+  "include": ["services/**/*", "packages/**/*", "libs/**/*", "tools/**/*", "types/**/*"],
   "exclude": [
     "**/node_modules",
     "**/dist",

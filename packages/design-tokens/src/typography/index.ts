@@ -5,11 +5,31 @@
 
 export const fontFamilies = {
   // Primary font family - Inter (for body text, UI elements)
-  primary: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
-  
+  primary: [
+    'Inter',
+    'system-ui',
+    '-apple-system',
+    'BlinkMacSystemFont',
+    'Segoe UI',
+    'Roboto',
+    'Helvetica Neue',
+    'Arial',
+    'sans-serif',
+  ],
+
   // Secondary font family - Poppins (for headings, emphasis)
-  secondary: ['Poppins', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
-  
+  secondary: [
+    'Poppins',
+    'system-ui',
+    '-apple-system',
+    'BlinkMacSystemFont',
+    'Segoe UI',
+    'Roboto',
+    'Helvetica Neue',
+    'Arial',
+    'sans-serif',
+  ],
+
   // Monospace for code and data
   mono: ['SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', 'monospace'],
 } as const;
@@ -24,19 +44,19 @@ export const fontWeights = {
 } as const;
 
 export const fontSizes = {
-  xs: '0.75rem',    // 12px
-  sm: '0.875rem',   // 14px
-  base: '1rem',     // 16px
-  lg: '1.125rem',   // 18px
-  xl: '1.25rem',    // 20px
-  '2xl': '1.5rem',  // 24px
+  xs: '0.75rem', // 12px
+  sm: '0.875rem', // 14px
+  base: '1rem', // 16px
+  lg: '1.125rem', // 18px
+  xl: '1.25rem', // 20px
+  '2xl': '1.5rem', // 24px
   '3xl': '1.875rem', // 30px
   '4xl': '2.25rem', // 36px
-  '5xl': '3rem',    // 48px
+  '5xl': '3rem', // 48px
   '6xl': '3.75rem', // 60px
-  '7xl': '4.5rem',  // 72px
-  '8xl': '6rem',    // 96px
-  '9xl': '8rem',    // 128px
+  '7xl': '4.5rem', // 72px
+  '8xl': '6rem', // 96px
+  '9xl': '8rem', // 128px
 } as const;
 
 export const lineHeights = {
@@ -83,7 +103,7 @@ export const typographyScale = {
       letterSpacing: letterSpacing.normal,
     },
   },
-  
+
   // Headings (Poppins)
   heading: {
     h1: {
@@ -129,7 +149,7 @@ export const typographyScale = {
       letterSpacing: letterSpacing.wide,
     },
   },
-  
+
   // Body text (Inter)
   body: {
     large: {
@@ -154,7 +174,7 @@ export const typographyScale = {
       letterSpacing: letterSpacing.normal,
     },
   },
-  
+
   // Labels and UI text (Inter)
   label: {
     large: {
@@ -179,7 +199,7 @@ export const typographyScale = {
       letterSpacing: letterSpacing.wide,
     },
   },
-  
+
   // Caption and helper text (Inter)
   caption: {
     large: {
@@ -197,7 +217,7 @@ export const typographyScale = {
       letterSpacing: letterSpacing.normal,
     },
   },
-  
+
   // Code and monospace text
   code: {
     large: {
