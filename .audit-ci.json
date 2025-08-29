@@ -1,0 +1,10 @@
+{
+  "allowlist": [],
+  "modules": [],
+  "allowBreakingChange": false,
+  "dev": false,
+  "production": true,
+  "outputFormat": "table",
+  "advisories": [],
+  "summary": true
+}
