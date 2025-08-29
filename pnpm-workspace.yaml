@@ -1,0 +1,26 @@
+# HealthCoachAI Monorepo Workspace Configuration
+# PNPM workspace configuration for managing multiple packages
+
+packages:
+  # Backend services
+  - 'services/backend'
+  - 'services/backend/libs/*'
+  
+  # Mobile applications
+  - 'apps/mobile/shared'
+  
+  # Shared packages
+  - 'packages/*'
+  
+  # Infrastructure and tooling
+  - 'packages/design-tokens'
+  - 'packages/eslint-config'
+  - 'packages/typescript-config'
+  
+  # Exclude build directories and node_modules
+exclude:
+  - '**/node_modules/**'
+  - '**/dist/**'
+  - '**/build/**'
+  - '**/coverage/**'
+  - '**/.next/**'

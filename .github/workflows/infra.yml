@@ -1,0 +1,533 @@
+name: Infrastructure
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'infra/**'
+      - '.github/workflows/infra.yml'
+  pull_request:
+    branches: [main, develop] 
+    paths:
+      - 'infra/**'
+      - '.github/workflows/infra.yml'
+
+env:
+  TERRAFORM_VERSION: '1.6.6'
+  TF_CLOUD_ORGANIZATION: 'healthcoachai'
+  AWS_REGION: 'us-east-1'
+
+jobs:
+  validate:
+    name: Validate Infrastructure
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform Format Check
+        run: |
+          cd infra/terraform
+          terraform fmt -check -recursive
+
+      - name: Terraform Init
+        run: |
+          cd infra/terraform
+          terraform init
+
+      - name: Terraform Validate
+        run: |
+          cd infra/terraform
+          terraform validate
+
+      - name: Run tflint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: latest
+
+      - name: Run tflint
+        run: |
+          cd infra/terraform
+          tflint --init
+          tflint
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: infra/terraform
+          framework: terraform
+          output_format: sarif
+          output_file_path: checkov-results.sarif
+          quiet: true
+
+      - name: Upload Checkov results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: checkov-results.sarif
+
+  plan-dev:
+    name: Plan Development
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.ref == 'refs/heads/develop'
+    environment: development
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform Init
+        run: |
+          cd infra/terraform/environments/development
+          terraform init
+
+      - name: Terraform Plan
+        run: |
+          cd infra/terraform/environments/development
+          terraform plan -out=tfplan
+
+      - name: Upload Terraform Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan-dev
+          path: infra/terraform/environments/development/tfplan
+
+  plan-staging:
+    name: Plan Staging
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_STAGING }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_STAGING }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform Init
+        run: |
+          cd infra/terraform/environments/staging
+          terraform init
+
+      - name: Terraform Plan
+        run: |
+          cd infra/terraform/environments/staging
+          terraform plan -out=tfplan
+
+      - name: Upload Terraform Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan-staging
+          path: infra/terraform/environments/staging/tfplan
+
+  plan-production:
+    name: Plan Production
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform Init
+        run: |
+          cd infra/terraform/environments/production
+          terraform init
+
+      - name: Terraform Plan
+        run: |
+          cd infra/terraform/environments/production
+          terraform plan -out=tfplan
+
+      - name: Upload Terraform Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan-production
+          path: infra/terraform/environments/production/tfplan
+
+  apply-dev:
+    name: Apply Development
+    runs-on: ubuntu-latest
+    needs: plan-dev
+    if: github.ref == 'refs/heads/develop'
+    environment: development
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Download Terraform Plan
+        uses: actions/download-artifact@v4
+        with:
+          name: terraform-plan-dev
+          path: infra/terraform/environments/development/
+
+      - name: Terraform Init
+        run: |
+          cd infra/terraform/environments/development
+          terraform init
+
+      - name: Terraform Apply
+        run: |
+          cd infra/terraform/environments/development
+          terraform apply tfplan
+
+      - name: Output infrastructure info
+        run: |
+          cd infra/terraform/environments/development
+          terraform output -json > infrastructure-outputs.json
+
+      - name: Upload infrastructure outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: infrastructure-outputs-dev
+          path: infra/terraform/environments/development/infrastructure-outputs.json
+
+  apply-staging:
+    name: Apply Staging
+    runs-on: ubuntu-latest
+    needs: plan-staging
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_STAGING }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_STAGING }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Download Terraform Plan
+        uses: actions/download-artifact@v4
+        with:
+          name: terraform-plan-staging
+          path: infra/terraform/environments/staging/
+
+      - name: Terraform Init
+        run: |
+          cd infra/terraform/environments/staging
+          terraform init
+
+      - name: Terraform Apply
+        run: |
+          cd infra/terraform/environments/staging
+          terraform apply tfplan
+
+      - name: Output infrastructure info
+        run: |
+          cd infra/terraform/environments/staging
+          terraform output -json > infrastructure-outputs.json
+
+      - name: Upload infrastructure outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: infrastructure-outputs-staging
+          path: infra/terraform/environments/staging/infrastructure-outputs.json
+
+  apply-production:
+    name: Apply Production
+    runs-on: ubuntu-latest
+    needs: plan-production
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Download Terraform Plan
+        uses: actions/download-artifact@v4
+        with:
+          name: terraform-plan-production
+          path: infra/terraform/environments/production/
+
+      - name: Terraform Init
+        run: |
+          cd infra/terraform/environments/production
+          terraform init
+
+      - name: Terraform Apply
+        run: |
+          cd infra/terraform/environments/production
+          terraform apply tfplan
+
+      - name: Output infrastructure info
+        run: |
+          cd infra/terraform/environments/production
+          terraform output -json > infrastructure-outputs.json
+
+      - name: Upload infrastructure outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: infrastructure-outputs-production
+          path: infra/terraform/environments/production/infrastructure-outputs.json
+
+  docker-setup:
+    name: Setup Docker Infrastructure
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate Docker Compose files
+        run: |
+          cd infra/docker
+          docker-compose -f docker-compose.yml config
+          docker-compose -f docker-compose.override.yml config
+
+      - name: Build and test Docker services
+        run: |
+          cd infra/docker
+          docker-compose -f docker-compose.yml -f docker-compose.test.yml up --build -d
+          
+          # Wait for services to be ready
+          sleep 30
+          
+          # Test PostgreSQL
+          docker-compose exec -T postgres pg_isready -U healthcoachai
+          
+          # Test Redis
+          docker-compose exec -T redis redis-cli ping
+          
+          # Cleanup
+          docker-compose down -v
+
+  kubernetes-validation:
+    name: Validate Kubernetes Manifests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Validate Kubernetes manifests
+        run: |
+          if [ -d "infra/kubernetes" ]; then
+            cd infra/kubernetes
+            for file in *.yaml *.yml; do
+              if [ -f "$file" ]; then
+                echo "Validating $file"
+                kubectl apply --dry-run=client -f "$file"
+              fi
+            done
+          fi
+
+      - name: Run kubeval
+        run: |
+          if [ -d "infra/kubernetes" ]; then
+            wget https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz
+            tar xf kubeval-linux-amd64.tar.gz
+            sudo mv kubeval /usr/local/bin
+            
+            cd infra/kubernetes
+            kubeval *.yaml *.yml || true
+          fi
+
+  monitoring-setup:
+    name: Setup Monitoring Stack
+    runs-on: ubuntu-latest
+    needs: [apply-dev, apply-staging]
+    if: github.ref == 'refs/heads/develop'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate Prometheus config
+        run: |
+          if [ -f "infra/monitoring/prometheus/prometheus.yml" ]; then
+            docker run --rm -v $(pwd)/infra/monitoring/prometheus:/etc/prometheus prom/prometheus:latest promtool check config /etc/prometheus/prometheus.yml
+          fi
+
+      - name: Validate Grafana dashboards
+        run: |
+          if [ -d "infra/monitoring/grafana/dashboards" ]; then
+            cd infra/monitoring/grafana/dashboards
+            for dashboard in *.json; do
+              if [ -f "$dashboard" ]; then
+                echo "Validating $dashboard"
+                cat "$dashboard" | jq . > /dev/null
+              fi
+            done
+          fi
+
+      - name: Test Alertmanager config
+        run: |
+          if [ -f "infra/monitoring/alertmanager/alertmanager.yml" ]; then
+            docker run --rm -v $(pwd)/infra/monitoring/alertmanager:/etc/alertmanager prom/alertmanager:latest amtool check-config /etc/alertmanager/alertmanager.yml
+          fi
+
+  cost-analysis:
+    name: Infrastructure Cost Analysis
+    runs-on: ubuntu-latest
+    needs: [plan-dev, plan-staging, plan-production]
+    if: always()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Infracost
+        uses: infracost/actions/setup@v2
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+
+      - name: Download Terraform plans
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+
+      - name: Generate cost estimates
+        run: |
+          # Development cost estimate
+          if [ -f "terraform-plan-dev/tfplan" ]; then
+            cd infra/terraform/environments/development
+            infracost breakdown --path tfplan --format json --out-file /tmp/infracost-dev.json
+          fi
+          
+          # Staging cost estimate
+          if [ -f "terraform-plan-staging/tfplan" ]; then
+            cd infra/terraform/environments/staging
+            infracost breakdown --path tfplan --format json --out-file /tmp/infracost-staging.json
+          fi
+          
+          # Production cost estimate
+          if [ -f "terraform-plan-production/tfplan" ]; then
+            cd infra/terraform/environments/production
+            infracost breakdown --path tfplan --format json --out-file /tmp/infracost-production.json
+          fi
+
+      - name: Generate cost comparison
+        run: |
+          # Combine all cost estimates
+          infracost output --path /tmp/infracost-*.json --format table --out-file cost-estimate.txt || echo "No cost estimates available" > cost-estimate.txt
+
+      - name: Comment PR with cost analysis
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            try {
+              const costEstimate = fs.readFileSync('cost-estimate.txt', 'utf8');
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `## 💰 Infrastructure Cost Estimate\n\n\`\`\`\n${costEstimate}\n\`\`\``
+              });
+            } catch (error) {
+              console.log('Cost estimate file not found or error reading file:', error);
+            }
+
+      - name: Upload cost analysis
+        uses: actions/upload-artifact@v4
+        with:
+          name: cost-analysis
+          path: cost-estimate.txt
+
+  notification:
+    name: Infrastructure Notification
+    runs-on: ubuntu-latest
+    needs: [apply-dev, apply-staging, apply-production, monitoring-setup]
+    if: always() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    
+    steps:
+      - name: Notify infrastructure team
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: '#infrastructure'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow

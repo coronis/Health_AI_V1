@@ -1,0 +1,118 @@
+# Global Ownership and Review Requirements
+# ==============================================================================
+# This file defines code ownership and review requirements for HealthCoachAI
+# All changes require at least one review from appropriate code owners
+
+# Global fallback for all files
+* @coronis
+
+# =============================================================================
+# Critical Configuration and Documentation
+# =============================================================================
+
+# Root configuration files require extra review
+package.json @coronis
+pnpm-workspace.yaml @coronis
+.gitignore @coronis
+tsconfig.json @coronis
+README.md @coronis
+
+# Critical documentation requires multiple reviews
+PROMPT_README.md @coronis
+APPLICATION_PHASES.md @coronis
+IMPLEMENTATION_PLAN.md @coronis
+SECURITY_PRIVACY.md @coronis
+ARCHITECTURE.md @coronis
+
+# =============================================================================
+# Backend Services
+# =============================================================================
+
+# Backend architecture and core services
+services/backend/ @coronis
+services/backend/src/auth/ @coronis
+services/backend/src/users/ @coronis
+services/backend/libs/security/ @coronis
+services/backend/libs/configs/ @coronis
+
+# Database and data layer
+services/backend/src/database/ @coronis
+data/ @coronis
+*.sql @coronis
+
+# =============================================================================
+# Mobile Applications
+# =============================================================================
+
+# iOS application
+apps/mobile/ios/ @coronis
+
+# Android application
+apps/mobile/android/ @coronis
+
+# Shared mobile code
+apps/mobile/shared/ @coronis
+
+# =============================================================================
+# Infrastructure and DevOps
+# =============================================================================
+
+# CI/CD and GitHub workflows
+.github/ @coronis
+.github/workflows/ @coronis
+
+# Infrastructure as code
+infra/ @coronis
+infra/terraform/ @coronis
+infra/docker/ @coronis
+
+# Deployment and scripts
+scripts/ @coronis
+Dockerfile @coronis
+docker-compose*.yml @coronis
+
+# =============================================================================
+# Security and Compliance
+# =============================================================================
+
+# Security-sensitive files require security review
+*.key @coronis
+*.pem @coronis
+*.p12 @coronis
+**/security/ @coronis
+**/auth/ @coronis
+SECURITY.md @coronis
+
+# Environment templates (no secrets should be in these)
+**/.env.example @coronis
+**/.env.template @coronis
+
+# =============================================================================
+# Shared Packages and Design System
+# =============================================================================
+
+# Design tokens and shared components
+packages/design-tokens/ @coronis
+packages/eslint-config/ @coronis
+packages/typescript-config/ @coronis
+
+# =============================================================================
+# AI and ML Components
+# =============================================================================
+
+# AI routing and orchestration
+**/ai/ @coronis
+**/ml/ @coronis
+n8n/ @coronis
+
+# =============================================================================
+# Special Review Requirements
+# =============================================================================
+
+# Changes to these files require approval from product, security, and engineering leads
+PROMPT_README_COMBINED.md @coronis
+APPLICATION_PHASES.md @coronis
+
+# Sensitive configuration changes
+**/secrets/ @coronis
+**/config/ @coronis

@@ -1,0 +1,128 @@
+{
+  "fontFamilies": {
+    "primary": {
+      "value": "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      "description": "Primary font family for body text and UI elements"
+    },
+    "heading": {
+      "value": "Poppins, Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", 
+      "description": "Font family for headings and emphasis"
+    },
+    "monospace": {
+      "value": "'SF Mono', Monaco, Inconsolata, 'Roboto Mono', monospace",
+      "description": "Monospace font for code and technical content"
+    }
+  },
+  "fontSizes": {
+    "xs": {
+      "value": "0.75rem",
+      "description": "12px - Caption, small labels"
+    },
+    "sm": {
+      "value": "0.875rem", 
+      "description": "14px - Small text, secondary labels"
+    },
+    "base": {
+      "value": "1rem",
+      "description": "16px - Base body text"
+    },
+    "lg": {
+      "value": "1.125rem",
+      "description": "18px - Large body text"
+    },
+    "xl": {
+      "value": "1.25rem",
+      "description": "20px - Small headings"
+    },
+    "2xl": {
+      "value": "1.5rem",
+      "description": "24px - Medium headings"
+    },
+    "3xl": {
+      "value": "1.875rem",
+      "description": "30px - Large headings"
+    },
+    "4xl": {
+      "value": "2.25rem",
+      "description": "36px - Extra large headings"
+    },
+    "5xl": {
+      "value": "3rem",
+      "description": "48px - Display text"
+    }
+  },
+  "fontWeights": {
+    "light": {
+      "value": "300",
+      "description": "Light weight"
+    },
+    "normal": {
+      "value": "400", 
+      "description": "Normal weight"
+    },
+    "medium": {
+      "value": "500",
+      "description": "Medium weight"
+    },
+    "semibold": {
+      "value": "600",
+      "description": "Semi-bold weight"
+    },
+    "bold": {
+      "value": "700",
+      "description": "Bold weight"
+    },
+    "extrabold": {
+      "value": "800",
+      "description": "Extra bold weight"
+    }
+  },
+  "lineHeights": {
+    "tight": {
+      "value": "1.25",
+      "description": "Tight line height for headings"
+    },
+    "snug": {
+      "value": "1.375",
+      "description": "Snug line height"
+    },
+    "normal": {
+      "value": "1.5",
+      "description": "Normal line height for body text"
+    },
+    "relaxed": {
+      "value": "1.625",
+      "description": "Relaxed line height"
+    },
+    "loose": {
+      "value": "2",
+      "description": "Loose line height for large text"
+    }
+  },
+  "letterSpacing": {
+    "tighter": {
+      "value": "-0.05em",
+      "description": "Tighter letter spacing"
+    },
+    "tight": {
+      "value": "-0.025em",
+      "description": "Tight letter spacing"
+    },
+    "normal": {
+      "value": "0",
+      "description": "Normal letter spacing"
+    },
+    "wide": {
+      "value": "0.025em",
+      "description": "Wide letter spacing"
+    },
+    "wider": {
+      "value": "0.05em",
+      "description": "Wider letter spacing"
+    },
+    "widest": {
+      "value": "0.1em",
+      "description": "Widest letter spacing"
+    }
+  }
+}
