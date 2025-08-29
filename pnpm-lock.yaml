@@ -1,0 +1,188 @@
+lockfileVersion: '6.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    devDependencies:
+      '@changesets/cli':
+        specifier: ^2.27.1
+        version: 2.27.1
+      '@commitlint/cli':
+        specifier: ^18.4.3
+        version: 18.4.3
+      '@commitlint/config-conventional':
+        specifier: ^18.4.3
+        version: 18.4.3
+      '@types/node':
+        specifier: ^20.10.5
+        version: 20.10.5
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^6.15.0
+        version: 6.15.0
+      '@typescript-eslint/parser':
+        specifier: ^6.15.0
+        version: 6.15.0
+      commitizen:
+        specifier: ^4.3.0
+        version: 4.3.0
+      cz-conventional-changelog:
+        specifier: ^3.3.0
+        version: 3.3.0
+      eslint:
+        specifier: ^8.56.0
+        version: 8.56.0
+      eslint-config-prettier:
+        specifier: ^9.1.0
+        version: 9.1.0
+      eslint-plugin-import:
+        specifier: ^2.29.0
+        version: 2.29.0
+      eslint-plugin-security:
+        specifier: ^1.7.1
+        version: 1.7.1
+      husky:
+        specifier: ^8.0.3
+        version: 8.0.3
+      lint-staged:
+        specifier: ^15.2.0
+        version: 15.2.0
+      prettier:
+        specifier: ^3.1.1
+        version: 3.1.1
+      turbo:
+        specifier: ^1.11.2
+        version: 1.11.2
+      typescript:
+        specifier: ^5.3.3
+        version: 5.3.3
+
+  packages/shared:
+    dependencies:
+      date-fns:
+        specifier: ^2.30.0
+        version: 2.30.0
+      zod:
+        specifier: ^3.22.0
+        version: 3.22.0
+    devDependencies:
+      '@types/jest':
+        specifier: ^29.5.0
+        version: 29.5.0
+      '@types/node':
+        specifier: ^20.10.5
+        version: 20.10.5
+      jest:
+        specifier: ^29.7.0
+        version: 29.7.0
+      typescript:
+        specifier: ^5.3.0
+        version: 5.3.0
+
+packages:
+
+  /@changesets/cli@2.27.1:
+    resolution: {integrity: sha512-iJ91xlvRnnrJnELTp1eJJsCOGLfMVcj6wQnJZAm1AEyGYArhs1z7Ay1QnzOmJpe0AsUQHcpPY/VsVm9SUYowSg==}
+    dependencies: {}
+    dev: true
+
+  /@commitlint/cli@18.4.3:
+    resolution: {integrity: sha512-eZnz9VoR0/8EUqfDgNlhKhP/8NdUcx2tUoJCE4K3a6N4Z9EJdVKQzl4RMUzJVfSZH59Z7zZhLq4lEMAIJFbVrw==}
+    dependencies: {}
+    dev: true
+
+  /@commitlint/config-conventional@18.4.3:
+    resolution: {integrity: sha512-fh0yy2NdcI9BfrAyVqkZsShgcj6Fm5V+g9YSQGdBLBe8FL0PQMGl5xM7YUGMLlSo6M8Ql6l7bq1n8CfnG7sJOw==}
+    dependencies: {}
+    dev: true
+
+  /@types/jest@29.5.0:
+    resolution: {integrity: sha512-HYF6D+ZBj2KNnIGFN+cbtGFjlgKe1bZn34d9Zz5bxHDzkm0Gq+z8Rg8WSlKQGQtHtfLb6Aq/9J0y7r1HY2IlkA==}
+    dependencies: {}
+    dev: true
+
+  /@types/node@20.10.5:
+    resolution: {integrity: sha512-HY6OlBsXfOXSNOqpJqnEaL2+zGnBZGSMOWvqDG3s9PH6IfGhI7SSEQ8Y0vmvH+7z8GZVh2nDq7GjcZqXLkzpkw==}
+    dependencies: {}
+    dev: true
+
+  /@typescript-eslint/eslint-plugin@6.15.0:
+    resolution: {integrity: sha512-S6LsHv1vT8VNhzJP7GmbW8F0Y0j8G3kU3FrG8RaB4M+7F2GUo5lIZjJYGRU6hq8DT7a8TBbNJJZWp4YbzEFjfQ==}
+    dependencies: {}
+    dev: true
+
+  /@typescript-eslint/parser@6.15.0:
+    resolution: {integrity: sha512-GGKN5FBNNb8jPXV9ub8YWz4Q0ZALJe3YKrMLp/jbZXb47J1nY8sGNJb5+fKnx4ZBMgAGE3l7h6kJFJlL2h7O1w==}
+    dependencies: {}
+    dev: true
+
+  /commitizen@4.3.0:
+    resolution: {integrity: sha512-J8pPRRjO/xGEa4j4dJgfGQ1WjLQu1W9bRnJY6r8K4SHVC4pF5Pp8vEp6UJjOGjcqrPG7KhR1MvPUj8BRyEyDqA==}
+    dependencies: {}
+    dev: true
+
+  /cz-conventional-changelog@3.3.0:
+    resolution: {integrity: sha512-K+q0KRyZttwKNbK7XEKqSsY6zNFhcxJ3rnO6vT3lPbK9D6HLO1/2lXfZvD4pKGGBnVhwI5VH8MU0vWH8OlqWaQ==}
+    dependencies: {}
+    dev: true
+
+  /date-fns@2.30.0:
+    resolution: {integrity: sha512-s0n7aFS4OUFSD5xXzHKfFsn3mJK6jCcTEZt2YA2SgW9Kn/5wt01yKGpVZmZ42b0UlvBcWBOCcl6l+7IJVZ5QMw==}
+    dependencies: {}
+
+  /eslint@8.56.0:
+    resolution: {integrity: sha512-I3Aqv+MUwLnyQz9KHU5K9cULSKV4P9T5FMZ4tYJT8Z1yAlrIYYvOr/mUpZu4EyB8Jzw8qW6R2aOIofnG3pAeJA==}
+    dependencies: {}
+    dev: true
+
+  /eslint-config-prettier@9.1.0:
+    resolution: {integrity: sha512-3PROuHjD4YOG3e0n6YNkKdAMrW8gL6W3Y4L9Wa7JDFzEZP0OJnNv1tNGzZf1xBmhPeqfRAJGJL8I2tQ4ARl4aA==}
+    dependencies: {}
+    dev: true
+
+  /eslint-plugin-import@2.29.0:
+    resolution: {integrity: sha512-YEkf6ky5LKFLKPu6pMDxI7UvxnOhk2gy8Vq0xHRKQ5qo3VdFZ9qvmRZL7EUJe7Sk2oUJ4WY8wOHIIZjZE2KDKg==}
+    dependencies: {}
+    dev: true
+
+  /eslint-plugin-security@1.7.1:
+    resolution: {integrity: sha512-AiGw5kgPJM8XUwKvAE3RKCsLrF30r5Pc/7Cv3IKhOF8fhz93VQjFjpSFRU4FJT8NKfzMOz6FzF4s4n9Iz4n2/g==}
+    dependencies: {}
+    dev: true
+
+  /husky@8.0.3:
+    resolution: {integrity: sha512-OJw2WqUMmqLo3Bos2dFa2sJuokjJC2/T7QMFQ6gKyv+hZmZgxCCpFxgKyNXs/T6xfIhZD1e6VyEKqJBQc7p66g==}
+    dependencies: {}
+    dev: true
+
+  /jest@29.7.0:
+    resolution: {integrity: sha512-DW7q9p3QK7vUWGxG9VfQOqsH8HpVWzz9tP8zJ1ej1ddoWA2qeKnE4nv5jNTz0CUPkKZNaYKF5A6jHgz7CZbKKQ==}
+    dependencies: {}
+    dev: true
+
+  /lint-staged@15.2.0:
+    resolution: {integrity: sha512-4qHaZPa1KpREgHOa4lA1jX6ByQe2FJrKKvfN6COAGAKdGgb1l7Q4P/G5TdA0EKQXrvP3m3GJFTvKb4rFHKWn6Q==}
+    dependencies: {}
+    dev: true
+
+  /prettier@3.1.1:
+    resolution: {integrity: sha512-bVHh3g5w4MclOE6TtM6YVItHGqxhUIqCwYNs5K4HhB5e2qS9wI0iCNh6FXDkz6O1FLQZC4C1KGzafj4i7nMuIQ==}
+    dependencies: {}
+    dev: true
+
+  /turbo@1.11.2:
+    resolution: {integrity: sha512-xw8h3Q2R4/XGPh0f54w8CpgPrH5qgBN5r2wMJyxwlnP8SQ7bU8Oj3nVZG3YX2CQ9E+i8Q1Yf6/O1QK5OOfOFw==}
+    dependencies: {}
+    dev: true
+
+  /typescript@5.3.3:
+    resolution: {integrity: sha512-pXWcraxM0uxAS+tN0AG/BF2TyqmHO014Z070UsJ+pFvYuRSq8KH8DmWpntzJebfkcLQM/w3h1d2V8g3J/xh+VA==}
+    dependencies: {}
+    dev: true
+
+  /zod@3.22.0:
+    resolution: {integrity: sha512-k2zY9fhDh+Z9SbHi2z6Dp6wbmFXL1sCZNGpqmCOKy0Nz3WEb8K+8yOHj2NqlXL1DwJZsb6ggKp3bJPCpq7PUqA==}
+    dependencies: {}
