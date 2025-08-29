@@ -1,0 +1,63 @@
+title = "HealthCoachAI Security Scanning Configuration"
+
+[extend]
+# Use Gitleaks' default secret detection rules
+useDefault = true
+
+[[rules]]
+description = "API Keys"
+id = "api-key"
+regex = '''(?i)(api_key|apikey|api-key)\s*[=:]\s*['\"]?[a-z0-9]{32,}['\"]?'''
+tags = ["api", "key"]
+
+[[rules]]
+description = "AWS Access Key"
+id = "aws-access-key"
+regex = '''AKIA[0-9A-Z]{16}'''
+tags = ["aws", "access", "key"]
+
+[[rules]]
+description = "JWT Token"
+id = "jwt"
+regex = '''eyJ[A-Za-z0-9_-]*\.eyJ[A-Za-z0-9_-]*\.[A-Za-z0-9_-]*'''
+tags = ["jwt", "token"]
+
+[[rules]]
+description = "Database Connection String"
+id = "db-connection"
+regex = '''(?i)(database_url|db_url)\s*[=:]\s*['\"]?[a-z]+://[^\s'"]+['\"]?'''
+tags = ["database", "connection"]
+
+[[rules]]
+description = "Private Keys"
+id = "private-key"
+regex = '''-----BEGIN [A-Z ]+ PRIVATE KEY-----'''
+tags = ["private", "key"]
+
+[allowlist]
+description = "Allowlist for development files"
+files = [
+    '''\.env\.example$''',
+    '''\.env\.template$''',
+    '''jest\.config\.js$''',
+    '''jest\.setup\.js$''',
+]
+
+paths = [
+    '''node_modules/''',
+    '''\.git/''',
+    '''dist/''',
+    '''build/''',
+    '''coverage/''',
+]
+
+# Allow example/template values
+regexes = [
+    '''changeme''',
+    '''example''',
+    '''demo''',
+    '''test''',
+    '''placeholder''',
+    '''your-key-here''',
+    '''YOUR_.*_HERE''',
+]

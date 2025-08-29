@@ -1,0 +1,28 @@
+name: Security Scanning
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Clear Gitleaks cache
+        run: rm -rf ~/.cache/gitleaks
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v3.6.0
+        with:
+          config-path: .gitleaks.toml
+          redact: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
