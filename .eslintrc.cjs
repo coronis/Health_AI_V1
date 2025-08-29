@@ -2,16 +2,13 @@ module.exports = {
   root: true,
   extends: [
     'eslint:recommended',
-    '@typescript-eslint/recommended',
-    '@typescript-eslint/recommended-requiring-type-checking',
+    'plugin:@typescript-eslint/recommended',
     'prettier',
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
-    project: ['./tsconfig.base.json', './apps/*/tsconfig.json', './services/*/tsconfig.json', './packages/*/tsconfig.json'],
-    tsconfigRootDir: __dirname,
   },
   plugins: ['@typescript-eslint', 'import', 'security'],
   ignorePatterns: [
@@ -42,8 +39,6 @@ module.exports = {
         alphabetize: { order: 'asc', caseInsensitive: true },
       },
     ],
-    'import/no-duplicate-imports': 'error',
-    'import/no-unresolved': 'off', // Handled by TypeScript
     
     // Security rules
     'security/detect-object-injection': 'warn',

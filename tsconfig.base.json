@@ -37,12 +37,5 @@
       "@healthcoach/notifications/*": ["./packages/notifications/src/*"]
     }
   },
-  "exclude": [
-    "node_modules",
-    "dist",
-    "build",
-    ".next",
-    "coverage",
-    "*.tsbuildinfo"
-  ]
+  "exclude": ["node_modules", "dist", "build", ".next", "coverage", "*.tsbuildinfo"]
 }

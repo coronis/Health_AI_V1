@@ -1,0 +1,41 @@
+{
+  "name": "@healthcoach/backend",
+  "version": "1.0.0",
+  "description": "Main backend service for HealthCoachAI",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "nest build",
+    "dev": "nest start --watch",
+    "start": "node dist/main",
+    "start:prod": "node dist/main",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@nestjs/core": "^10.0.0",
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/config": "^3.0.0",
+    "@nestjs/typeorm": "^10.0.0",
+    "@nestjs/jwt": "^10.0.0",
+    "@nestjs/passport": "^10.0.0",
+    "@nestjs/swagger": "^7.1.0",
+    "@healthcoach/shared": "workspace:*",
+    "typeorm": "^0.3.0",
+    "pg": "^8.11.0",
+    "redis": "^4.6.0",
+    "helmet": "^7.1.0",
+    "rate-limiter-flexible": "^3.0.0"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^10.0.0",
+    "@nestjs/testing": "^10.0.0",
+    "@types/pg": "^8.10.0",
+    "supertest": "^6.3.0"
+  }
+}
