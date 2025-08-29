@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { ValidationPipe, VersioningType, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
@@ -104,14 +104,18 @@ async function bootstrap(): Promise<void> {
   app.enableShutdownHooks();
 
   await app.listen(port);
-  console.log(`🚀 HealthCoachAI API is running on: http://localhost:${port}`);
+
+  // Use logger instead of console for proper logging
+  const logger = app.get(Logger);
+  logger.log(`🚀 HealthCoachAI API is running on: http://localhost:${port}`, 'Bootstrap');
 
   if (nodeEnv === 'development') {
-    console.log(`📚 API Documentation: http://localhost:${port}/api-docs`);
+    logger.log(`📚 API Documentation: http://localhost:${port}/api-docs`, 'Bootstrap');
   }
 }
 
 bootstrap().catch(error => {
-  console.error('❌ Error starting application:', error);
+  const logger = new Logger('Bootstrap');
+  logger.error('❌ Error starting application:', error);
   process.exit(1);
 });

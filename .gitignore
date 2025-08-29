@@ -372,7 +372,7 @@ pids
 # Package Managers and Dependencies
 # =============================================================================
 
-# Node.js (if any)
+# Node.js and TypeScript
 node_modules/
 npm-debug.log*
 yarn-debug.log*
@@ -380,6 +380,22 @@ yarn-error.log*
 .npm
 .eslintcache
 .yarn-integrity
+
+# TypeScript build outputs
+*.js
+*.js.map
+*.d.ts
+*.d.ts.map
+*.tsbuildinfo
+dist/
+build/
+
+# Exception: keep JavaScript config files
+!*.config.js
+!.eslintrc.cjs
+!jest.config.js
+!webpack.config.js
+!rollup.config.js
 
 # Ruby (for Fastlane)
 .bundle/
