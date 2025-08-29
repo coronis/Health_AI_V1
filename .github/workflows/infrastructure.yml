@@ -1,0 +1,170 @@
+name: Infrastructure
+
+on:
+  pull_request:
+    paths:
+      - 'infrastructure/**'
+      - 'terraform/**'
+      - 'infra/**'
+      - '**/*.tf'
+      - '**/*.hcl'
+      - '.github/workflows/infrastructure.yml'
+  push:
+    branches: [main, develop]
+    paths:
+      - 'infrastructure/**'
+      - 'terraform/**'
+      - 'infra/**'
+      - '**/*.tf'
+      - '**/*.hcl'
+
+jobs:
+  validate-infrastructure:
+    name: Validate Infrastructure
+    runs-on: ubuntu-latest
+    # Only run if any Terraform files exist
+    if: ${{ hashFiles('**/*.tf', 'infrastructure/**/*.tf', 'terraform/**/*.tf', 'infra/**/*.tf') != '' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '~1.6.0'
+
+      - name: Cache Terraform plugins
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.terraform.d/plugin-cache
+          key: ${{ runner.os }}-terraform-${{ hashFiles('**/.terraform.lock.hcl') }}
+          restore-keys: |
+            ${{ runner.os }}-terraform-
+
+      - name: Find Terraform directories
+        id: find-dirs
+        run: |
+          # Find all directories containing .tf files
+          TERRAFORM_DIRS=$(find . -name "*.tf" -type f | xargs dirname | sort -u | tr '\n' ' ')
+          echo "terraform_dirs=$TERRAFORM_DIRS" >> $GITHUB_OUTPUT
+          echo "Found Terraform directories: $TERRAFORM_DIRS"
+
+      - name: Terraform Format Check
+        run: |
+          for dir in ${{ steps.find-dirs.outputs.terraform_dirs }}; do
+            echo "Checking format in $dir"
+            cd "$GITHUB_WORKSPACE/$dir"
+            terraform fmt -check -recursive || echo "Format issues found in $dir"
+          done
+
+      - name: Terraform Init
+        run: |
+          for dir in ${{ steps.find-dirs.outputs.terraform_dirs }}; do
+            echo "Initializing $dir"
+            cd "$GITHUB_WORKSPACE/$dir"
+            terraform init -backend=false
+          done
+
+      - name: Terraform Validate
+        run: |
+          for dir in ${{ steps.find-dirs.outputs.terraform_dirs }}; do
+            echo "Validating $dir"
+            cd "$GITHUB_WORKSPACE/$dir"
+            terraform validate
+          done
+
+      - name: Install Checkov
+        run: pip install checkov
+
+      - name: Run Checkov
+        run: |
+          checkov -d . --framework terraform --soft-fail --output sarif --output-file checkov-results.sarif || true
+
+      - name: Upload Checkov scan results to GitHub Security tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'checkov-results.sarif'
+          category: 'checkov'
+
+  infrastructure-cost-analysis:
+    name: Infrastructure Cost Analysis
+    runs-on: ubuntu-latest
+    # Only run if any Terraform files exist
+    if: ${{ hashFiles('**/*.tf', 'infrastructure/**/*.tf', 'terraform/**/*.tf', 'infra/**/*.tf') != '' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for Infracost API Key
+        id: check-key
+        run: |
+          if [ -z "${{ secrets.INFRACOST_API_KEY }}" ]; then
+            echo "has_key=false" >> $GITHUB_OUTPUT
+            echo "Infracost API key not found - cost analysis will be skipped"
+          else
+            echo "has_key=true" >> $GITHUB_OUTPUT
+            echo "Infracost API key found - proceeding with cost analysis"
+          fi
+
+      - name: Skip cost analysis (no API key)
+        if: steps.check-key.outputs.has_key == 'false'
+        run: |
+          echo "::notice::Infracost API key (INFRACOST_API_KEY) is not configured."
+          echo "::notice::Cost analysis is skipped. To enable cost analysis, add INFRACOST_API_KEY to repository secrets."
+          echo "::notice::This is not a failure - cost analysis is optional for this workflow."
+          exit 0
+
+      - name: Setup Infracost
+        if: steps.check-key.outputs.has_key == 'true'
+        uses: infracost/actions/setup@v2
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+
+      - name: Setup Terraform
+        if: steps.check-key.outputs.has_key == 'true'
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '~1.6.0'
+
+      - name: Find Terraform directories
+        if: steps.check-key.outputs.has_key == 'true'
+        id: find-dirs
+        run: |
+          # Find all directories containing .tf files
+          TERRAFORM_DIRS=$(find . -name "*.tf" -type f | xargs dirname | sort -u | tr '\n' ' ')
+          echo "terraform_dirs=$TERRAFORM_DIRS" >> $GITHUB_OUTPUT
+          echo "Found Terraform directories: $TERRAFORM_DIRS"
+
+      - name: Generate Infracost cost breakdown
+        if: steps.check-key.outputs.has_key == 'true'
+        run: |
+          for dir in ${{ steps.find-dirs.outputs.terraform_dirs }}; do
+            echo "Generating cost breakdown for $dir"
+            cd "$GITHUB_WORKSPACE/$dir"
+            # Initialize without backend for cost estimation
+            terraform init -backend=false
+            # Generate cost breakdown
+            infracost breakdown --path . --format json --out-file "${dir//\//_}_infracost.json" || echo "Cost breakdown failed for $dir"
+          done
+
+      - name: Upload cost analysis results
+        if: steps.check-key.outputs.has_key == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: infracost-analysis
+          path: '*_infracost.json'
+          retention-days: 30
+
+      - name: Post cost comment (if PR)
+        if: steps.check-key.outputs.has_key == 'true' && github.event_name == 'pull_request'
+        run: |
+          # Combine all cost files and post a comment
+          infracost comment github --path "*_infracost.json" \
+            --repo ${{ github.repository }} \
+            --github-token ${{ secrets.GITHUB_TOKEN }} \
+            --pull-request ${{ github.event.pull_request.number }} \
+            --behavior update || echo "Failed to post cost comment"

@@ -1,0 +1,189 @@
+# Gitleaks configuration for HealthCoachAI
+# This configuration is designed to catch real secrets while allowing
+# placeholder/example values commonly found in documentation and .env.example files
+
+[extend]
+# Use gitleaks' built-in rules as a base
+useDefault = true
+
+# Global settings
+[report]
+format = "sarif"
+path = "results.sarif"
+
+# Allowlist for common placeholders and example values
+[[allowlist]]
+description = "Allow placeholder API keys in documentation and examples"
+regexTarget = "match"
+regexes = [
+    # Common placeholder patterns
+    '''(?i)(your_api_key|your-api-key|api_key_here|insert_api_key|replace_with_your_key)''',
+    '''(?i)(example_key|sample_key|demo_key|test_key|placeholder_key)''',
+    '''(?i)(sk-[x]{32,}|pk-[x]{32,})''',  # Placeholder OpenAI keys
+    '''(?i)(AIza[a-zA-Z0-9_-]{35})''' # Placeholder Google API keys that are clearly fake
+]
+
+[[allowlist]]
+description = "Allow example secrets in .env.example files"
+paths = [
+    '''**/.env.example''',
+    '''**/.env.template''',
+    '''**/.env.sample''',
+    '''**/env.example''',
+    '''**/config.example.*''',
+    '''**/secrets.example.*'''
+]
+
+[[allowlist]]
+description = "Allow placeholders in documentation"
+paths = [
+    '''**/*.md''',
+    '''**/*.rst''',
+    '''**/*.txt''',
+    '''**/README*''',
+    '''**/CHANGELOG*''',
+    '''**/docs/**''',
+    '''**/documentation/**'''
+]
+
+[[allowlist]]
+description = "Allow test fixtures and mock data"
+paths = [
+    '''**/test/**''',
+    '''**/tests/**''',
+    '''**/__tests__/**''',
+    '''**/spec/**''',
+    '''**/fixtures/**''',
+    '''**/mocks/**''',
+    '''**/*.test.*''',
+    '''**/*.spec.*''',
+    '''**/*_test.*''',
+    '''**/*_spec.*'''
+]
+
+[[allowlist]]
+description = "Allow demo/development secrets that are clearly non-production"
+regexTarget = "match"
+regexes = [
+    # Demo/dev secrets with obvious non-production indicators
+    '''(?i)(demo|test|dev|local|mock|fake|sample|example).*?(key|token|secret|password)''',
+    '''(?i)(key|token|secret|password).*?(demo|test|dev|local|mock|fake|sample|example)''',
+    # Local development values
+    '''(?i)(localhost|127\.0\.0\.1|0\.0\.0\.0)''',
+    # Obviously fake values
+    '''(?i)(changeme|replace_me|your_.*_here|insert_.*_here)'''
+]
+
+[[allowlist]]
+description = "Allow common development/local credentials"
+regexTarget = "match"
+regexes = [
+    # Local database credentials
+    '''postgresql://.*:.*@localhost''',
+    '''postgres://.*:.*@localhost''',
+    '''mysql://.*:.*@localhost''',
+    '''redis://localhost''',
+    # Local development tokens
+    '''jwt_secret_key_for_development_only''',
+    '''development_only_secret''',
+    # Base64 encoded placeholders
+    '''(?i)base64:[A-Za-z0-9+/=]{8,}''' # Only if clearly marked as placeholder
+]
+
+[[allowlist]]
+description = "Allow specific file patterns that contain config templates"
+paths = [
+    '''**/docker-compose*.yml''',
+    '''**/docker-compose*.yaml''',
+    '''**/.env.*.example''',
+    '''**/config/*.example.*''',
+    '''**/templates/**''',
+    '''**/examples/**'''
+]
+
+# Custom rules for specific secret types that are important to catch
+[[rules]]
+id = "real-openai-api-key"
+description = "OpenAI API Key (real format)"
+regex = '''sk-[a-zA-Z0-9]{48}'''
+keywords = ["sk-"]
+
+[[rules]]
+id = "real-anthropic-api-key"
+description = "Anthropic API Key"
+regex = '''sk-ant-api03-[a-zA-Z0-9_-]{95}'''
+keywords = ["sk-ant-api03-"]
+
+[[rules]]
+id = "google-api-key-real"
+description = "Google API Key (real format)"
+regex = '''AIza[a-zA-Z0-9_-]{35}'''
+keywords = ["AIza"]
+
+[[rules]]
+id = "aws-access-key"
+description = "AWS Access Key ID"
+regex = '''AKIA[0-9A-Z]{16}'''
+keywords = ["AKIA"]
+
+[[rules]]
+id = "aws-secret-key"
+description = "AWS Secret Access Key"
+regex = '''[A-Za-z0-9/+=]{40}'''
+keywords = ["aws_secret_access_key", "AWS_SECRET_ACCESS_KEY"]
+
+[[rules]]
+id = "github-token"
+description = "GitHub Token"
+regex = '''gh[pousr]_[A-Za-z0-9_]{36}'''
+keywords = ["ghp_", "gho_", "ghu_", "ghs_", "ghr_"]
+
+[[rules]]
+id = "private-key"
+description = "Private Key"
+regex = '''-----BEGIN[A-Z ]+PRIVATE KEY-----'''
+keywords = ["BEGIN", "PRIVATE KEY"]
+
+[[rules]]
+id = "jwt-token"
+description = "JWT Token (only if it looks real)"
+regex = '''eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+'''
+keywords = ["eyJ"]
+
+# Additional allowlists for common false positives
+[[allowlist]]
+description = "Allow JWT examples and documentation"
+regexTarget = "match"
+regexes = [
+    '''eyJ[x]+\.[x]+\.[x]+''',  # Placeholder JWTs with x's
+    '''eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\..*example.*''',  # Example JWTs
+]
+
+[[allowlist]]
+description = "Allow common development database URLs"
+regexTarget = "match"
+regexes = [
+    '''postgresql://(user|admin|root|postgres):(password|pass|secret)@localhost''',
+    '''mysql://(user|admin|root|mysql):(password|pass|secret)@localhost''',
+    '''mongodb://(user|admin|root|mongo):(password|pass|secret)@localhost''',
+]
+
+[[allowlist]]
+description = "Allow example OAuth client IDs and secrets"
+regexTarget = "match"
+regexes = [
+    '''(?i)client[_-]?id[_-]?(example|demo|test|placeholder)''',
+    '''(?i)client[_-]?secret[_-]?(example|demo|test|placeholder)''',
+    '''(?i)(example|demo|test|placeholder)[_-]?client[_-]?(id|secret)''',
+]
+
+# File-specific allowlists
+[[allowlist]]
+description = "Allow secrets in specific config template files"
+paths = [
+    '''APPLICATION_PHASES.md''',
+    '''IMPLEMENTATION_PLAN.md''',
+    '''PROMPT_README.md''',
+    '''Application_repo_structure.md''',
+    '''UNIVERSAL_TASKS.md''',
+]

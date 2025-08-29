@@ -1,0 +1,118 @@
+name: Backend CI/CD
+
+on:
+  pull_request:
+    paths:
+      - 'apps/backend/**'
+      - 'packages/backend/**'
+      - 'backend/**'
+      - 'server/**'
+      - 'services/backend/**'
+      - 'workers/**'
+      - 'packages/**'
+      - 'libs/**'
+      - '.github/workflows/backend-ci.yml'
+  push:
+    branches: [main, develop]
+    paths:
+      - 'apps/backend/**'
+      - 'packages/backend/**'
+      - 'backend/**'
+      - 'server/**'
+      - 'services/backend/**'
+      - 'workers/**'
+      - 'packages/**'
+      - 'libs/**'
+
+jobs:
+  lint-test-security:
+    name: Lint, Test & Security Scan
+    runs-on: ubuntu-latest
+    # Only run if any backend package.json files exist
+    if: ${{ hashFiles('apps/backend/**/package.json', 'packages/backend/**/package.json', 'backend/**/package.json', 'server/**/package.json', 'services/backend/**/package.json', 'workers/**/package.json') != '' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        env:
+          PRISMA_SKIP_POSTINSTALL_GENERATE: true
+
+      - name: Generate Prisma client
+        run: |
+          if find . -name "schema.prisma" -type f | grep -q .; then
+            echo "Found Prisma schema files, generating client..."
+            pnpm exec prisma generate
+          else
+            echo "No Prisma schema files found, skipping generation"
+          fi
+
+      - name: Lint
+        run: pnpm -r --if-present lint
+
+      - name: Build
+        run: pnpm -r --if-present build
+
+      - name: Test
+        run: pnpm -r --if-present test
+
+      - name: Security Scan with Snyk
+        if: ${{ vars.SNYK_ENABLED == 'true' && secrets.SNYK_TOKEN != '' }}
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+
+  secret-scanning:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    # Run secret scanning regardless of backend files presence
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+        with:
+          config-path: .gitleaks.toml
+
+      - name: Upload SARIF results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
+          category: gitleaks

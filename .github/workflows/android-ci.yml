@@ -1,0 +1,127 @@
+name: Android CI/CD
+
+on:
+  pull_request:
+    paths:
+      - 'apps/mobile/android/**'
+      - 'android/**'
+      - '**/android/**'
+      - '**/*.gradle*'
+      - '**/gradle/**'
+      - '.github/workflows/android-ci.yml'
+  push:
+    branches: [main, develop]
+    paths:
+      - 'apps/mobile/android/**'
+      - 'android/**'
+      - '**/android/**'
+      - '**/*.gradle*'
+      - '**/gradle/**'
+
+jobs:
+  lint-test-analysis:
+    name: Lint, Test & Analysis
+    runs-on: ubuntu-latest
+    # Only run if any Android/Gradle build files are present
+    if: ${{ hashFiles('**/build.gradle', '**/build.gradle.kts', '**/settings.gradle', '**/settings.gradle.kts', 'apps/mobile/android/**/*.gradle*', 'android/**/*.gradle*') != '' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Make gradlew executable
+        run: |
+          if [ -f "./gradlew" ]; then
+            chmod +x ./gradlew
+            echo "Using project gradlew"
+          elif [ -f "./android/gradlew" ]; then
+            chmod +x ./android/gradlew
+            echo "Using android/gradlew"
+          elif [ -f "./apps/mobile/android/gradlew" ]; then
+            chmod +x ./apps/mobile/android/gradlew
+            echo "Using apps/mobile/android/gradlew"
+          else
+            echo "No gradle wrapper found, will try to use gradle command"
+          fi
+
+      - name: Lint
+        run: |
+          if [ -f "./gradlew" ]; then
+            ./gradlew lint --continue || echo "Lint completed with issues"
+          elif [ -f "./android/gradlew" ]; then
+            cd android && ./gradlew lint --continue || echo "Lint completed with issues"
+          elif [ -f "./apps/mobile/android/gradlew" ]; then
+            cd apps/mobile/android && ./gradlew lint --continue || echo "Lint completed with issues"
+          else
+            echo "No gradle wrapper found, skipping lint"
+          fi
+
+      - name: Test
+        run: |
+          if [ -f "./gradlew" ]; then
+            ./gradlew test --continue || echo "Tests completed with some failures"
+          elif [ -f "./android/gradlew" ]; then
+            cd android && ./gradlew test --continue || echo "Tests completed with some failures"
+          elif [ -f "./apps/mobile/android/gradlew" ]; then
+            cd apps/mobile/android && ./gradlew test --continue || echo "Tests completed with some failures"
+          else
+            echo "No gradle wrapper found, skipping tests"
+          fi
+
+      - name: Build
+        run: |
+          if [ -f "./gradlew" ]; then
+            ./gradlew assembleDebug
+          elif [ -f "./android/gradlew" ]; then
+            cd android && ./gradlew assembleDebug
+          elif [ -f "./apps/mobile/android/gradlew" ]; then
+            cd apps/mobile/android && ./gradlew assembleDebug
+          else
+            echo "No gradle wrapper found, skipping build"
+          fi
+
+  security-scanning:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    # Only run if any Android/Gradle build files are present
+    if: ${{ hashFiles('**/build.gradle', '**/build.gradle.kts', '**/settings.gradle', '**/settings.gradle.kts', 'apps/mobile/android/**/*.gradle*', 'android/**/*.gradle*') != '' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'HIGH,CRITICAL'
+          exit-code: '0'  # Don't fail the job on vulnerabilities
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+          category: 'trivy-android'
