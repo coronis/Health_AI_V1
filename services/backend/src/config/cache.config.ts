@@ -1,5 +1,5 @@
 import { CacheModuleOptions } from '@nestjs/cache-manager';
-import { ConfigService } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as redisStore from 'cache-manager-redis-store';
 
 export const getCacheConfig = (configService: ConfigService): CacheModuleOptions => {

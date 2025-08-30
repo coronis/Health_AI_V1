@@ -1,8 +1,6 @@
 import {
   Controller,
   Get,
-  Post,
-  Body,
   Param,
   Query,
   ParseUUIDPipe,
@@ -70,7 +68,7 @@ export class HealthReportsController {
   ) {
     const maxLimit = Math.min(limit, 50);
     this.logger.log(`Getting health reports: page=${page}, limit=${maxLimit}`);
-    
+
     return this.healthReportsService.findAll(page, maxLimit, type, status);
   }
 

@@ -56,9 +56,7 @@ export class UsersController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Invalid input data',
   })
-  async create(
-    @Body(ValidationPipe) createUserDto: CreateUserDto,
-  ): Promise<UserResponseDto> {
+  async create(@Body(ValidationPipe) createUserDto: CreateUserDto): Promise<UserResponseDto> {
     this.logger.log(`Creating user: ${createUserDto.email}`);
     return this.usersService.create(createUserDto);
   }
@@ -96,7 +94,7 @@ export class UsersController {
   ): Promise<UsersListResponseDto> {
     // Limit the maximum page size
     const maxLimit = Math.min(limit, 100);
-    
+
     this.logger.log(`Getting users: page=${page}, limit=${maxLimit}, status=${status}`);
     return this.usersService.findAll(page, maxLimit, status);
   }
@@ -111,7 +109,7 @@ export class UsersController {
   @ApiBearerAuth()
   async getStats(): Promise<UserStatsDto> {
     this.logger.log('Getting user statistics');
-    
+
     const [activeUsers, usersCreatedToday, { total: totalUsers }] = await Promise.all([
       this.usersService.getActiveUsersCount(),
       this.usersService.getUsersCreatedToday(),
@@ -142,9 +140,7 @@ export class UsersController {
     description: 'User not found',
   })
   @ApiBearerAuth()
-  async findOne(
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<UserResponseDto> {
+  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<UserResponseDto> {
     this.logger.log(`Getting user: ${id}`);
     return this.usersService.findOne(id);
   }
@@ -215,9 +211,7 @@ export class UsersController {
     status: HttpStatus.NOT_FOUND,
     description: 'User not found',
   })
-  async verifyEmail(
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<UserResponseDto> {
+  async verifyEmail(@Param('id', ParseUUIDPipe) id: string): Promise<UserResponseDto> {
     this.logger.log(`Verifying email for user: ${id}`);
     return this.usersService.verifyEmail(id);
   }

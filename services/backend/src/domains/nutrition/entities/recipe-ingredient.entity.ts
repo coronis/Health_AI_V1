@@ -8,7 +8,7 @@ export enum IngredientUnit {
   KILOGRAM = 'kg',
   OUNCE = 'oz',
   POUND = 'lb',
-  
+
   // Volume
   MILLILITER = 'ml',
   LITER = 'l',
@@ -16,18 +16,18 @@ export enum IngredientUnit {
   TABLESPOON = 'tbsp',
   TEASPOON = 'tsp',
   FLUID_OUNCE = 'fl_oz',
-  
+
   // Count
   PIECE = 'piece',
   SLICE = 'slice',
   CLOVE = 'clove',
   BUNCH = 'bunch',
-  
+
   // Indian measurements
   KATORI = 'katori', // Small bowl
   BOWL = 'bowl',
   PINCH = 'pinch',
-  
+
   // Spoons (Indian style)
   CHOTI_CHAMMACH = 'choti_chammach', // Teaspoon
   BADI_CHAMMACH = 'badi_chammach', // Tablespoon

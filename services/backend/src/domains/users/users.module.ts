@@ -10,24 +10,9 @@ import { UserProfilesService } from './services/user-profiles.service';
 import { UserConsentsService } from './services/user-consents.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      User,
-      UserProfile,
-      UserConsent,
-      UserIdentity,
-    ]),
-  ],
+  imports: [TypeOrmModule.forFeature([User, UserProfile, UserConsent, UserIdentity])],
   controllers: [UsersController],
-  providers: [
-    UsersService,
-    UserProfilesService,
-    UserConsentsService,
-  ],
-  exports: [
-    UsersService,
-    UserProfilesService,
-    UserConsentsService,
-  ],
+  providers: [UsersService, UserProfilesService, UserConsentsService],
+  exports: [UsersService, UserProfilesService, UserConsentsService],
 })
 export class UsersModule {}

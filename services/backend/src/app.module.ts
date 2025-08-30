@@ -24,20 +24,20 @@ import { USDAApiClient } from './external/usda/usda-api.client';
       envFilePath: ['.env.local', '.env'],
       cache: true,
     }),
-    
+
     // Database configuration
     TypeOrmModule.forRootAsync({
       useFactory: (configService: ConfigService) => getDatabaseConfig(configService),
       inject: [ConfigService],
     }),
-    
+
     // Cache configuration
     CacheModule.registerAsync({
       isGlobal: true,
       useFactory: (configService: ConfigService) => getCacheConfig(configService),
       inject: [ConfigService],
     }),
-    
+
     // Rate limiting
     ThrottlerModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
@@ -50,10 +50,10 @@ import { USDAApiClient } from './external/usda/usda-api.client';
       }),
       inject: [ConfigService],
     }),
-    
+
     // Health check module
     HealthModule,
-    
+
     // Domain modules
     UsersModule,
     HealthDomainModule,

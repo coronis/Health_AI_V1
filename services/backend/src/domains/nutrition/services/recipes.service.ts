@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Recipe, DietType, CuisineType, MealType } from '../entities/recipe.entity';
 import { USDAApiClient } from '../../../external/usda/usda-api.client';
 
-interface RecipeFilters {
+export interface RecipeFilters {
   diet?: DietType;
   cuisine?: CuisineType;
   meal?: MealType;
@@ -21,11 +21,7 @@ export class RecipesService {
     private readonly usdaClient: USDAApiClient,
   ) {}
 
-  async findAll(
-    page: number = 1,
-    limit: number = 10,
-    filters: RecipeFilters = {},
-  ) {
+  async findAll(page: number = 1, limit: number = 10, filters: RecipeFilters = {}) {
     const skip = (page - 1) * limit;
     const queryBuilder = this.recipesRepository
       .createQueryBuilder('recipe')
@@ -50,7 +46,7 @@ export class RecipesService {
     if (filters.search) {
       queryBuilder.andWhere(
         '(recipe.name ILIKE :search OR recipe.description ILIKE :search OR recipe.searchKeywords ILIKE :search)',
-        { search: `%${filters.search}%` }
+        { search: `%${filters.search}%` },
       );
     }
 
@@ -84,7 +80,7 @@ export class RecipesService {
 
   async getNutrition(id: string) {
     const recipe = await this.findOne(id);
-    
+
     return {
       recipeId: recipe.id,
       recipeName: recipe.name,
@@ -109,7 +105,7 @@ export class RecipesService {
 
   async searchUSDAFoods(query: string) {
     this.logger.log(`Searching USDA foods for: ${query}`);
-    
+
     try {
       const result = await this.usdaClient.searchFoods({
         query,
@@ -125,7 +121,7 @@ export class RecipesService {
 
   async getFeaturedRecipes(limit: number = 10) {
     return this.recipesRepository.find({
-      where: { 
+      where: {
         isActive: true,
         isFeatured: true,
       },
@@ -137,7 +133,7 @@ export class RecipesService {
   async getPopularRecipes(limit: number = 10) {
     return this.recipesRepository.find({
       where: { isActive: true },
-      order: { 
+      order: {
         viewCount: 'DESC',
         rating: 'DESC',
       },

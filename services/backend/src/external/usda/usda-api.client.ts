@@ -1,13 +1,9 @@
 import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
-import { plainToClass, Transform } from 'class-transformer';
+import { plainToClass } from 'class-transformer';
 import { validate, ValidationError } from 'class-validator';
-import {
-  USDAFoodDto,
-  USDASearchResultDto,
-  USDASearchCriteriaDto,
-} from '../dto/usda.dto';
+import { USDAFoodDto, USDASearchResultDto, USDASearchCriteriaDto } from '../dto/usda.dto';
 
 export interface USDAClientConfig {
   apiKey: string;
@@ -62,9 +58,9 @@ export class USDAApiClient {
     client.interceptors.request.use(
       async (config) => {
         await this.checkRateLimit();
-        
+
         this.logger.debug(`USDA API Request: ${config.method?.toUpperCase()} ${config.url}`);
-        
+
         // Add API key to params
         config.params = {
           ...config.params,
@@ -86,7 +82,10 @@ export class USDAApiClient {
         return response;
       },
       (error: AxiosError) => {
-        this.logger.error(`USDA API Error: ${error.response?.status} ${error.config?.url}`, error.message);
+        this.logger.error(
+          `USDA API Error: ${error.response?.status} ${error.config?.url}`,
+          error.message,
+        );
         return Promise.reject(this.transformError(error));
       },
     );
@@ -96,7 +95,7 @@ export class USDAApiClient {
 
   private async checkRateLimit(): Promise<void> {
     const now = Date.now();
-    
+
     // Reset window if expired
     if (now - this.windowStart >= this.config.rateLimit.windowMs) {
       this.requestCount = 0;
@@ -118,19 +117,28 @@ export class USDAApiClient {
   private transformError(error: AxiosError): HttpException {
     if (error.response) {
       const status = error.response.status;
-      const message = error.response.data?.message || error.message;
-      
+      const message = (error.response.data as any)?.message || error.message;
+
       switch (status) {
         case 400:
           return new HttpException(`USDA API Bad Request: ${message}`, HttpStatus.BAD_REQUEST);
         case 401:
-          return new HttpException('USDA API Unauthorized: Invalid API key', HttpStatus.UNAUTHORIZED);
+          return new HttpException(
+            'USDA API Unauthorized: Invalid API key',
+            HttpStatus.UNAUTHORIZED,
+          );
         case 403:
-          return new HttpException('USDA API Forbidden: API key quota exceeded', HttpStatus.FORBIDDEN);
+          return new HttpException(
+            'USDA API Forbidden: API key quota exceeded',
+            HttpStatus.FORBIDDEN,
+          );
         case 404:
           return new HttpException('USDA API Not Found: Resource not found', HttpStatus.NOT_FOUND);
         case 429:
-          return new HttpException('USDA API Rate Limited: Too many requests', HttpStatus.TOO_MANY_REQUESTS);
+          return new HttpException(
+            'USDA API Rate Limited: Too many requests',
+            HttpStatus.TOO_MANY_REQUESTS,
+          );
         default:
           return new HttpException(`USDA API Error: ${message}`, HttpStatus.BAD_GATEWAY);
       }
@@ -147,10 +155,7 @@ export class USDAApiClient {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  private async retryRequest<T>(
-    operation: () => Promise<T>,
-    retryCount = 0,
-  ): Promise<T> {
+  private async retryRequest<T>(operation: () => Promise<T>, retryCount = 0): Promise<T> {
     try {
       return await operation();
     } catch (error) {
@@ -160,25 +165,24 @@ export class USDAApiClient {
 
       // Calculate exponential backoff delay
       const delay = this.config.retryDelay * Math.pow(2, retryCount);
-      this.logger.warn(`USDA API request failed, retrying in ${delay}ms (attempt ${retryCount + 1}/${this.config.maxRetries})`);
-      
+      this.logger.warn(
+        `USDA API request failed, retrying in ${delay}ms (attempt ${retryCount + 1}/${this.config.maxRetries})`,
+      );
+
       await this.sleep(delay);
       return this.retryRequest(operation, retryCount + 1);
     }
   }
 
-  private async validateAndTransform<T>(
-    data: any,
-    dtoClass: new () => T,
-  ): Promise<T> {
+  private async validateAndTransform<T>(data: any, dtoClass: new () => T): Promise<T> {
     const dto = plainToClass(dtoClass, data);
     const errors = await validate(dto as any);
-    
+
     if (errors.length > 0) {
-      const errorMessages = errors.map((error: ValidationError) => 
-        Object.values(error.constraints || {}).join(', ')
-      ).join('; ');
-      
+      const errorMessages = errors
+        .map((error: ValidationError) => Object.values(error.constraints || {}).join(', '))
+        .join('; ');
+
       this.logger.error(`USDA API validation error: ${errorMessages}`);
       throw new HttpException(
         `Invalid USDA API response format: ${errorMessages}`,
@@ -249,9 +253,7 @@ export class USDAApiClient {
         throw new HttpException('Invalid USDA API response format', HttpStatus.BAD_GATEWAY);
       }
 
-      return Promise.all(
-        response.data.map((food) => this.validateAndTransform(food, USDAFoodDto))
-      );
+      return Promise.all(response.data.map((food) => this.validateAndTransform(food, USDAFoodDto)));
     });
   }
 
@@ -283,9 +285,7 @@ export class USDAApiClient {
         throw new HttpException('Invalid USDA API response format', HttpStatus.BAD_GATEWAY);
       }
 
-      return Promise.all(
-        response.data.map((food) => this.validateAndTransform(food, USDAFoodDto))
-      );
+      return Promise.all(response.data.map((food) => this.validateAndTransform(food, USDAFoodDto)));
     });
   }
 

@@ -7,7 +7,6 @@ import { USDASearchCriteriaDto, USDAFoodDto, USDASearchResultDto } from '../dto/
 
 describe('USDAApiClient', () => {
   let client: USDAApiClient;
-  let configService: ConfigService;
   let module: TestingModule;
 
   const mockConfig = {
@@ -63,7 +62,7 @@ describe('USDAApiClient', () => {
     }).compile();
 
     client = module.get<USDAApiClient>(USDAApiClient);
-    configService = module.get<ConfigService>(ConfigService);
+    // configService is provided via module but not used directly in tests
   });
 
   afterEach(async () => {
@@ -94,10 +93,10 @@ describe('USDAApiClient', () => {
 
       const testClient = testModule.get<USDAApiClient>(USDAApiClient);
       const config = testClient.getConfig();
-      
+
       expect(config.apiKey).toBe('DEMO_KEY');
       expect(config.baseUrl).toBe('https://api.nal.usda.gov/fdc/v1');
-      
+
       await testModule.close();
     });
   });
@@ -212,7 +211,7 @@ describe('USDAApiClient', () => {
 
       nock('https://api.nal.usda.gov/fdc/v1')
         .get(`/food/${fdcId}`)
-        .query({ 
+        .query({
           api_key: 'test-api-key',
           nutrients: '1008,1003',
         })

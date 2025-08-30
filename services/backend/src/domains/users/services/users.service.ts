@@ -66,7 +66,7 @@ export class UsersService {
     const totalPages = Math.ceil(total / limit);
 
     return {
-      users: users.map(user => {
+      users: users.map((user) => {
         delete user.passwordHash;
         return user;
       }),
@@ -93,7 +93,15 @@ export class UsersService {
   async findByEmail(email: string): Promise<User | null> {
     return this.usersRepository.findOne({
       where: { email },
-      select: ['id', 'email', 'passwordHash', 'status', 'role', 'failedLoginAttempts', 'lockedUntil'],
+      select: [
+        'id',
+        'email',
+        'passwordHash',
+        'status',
+        'role',
+        'failedLoginAttempts',
+        'lockedUntil',
+      ],
     });
   }
 
@@ -121,21 +129,21 @@ export class UsersService {
     this.logger.log(`Soft deleting user with ID: ${id}`);
 
     const user = await this.findOne(id);
-    
+
     // Soft delete
     user.deletedAt = new Date();
     user.status = UserStatus.INACTIVE;
-    
+
     await this.usersRepository.save(user);
     this.logger.log(`User soft deleted successfully with ID: ${id}`);
   }
 
   async verifyEmail(id: string): Promise<User> {
     const user = await this.findOne(id);
-    
+
     user.emailVerifiedAt = new Date();
     user.status = UserStatus.ACTIVE;
-    
+
     const updatedUser = await this.usersRepository.save(user);
     delete updatedUser.passwordHash;
     return updatedUser;
@@ -143,28 +151,21 @@ export class UsersService {
 
   async lockUser(id: string, lockUntil: Date): Promise<User> {
     const user = await this.findOne(id);
-    
+
     user.lockedUntil = lockUntil;
     user.status = UserStatus.SUSPENDED;
-    
+
     const updatedUser = await this.usersRepository.save(user);
     delete updatedUser.passwordHash;
     return updatedUser;
   }
 
   async incrementFailedLoginAttempts(email: string): Promise<void> {
-    await this.usersRepository.increment(
-      { email },
-      'failedLoginAttempts',
-      1,
-    );
+    await this.usersRepository.increment({ email }, 'failedLoginAttempts', 1);
   }
 
   async resetFailedLoginAttempts(email: string): Promise<void> {
-    await this.usersRepository.update(
-      { email },
-      { failedLoginAttempts: 0 },
-    );
+    await this.usersRepository.update({ email }, { failedLoginAttempts: 0 });
   }
 
   async updateLastLogin(id: string, ipAddress?: string): Promise<void> {
@@ -190,7 +191,7 @@ export class UsersService {
   async getUsersCreatedToday(): Promise<number> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 

@@ -7,20 +7,9 @@ import { HealthReportsService } from './services/health-reports.service';
 import { StructuredEntitiesService } from './services/structured-entities.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      HealthReport,
-      StructuredEntity,
-    ]),
-  ],
+  imports: [TypeOrmModule.forFeature([HealthReport, StructuredEntity])],
   controllers: [HealthReportsController],
-  providers: [
-    HealthReportsService,
-    StructuredEntitiesService,
-  ],
-  exports: [
-    HealthReportsService,
-    StructuredEntitiesService,
-  ],
+  providers: [HealthReportsService, StructuredEntitiesService],
+  exports: [HealthReportsService, StructuredEntitiesService],
 })
 export class HealthDomainModule {}

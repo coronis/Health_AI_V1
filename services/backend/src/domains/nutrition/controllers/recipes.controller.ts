@@ -1,8 +1,6 @@
 import {
   Controller,
   Get,
-  Post,
-  Body,
   Param,
   Query,
   ParseUUIDPipe,
@@ -11,14 +9,7 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiQuery,
-  ApiParam,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiParam } from '@nestjs/swagger';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { RecipesService } from '../services/recipes.service';
 import { DietType, CuisineType, MealType } from '../entities/recipe.entity';
@@ -83,7 +74,7 @@ export class RecipesController {
   ) {
     const maxLimit = Math.min(limit, 50);
     this.logger.log(`Getting recipes: page=${page}, limit=${maxLimit}`);
-    
+
     return this.recipesService.findAll(page, maxLimit, {
       diet,
       cuisine,

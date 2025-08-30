@@ -41,7 +41,7 @@ export class UserConsent extends BaseEntity {
   status: ConsentStatus;
 
   @Column({ type: 'varchar', length: 50 })
-  version: string; // Version of the consent document
+  documentVersion: string; // Version of the consent document
 
   @Column({ type: 'timestamptz' })
   grantedAt: Date;

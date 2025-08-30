@@ -176,10 +176,7 @@ export class HealthReport extends BaseEntity {
   }
 
   needsManualReview(): boolean {
-    return (
-      this.processingStatus === ProcessingStatus.MANUAL_REVIEW ||
-      this.requiresManualReview
-    );
+    return this.processingStatus === ProcessingStatus.MANUAL_REVIEW || this.requiresManualReview;
   }
 
   getProcessingProgress(): number {
@@ -191,7 +188,7 @@ export class HealthReport extends BaseEntity {
       ProcessingStatus.INTERPRETATION_COMPLETED,
       ProcessingStatus.COMPLETED,
     ];
-    
+
     const currentIndex = statusOrder.indexOf(this.processingStatus);
     return currentIndex === -1 ? 0 : (currentIndex / (statusOrder.length - 1)) * 100;
   }

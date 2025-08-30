@@ -9,21 +9,9 @@ import { RecipesService } from './services/recipes.service';
 import { USDAApiClient } from '../../external/usda/usda-api.client';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      Recipe,
-      RecipeIngredient,
-      RecipeStep,
-      RecipeTag,
-    ]),
-  ],
+  imports: [TypeOrmModule.forFeature([Recipe, RecipeIngredient, RecipeStep, RecipeTag])],
   controllers: [RecipesController],
-  providers: [
-    RecipesService,
-    USDAApiClient,
-  ],
-  exports: [
-    RecipesService,
-  ],
+  providers: [RecipesService, USDAApiClient],
+  exports: [RecipesService],
 })
 export class NutritionModule {}

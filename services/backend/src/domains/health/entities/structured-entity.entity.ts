@@ -7,22 +7,22 @@ export enum EntityType {
   LAB_TEST = 'lab_test',
   LAB_VALUE = 'lab_value',
   BIOMARKER = 'biomarker',
-  
+
   // Medications
   MEDICATION = 'medication',
   DOSAGE = 'dosage',
   PRESCRIPTION = 'prescription',
-  
+
   // Conditions
   DIAGNOSIS = 'diagnosis',
   SYMPTOM = 'symptom',
   CONDITION = 'condition',
-  
+
   // Procedures
   PROCEDURE = 'procedure',
   TREATMENT = 'treatment',
   SURGERY = 'surgery',
-  
+
   // Vitals
   BLOOD_PRESSURE = 'blood_pressure',
   HEART_RATE = 'heart_rate',
@@ -30,7 +30,7 @@ export enum EntityType {
   WEIGHT = 'weight',
   HEIGHT = 'height',
   BMI = 'bmi',
-  
+
   // Other
   ALLERGY = 'allergy',
   VACCINATION = 'vaccination',
@@ -50,7 +50,7 @@ export enum EntityUnit {
   NG_ML = 'ng/mL',
   PG_ML = 'pg/mL',
   MCG_ML = 'mcg/mL',
-  
+
   // Vital units
   MMHG = 'mmHg',
   BPM = 'bpm',
@@ -61,7 +61,7 @@ export enum EntityUnit {
   CM = 'cm',
   INCH = 'inch',
   PERCENT = '%',
-  
+
   // Other
   NONE = 'none',
   COUNT = 'count',
@@ -200,11 +200,11 @@ export class StructuredEntity extends BaseEntity {
 
   getAbnormalSeverity(): 'MILD' | 'MODERATE' | 'SEVERE' | 'CRITICAL' | null {
     if (!this.isAbnormal || !this.isNumericValue()) return null;
-    
+
     const value = this.normalizedValue;
     const min = this.referenceMin;
     const max = this.referenceMax;
-    
+
     if (min !== null && value < min) {
       const ratio = min / value;
       if (ratio > 3) return 'CRITICAL';
@@ -212,7 +212,7 @@ export class StructuredEntity extends BaseEntity {
       if (ratio > 1.5) return 'MODERATE';
       return 'MILD';
     }
-    
+
     if (max !== null && value > max) {
       const ratio = value / max;
       if (ratio > 3) return 'CRITICAL';
@@ -220,7 +220,7 @@ export class StructuredEntity extends BaseEntity {
       if (ratio > 1.5) return 'MODERATE';
       return 'MILD';
     }
-    
+
     return null;
   }
 
@@ -239,7 +239,7 @@ export class StructuredEntity extends BaseEntity {
   // Method to get formatted value with unit
   getFormattedValue(): string {
     if (!this.isNumericValue()) return this.normalizedText || this.extractedText;
-    
+
     const value = this.normalizedValue.toString();
     return this.unit && this.unit !== EntityUnit.NONE ? `${value} ${this.unit}` : value;
   }
