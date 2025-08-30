@@ -13,6 +13,7 @@ import { AppConfigService } from './config/app-config.service';
 // Domain modules
 import { UsersModule } from './domains/users/users.module';
 import { HealthReportsModule } from './domains/health-reports/health-reports.module';
+import { NutritionModule } from './domains/nutrition/nutrition.module';
 import { ExternalApiModule } from './external-apis/external-api.module';
 
 // Entity imports for TypeORM
@@ -23,6 +24,8 @@ import { UserPreferences } from './domains/users/entities/user-preferences.entit
 import { UserGoals } from './domains/users/entities/user-goals.entity';
 import { HealthReport } from './domains/health-reports/entities/health-report.entity';
 import { StructuredEntity } from './domains/health-reports/entities/structured-entity.entity';
+import { Recipe } from './domains/nutrition/entities/recipe.entity';
+import { AIDecision } from './domains/ai-decisions/entities/ai-decision.entity';
 
 @Module({
   imports: [
@@ -51,12 +54,16 @@ import { StructuredEntity } from './domains/health-reports/entities/structured-e
           UserGoals,
           HealthReport,
           StructuredEntity,
+          Recipe,
+          AIDecision,
         ],
         synchronize: configService.get('NODE_ENV') !== 'production',
         logging: configService.get('NODE_ENV') === 'development',
         ssl: configService.get('DB_SSL', false)
           ? {
-              rejectUnauthorized: false,
+              rejectUnauthorized: configService.get('NODE_ENV') !== 'development',
+              // Only allow self-signed certificates in development
+              ca: configService.get('DB_SSL_CA'),
             }
           : false,
         // Connection pool settings
@@ -127,6 +134,7 @@ import { StructuredEntity } from './domains/health-reports/entities/structured-e
     // Domain Modules
     UsersModule,
     HealthReportsModule,
+    NutritionModule,
     ExternalApiModule,
 
     // Health Check Module
