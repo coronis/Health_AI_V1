@@ -10,6 +10,10 @@ import { AppService } from './app.service';
 import { HealthModule } from './health/health.module';
 import { AppConfigService } from './config/app-config.service';
 
+// Security and Auth modules
+import { SecurityModule } from './security/security.module';
+import { AuthModule } from './auth/auth.module';
+
 // Domain modules
 import { UsersModule } from './domains/users/users.module';
 import { HealthReportsModule } from './domains/health-reports/health-reports.module';
@@ -130,6 +134,10 @@ import { AIDecision } from './domains/ai-decisions/entities/ai-decision.entity';
       }),
       inject: [ConfigService],
     }),
+
+    // Security and Auth Modules
+    SecurityModule,
+    AuthModule,
 
     // Domain Modules
     UsersModule,
