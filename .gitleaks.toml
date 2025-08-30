@@ -18,7 +18,14 @@ regexes = [
   '''demo-key-[a-zA-Z0-9]+''',  # Demo keys with demo-key- prefix
   '''sk-demo[a-zA-Z0-9]+''',    # Demo OpenAI keys
   '''demo_[a-zA-Z0-9_]+''',     # Demo credentials with demo_ prefix
+  '''demo-[a-zA-Z0-9\-_]+''',   # Demo credentials with demo- prefix
   '''gitleaks:allow''',         # Allow inline gitleaks:allow comments
+  '''\$\{[A-Z_]+:-demo-[a-zA-Z0-9\-_]+\}''', # Environment variable with demo default
+]
+
+# Allowlist specific secrets that are safe
+secrets = [
+  "very-long-encryption-key-for-n8n-instance", # n8n demo encryption key
 ]
 
 [rules.generic-api-key]

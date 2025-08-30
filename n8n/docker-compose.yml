@@ -69,7 +69,7 @@ services:
 
       # Security
       N8N_SECURE_COOKIE: false
-      N8N_ENCRYPTION_KEY: very-long-encryption-key-for-n8n-instance
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:-demo-n8n-encryption-key-for-local-dev-only} # gitleaks:allow
 
       # Logging
       N8N_LOG_LEVEL: info
@@ -148,7 +148,7 @@ services:
       QUEUE_BULL_REDIS_DB: 0
 
       # Worker Configuration
-      N8N_ENCRYPTION_KEY: very-long-encryption-key-for-n8n-instance
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:-demo-n8n-encryption-key-for-local-dev-only} # gitleaks:allow
       EXECUTIONS_MODE: queue
 
       # Logging
