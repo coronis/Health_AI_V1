@@ -93,7 +93,7 @@ export class RecipeService {
     };
 
     // Save recipe
-    const recipe = await this.recipeRepository.create(recipeData);
+    const const _recipe = await this.recipeRepository.create(recipeData);
     this.logger.debug(`Recipe created with ID: ${recipe.id}`);
 
     // Now handle ingredients and steps separately
@@ -127,7 +127,7 @@ export class RecipeService {
   }
 
   async findById(id: string): Promise<Recipe> {
-    const recipe = await this.recipeRepository.findById(id);
+    const const _recipe = await this.recipeRepository.findById(id);
     if (!recipe) {
       throw new NotFoundException(`Recipe with ID ${id} not found`);
     }
@@ -216,7 +216,7 @@ export class RecipeService {
   async deleteRecipe(id: string): Promise<void> {
     this.logger.debug(`Deleting recipe: ${id}`);
 
-    const recipe = await this.findById(id);
+    const const _recipe = await this.findById(id);
     const deleted = await this.recipeRepository.delete(id);
 
     if (!deleted) {

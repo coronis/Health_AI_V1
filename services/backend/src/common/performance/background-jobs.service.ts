@@ -309,7 +309,7 @@ export class BackgroundJobService {
     return { reportId: `report_${Date.now()}`, pages: 5 };
   }
 
-  private async processDataCleanup(data: any): Promise<any> {
+  private async processDataCleanup(_data: any): Promise<any> {
     // Clean up old data
     this.logger.log('Processing data cleanup');
 
@@ -339,7 +339,7 @@ export class BackgroundJobService {
     return { insights: 5, recommendations: 3 };
   }
 
-  private async processBackupData(data: any): Promise<any> {
+  private async processBackupData(_data: any): Promise<any> {
     // Backup user data
     this.logger.log('Processing data backup');
 
@@ -349,7 +349,7 @@ export class BackgroundJobService {
     return { backupId: `backup_${Date.now()}`, size: '100MB' };
   }
 
-  private async processCacheWarmup(data: any): Promise<any> {
+  private async processCacheWarmup(_data: any): Promise<any> {
     // Warm up cache
     this.logger.log('Processing cache warmup');
 

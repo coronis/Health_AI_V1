@@ -123,7 +123,7 @@ describe('EnhancedNutritionService', () => {
     }).compile();
 
     service = module.get<EnhancedNutritionService>(EnhancedNutritionService);
-    mockNutritionService = module.get(NutritionCalculationService);
+    const _mockNutritionService = module.get(NutritionCalculationService);
     mockCookingService = module.get(CookingTransformationService);
     mockGlycemicService = module.get(GlycemicIndexService);
   });

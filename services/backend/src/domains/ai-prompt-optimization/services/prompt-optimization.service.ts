@@ -469,7 +469,7 @@ export class PromptOptimizationService {
   /**
    * Get fallback value for required variables
    */
-  private getFallbackValue(variable: PromptVariable, userContext: UserContext): string {
+  private getFallbackValue(variable: PromptVariable, _userContext: UserContext): string {
     if (variable.defaultValue !== undefined) {
       return String(variable.defaultValue);
     }
@@ -1048,7 +1048,7 @@ Response Hinglish mein dein aur simple language use karein.`,
       'nutrition_advice_hinglish_legacy',
     ];
 
-    for (const [id, template] of this.templates.entries()) {
+    for (const [id, _template] of this.templates.entries()) {
       if (!defaultTemplateIds.includes(id)) {
         this.templates.delete(id);
       }

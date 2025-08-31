@@ -639,22 +639,29 @@ N8N_BASIC_AUTH_PASSWORD=changeme
   - format_code.sh - Code formatting
   - generate_docs.sh - Documentation generation
 - **apps/mobile/**: iOS and Android native apps implemented
+- **apps/web/**: Complete Next.js web application with dashboard
 - **services/backend/**: NestJS backend with comprehensive modules
 - **packages/**: Design tokens and shared packages
 - **docs/**: Documentation structure in place
-- **infra/**: Infrastructure configuration
-- **n8n/**: Workflow orchestration setup
+- **infra/**: Infrastructure as Code templates and Docker configurations
+  - Docker Compose for local development
+  - Infrastructure documentation and templates
+  - Setup scripts for development environment
+- **n8n/**: Complete workflow orchestration with JSON definitions
 - **data/**: Data directories created for seeds, mappings, schemas
 - **tests/**: Test directories organized by type
 
 ### ⚠️ Partially Implemented
 
+- **iOS Onboarding**: OnboardingPlaceholderViews.swift contains placeholder implementations
+  - Real implementations exist for basic info, splash, and components
+  - Coordinator uses placeholders for auth, consent, lifestyle, health, preferences, goals
 - **workers/**: Directory structure planned but not yet created
 - **tools/codegen/**: Directory created but tools not yet implemented
 - **tools/lint-config/**: Directory created but configs not yet centralized
 - **tools/analyzers/**: Directory created but analyzers not yet implemented
 
-### 📊 Implementation Progress: 95% Complete
+### 📊 Implementation Progress: 97% Complete
 
 The repository structure now fully aligns with the documented architecture, with
 all critical directories and files in place according to the

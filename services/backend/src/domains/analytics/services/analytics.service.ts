@@ -18,8 +18,8 @@ export class AnalyticsService {
 
   async getDashboardAnalytics(userId: string): Promise<any> {
     const today = new Date();
-    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+    const _startOfDay = new Date(today.setHours(0, 0, 0, 0));
+    const _endOfDay = new Date(today.setHours(23, 59, 59, 999));
     const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
     // Get today's nutrition
@@ -239,7 +239,7 @@ export class AnalyticsService {
   }
 
   async getGoalProgress(userId: string): Promise<any> {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
+    const _user = await this.userRepository.findOne({ where: { id: userId } });
     const activePlan = await this.mealPlanRepository.findOne({
       where: { userId, isActive: true },
     });
@@ -426,7 +426,7 @@ export class AnalyticsService {
     };
   }
 
-  private generateInsights(userId: string): string[] {
+  private generateInsights(_userId: string): string[] {
     return [
       "You're maintaining consistent meal logging!",
       'Consider adding more vegetables to increase fiber intake',
@@ -490,7 +490,7 @@ export class AnalyticsService {
     return '2-3 weeks';
   }
 
-  private calculateAdherenceTrend(userId: string, days: number): string {
+  private calculateAdherenceTrend(_userId: string, _days: number): string {
     // Mock trend calculation
     return 'improving';
   }

@@ -274,7 +274,7 @@ describe('AIMealGenerationService', () => {
       healthScore: 90,
     };
 
-    const mockGlycemicResult = {
+    const const _mockGlycemicResult = {
       gl: 18,
       gi: 45,
       availableCarbs: 40,

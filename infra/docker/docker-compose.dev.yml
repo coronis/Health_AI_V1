@@ -1,0 +1,164 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database with pgvector
+  postgres:
+    image: pgvector/pgvector:pg15
+    container_name: healthcoachai-postgres
+    environment:
+      POSTGRES_DB: healthcoachai_dev
+      POSTGRES_USER: healthcoachai
+      POSTGRES_PASSWORD: demo-password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - healthcoachai-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U healthcoachai -d healthcoachai_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching and sessions
+  redis:
+    image: redis:7-alpine
+    container_name: healthcoachai-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - healthcoachai-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # MinIO for S3-compatible object storage
+  minio:
+    image: minio/minio:latest
+    container_name: healthcoachai-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: demo-access-key
+      MINIO_ROOT_PASSWORD: demo-secret-key
+    ports:
+      - "9000:9000"  # API
+      - "9001:9001"  # Console
+    volumes:
+      - minio_data:/data
+    networks:
+      - healthcoachai-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # Backend API Service
+  backend:
+    build:
+      context: ../../services/backend
+      dockerfile: Dockerfile
+    container_name: healthcoachai-backend
+    environment:
+      NODE_ENV: development
+      PORT: 8080
+      # Database
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: healthcoachai
+      DB_PASSWORD: demo-password
+      DB_NAME: healthcoachai_dev
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      # S3
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: demo-access-key
+      S3_SECRET_KEY: demo-secret-key
+      S3_BUCKET: healthcoachai-dev
+      # JWT
+      JWT_SECRET: demo-jwt-secret-key-for-development-only
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - healthcoachai-network
+    volumes:
+      - ../../services/backend:/app
+      - /app/node_modules
+    command: ["npm", "run", "start:dev"]
+
+  # Web Application
+  web:
+    build:
+      context: ../../apps/web
+      dockerfile: Dockerfile
+    container_name: healthcoachai-web
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://localhost:8080
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - healthcoachai-network
+    volumes:
+      - ../../apps/web:/app
+      - /app/node_modules
+      - /app/.next
+    command: ["npm", "run", "dev"]
+
+  # n8n Workflow Automation
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: healthcoachai-n8n
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=demo-admin
+      - N8N_BASIC_AUTH_PASSWORD=demo-password-123
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=n8n_dev
+      - DB_POSTGRESDB_USER=healthcoachai
+      - DB_POSTGRESDB_PASSWORD=demo-password
+      - N8N_ENCRYPTION_KEY=demo-encryption-key-for-development-only
+      - WEBHOOK_URL=http://localhost:5678/
+    ports:
+      - "5678:5678"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - healthcoachai-network
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ../../n8n/workflows:/opt/workflows
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  minio_data:
+    driver: local
+  n8n_data:
+    driver: local
+
+networks:
+  healthcoachai-network:
+    driver: bridge

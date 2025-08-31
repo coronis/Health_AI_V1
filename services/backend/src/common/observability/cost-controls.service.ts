@@ -393,7 +393,7 @@ export class CostControlsService {
   /**
    * Check for cost alerts
    */
-  private checkCostAlerts(provider: string, model: string, cost: number, tokens: number): void {
+  private checkCostAlerts(provider: string, model: string, cost: number, _tokens: number): void {
     // Check for cost spikes
     const recentCosts = this.getRecentCosts(provider, model, 3600000); // Last hour
     const hourlyAvg =
