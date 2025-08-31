@@ -27,12 +27,24 @@ describe('ExerciseLibraryService', () => {
     equipment: [EquipmentType.NONE],
     isBodyweight: true,
     isCompound: true,
+    isUnilateral: false,
+    isCardio: false,
     isActive: true,
     isApproved: true,
     usageCount: 0,
     totalRatings: 0,
     createdAt: new Date(),
     updatedAt: new Date(),
+    // Add missing methods
+    isAvailableForEquipment: jest.fn().mockReturnValue(true),
+    isSafeForConditions: jest.fn().mockReturnValue(true),
+    isSuitableForLevel: jest.fn().mockReturnValue(true),
+    incrementUsage: jest.fn(),
+    updateRating: jest.fn(),
+    approve: jest.fn(),
+    getEstimatedCaloriesBurn: jest.fn().mockReturnValue(100),
+    getRecommendedSets: jest.fn().mockReturnValue(3),
+    getRecommendedReps: jest.fn().mockReturnValue({ min: 8, max: 12 }),
   } as Exercise;
 
   beforeEach(async () => {
@@ -218,10 +230,8 @@ describe('ExerciseLibraryService', () => {
 
   describe('rateExercise', () => {
     it('should update exercise rating', async () => {
-      const exerciseWithRating = {
-        ...mockExercise,
-        updateRating: jest.fn(),
-      };
+      const exerciseWithRating = mockExercise;
+      exerciseWithRating.updateRating = jest.fn();
 
       repository.findOne.mockResolvedValue(exerciseWithRating);
       repository.save.mockResolvedValue(exerciseWithRating);
@@ -242,10 +252,8 @@ describe('ExerciseLibraryService', () => {
 
   describe('approveExercise', () => {
     it('should approve exercise', async () => {
-      const exerciseToApprove = {
-        ...mockExercise,
-        approve: jest.fn(),
-      };
+      const exerciseToApprove = mockExercise;
+      exerciseToApprove.approve = jest.fn();
 
       repository.findOne.mockResolvedValue(exerciseToApprove);
       repository.save.mockResolvedValue(exerciseToApprove);

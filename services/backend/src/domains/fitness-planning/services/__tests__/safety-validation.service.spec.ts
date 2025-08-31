@@ -23,13 +23,26 @@ describe('SafetyValidationService', () => {
     healthConditionsToAvoid: ['knee injury', 'hip injury'],
     contraindications: ['lower back pain'],
     injuryWarnings: ['knee strain'],
-    isSuitableForLevel: jest.fn().mockReturnValue(true),
     isActive: true,
     isApproved: true,
+    isUnilateral: false,
+    isCardio: false,
+    isCompound: true,
+    isBodyweight: false,
     usageCount: 100,
     totalRatings: 10,
     createdAt: new Date(),
     updatedAt: new Date(),
+    // Add missing methods
+    isAvailableForEquipment: jest.fn().mockReturnValue(true),
+    isSafeForConditions: jest.fn().mockReturnValue(true),
+    isSuitableForLevel: jest.fn().mockReturnValue(true),
+    incrementUsage: jest.fn(),
+    updateRating: jest.fn(),
+    approve: jest.fn(),
+    getEstimatedCaloriesBurn: jest.fn().mockReturnValue(100),
+    getRecommendedSets: jest.fn().mockReturnValue(3),
+    getRecommendedReps: jest.fn().mockReturnValue({ min: 8, max: 12 }),
   } as any;
 
   const mockUserProfile = {
@@ -71,9 +84,7 @@ describe('SafetyValidationService', () => {
       const result = service.validateExerciseForUser(mockExercise, userWithKneeInjury);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain(
-        expect.stringContaining('is contraindicated for your health conditions'),
-      );
+      expect(result.errors[0]).toContain('is contraindicated for your health conditions');
     });
 
     it('should warn about physical limitations', () => {
@@ -85,7 +96,7 @@ describe('SafetyValidationService', () => {
       const result = service.validateExerciseForUser(mockExercise, userWithLimitations);
 
       expect(result.isValid).toBe(true);
-      expect(result.warnings).toContain(expect.stringContaining('may be challenging due to'));
+      expect(result.warnings[0]).toContain('may be challenging due to');
     });
 
     it('should warn about injury history', () => {
@@ -97,7 +108,7 @@ describe('SafetyValidationService', () => {
       const result = service.validateExerciseForUser(mockExercise, userWithInjuryHistory);
 
       expect(result.isValid).toBe(true);
-      expect(result.warnings).toContain(expect.stringContaining('may aggravate previous injuries'));
+      expect(result.warnings[0]).toContain('may aggravate previous injuries');
     });
 
     it('should provide age-specific warnings for elderly users', () => {
@@ -106,11 +117,10 @@ describe('SafetyValidationService', () => {
         age: 70,
       };
 
-      const highImpactExercise = {
-        ...mockExercise,
+      const highImpactExercise = Object.assign({}, mockExercise, {
         category: ExerciseCategory.CALISTHENICS,
         tags: ['high-impact'],
-      };
+      });
 
       const result = service.validateExerciseForUser(highImpactExercise, elderlyUser);
 
@@ -125,10 +135,9 @@ describe('SafetyValidationService', () => {
         age: 16,
       };
 
-      const heavyWeightExercise = {
-        ...mockExercise,
+      const heavyWeightExercise = Object.assign({}, mockExercise, {
         tags: ['heavy-weight'],
-      };
+      });
 
       const result = service.validateExerciseForUser(heavyWeightExercise, youngUser);
 
@@ -154,6 +163,25 @@ describe('SafetyValidationService', () => {
         targetSets: 3,
         targetRepsPerSet: 12,
         intensityLevel: 6,
+        // Add missing methods and properties
+        notes: '',
+        isCompleted: jest.fn().mockReturnValue(false),
+        isSkipped: jest.fn().mockReturnValue(false),
+        getCompletionPercentage: jest.fn().mockReturnValue(0),
+        getTotalRepsCompleted: jest.fn().mockReturnValue(0),
+        getTotalWeightLifted: jest.fn().mockReturnValue(0),
+        getAverageWeight: jest.fn().mockReturnValue(0),
+        getAverageReps: jest.fn().mockReturnValue(0),
+        start: jest.fn(),
+        needsEquipment: jest.fn().mockReturnValue(false),
+        isBodyweightExercise: jest.fn().mockReturnValue(true),
+        isTimeBasedExercise: jest.fn().mockReturnValue(false),
+        isDistanceBasedExercise: jest.fn().mockReturnValue(false),
+        getExerciseVolume: jest.fn().mockReturnValue(36),
+        getIntensityLoad: jest.fn().mockReturnValue(216),
+        shouldProgressWeight: jest.fn().mockReturnValue(false),
+        shouldReduceWeight: jest.fn().mockReturnValue(false),
+        getProgressionSuggestion: jest.fn().mockReturnValue({ type: 'reps', change: 1 }),
       } as any,
       {
         id: 'exercise2',
@@ -161,6 +189,25 @@ describe('SafetyValidationService', () => {
         targetSets: 3,
         targetRepsPerSet: 10,
         intensityLevel: 7,
+        // Add missing methods and properties
+        notes: '',
+        isCompleted: jest.fn().mockReturnValue(false),
+        isSkipped: jest.fn().mockReturnValue(false),
+        getCompletionPercentage: jest.fn().mockReturnValue(0),
+        getTotalRepsCompleted: jest.fn().mockReturnValue(0),
+        getTotalWeightLifted: jest.fn().mockReturnValue(0),
+        getAverageWeight: jest.fn().mockReturnValue(0),
+        getAverageReps: jest.fn().mockReturnValue(0),
+        start: jest.fn(),
+        needsEquipment: jest.fn().mockReturnValue(false),
+        isBodyweightExercise: jest.fn().mockReturnValue(true),
+        isTimeBasedExercise: jest.fn().mockReturnValue(false),
+        isDistanceBasedExercise: jest.fn().mockReturnValue(false),
+        getExerciseVolume: jest.fn().mockReturnValue(30),
+        getIntensityLoad: jest.fn().mockReturnValue(210),
+        shouldProgressWeight: jest.fn().mockReturnValue(false),
+        shouldReduceWeight: jest.fn().mockReturnValue(false),
+        getProgressionSuggestion: jest.fn().mockReturnValue({ type: 'reps', change: 1 }),
       } as any,
     ];
 
@@ -173,10 +220,9 @@ describe('SafetyValidationService', () => {
     });
 
     it('should warn about high volume workouts', () => {
-      const highVolumeExercises = Array(8).fill({
-        ...mockExercises[0],
-        targetSets: 4,
-      });
+      const highVolumeExercises = Array(8).fill(null).map(() => 
+        Object.assign({}, mockExercises[0], { targetSets: 4 })
+      );
 
       const result = service.validateWorkout(mockWorkout, highVolumeExercises, mockUserProfile);
 
@@ -189,10 +235,9 @@ describe('SafetyValidationService', () => {
         experienceLevel: ExperienceLevel.BEGINNER,
       };
 
-      const excessiveVolumeExercises = Array(15).fill({
-        ...mockExercises[0],
-        targetSets: 3,
-      });
+      const excessiveVolumeExercises = Array(15).fill(null).map(() =>
+        Object.assign({}, mockExercises[0], { targetSets: 3 })
+      );
 
       const result = service.validateWorkout(mockWorkout, excessiveVolumeExercises, beginnerUser);
 
@@ -201,10 +246,9 @@ describe('SafetyValidationService', () => {
     });
 
     it('should warn about very high intensity', () => {
-      const highIntensityExercises = mockExercises.map((ex) => ({
-        ...ex,
-        intensityLevel: 10,
-      }));
+      const highIntensityExercises = mockExercises.map((ex) => 
+        Object.assign({}, ex, { intensityLevel: 10 })
+      );
 
       const result = service.validateWorkout(mockWorkout, highIntensityExercises, mockUserProfile);
 
@@ -222,6 +266,22 @@ describe('SafetyValidationService', () => {
       progressiveOverloadEnabled: true,
       autoProgressionRate: 1.05,
       deloadWeekFrequency: 4,
+      // Add missing methods
+      isActive: jest.fn().mockReturnValue(true),
+      getDaysRemaining: jest.fn().mockReturnValue(30),
+      getWeeksRemaining: jest.fn().mockReturnValue(4),
+      getCurrentWeek: jest.fn().mockReturnValue(8),
+      getTotalPlannedWorkouts: jest.fn().mockReturnValue(48),
+      getWorkoutCompletionRate: jest.fn().mockReturnValue(75),
+      activate: jest.fn(),
+      pause: jest.fn(),
+      resume: jest.fn(),
+      complete: jest.fn(),
+      cancel: jest.fn(),
+      addAdaptation: jest.fn(),
+      getIntensityLevel: jest.fn().mockReturnValue(7),
+      getAverageWorkoutDuration: jest.fn().mockReturnValue(60),
+      getEstimatedCaloriesBurnPerWorkout: jest.fn().mockReturnValue(300),
     } as any;
 
     it('should validate a reasonable fitness plan', () => {
@@ -231,10 +291,7 @@ describe('SafetyValidationService', () => {
     });
 
     it('should warn about very long plans', () => {
-      const longPlan = {
-        ...mockPlan,
-        durationWeeks: 60,
-      };
+      const longPlan = Object.assign({}, mockPlan, { durationWeeks: 60 });
 
       const result = service.validateFitnessPlan(longPlan, mockUserProfile);
 
@@ -242,10 +299,7 @@ describe('SafetyValidationService', () => {
     });
 
     it('should warn about very short plans', () => {
-      const shortPlan = {
-        ...mockPlan,
-        durationWeeks: 2,
-      };
+      const shortPlan = Object.assign({}, mockPlan, { durationWeeks: 2 });
 
       const result = service.validateFitnessPlan(shortPlan, mockUserProfile);
 
@@ -253,10 +307,7 @@ describe('SafetyValidationService', () => {
     });
 
     it('should warn about aggressive progression rates', () => {
-      const aggressivePlan = {
-        ...mockPlan,
-        autoProgressionRate: 1.2, // 20% per week
-      };
+      const aggressivePlan = Object.assign({}, mockPlan, { autoProgressionRate: 1.2 });
 
       const result = service.validateFitnessPlan(aggressivePlan, mockUserProfile);
 
@@ -264,10 +315,7 @@ describe('SafetyValidationService', () => {
     });
 
     it('should warn about infrequent deload weeks', () => {
-      const infrequentDeloadPlan = {
-        ...mockPlan,
-        deloadWeekFrequency: 10,
-      };
+      const infrequentDeloadPlan = Object.assign({}, mockPlan, { deloadWeekFrequency: 10 });
 
       const result = service.validateFitnessPlan(infrequentDeloadPlan, mockUserProfile);
 
