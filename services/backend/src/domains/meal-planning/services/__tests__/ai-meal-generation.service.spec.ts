@@ -97,7 +97,14 @@ describe('AIMealGenerationService', () => {
         {
           provide: GlycemicIndexService,
           useValue: {
-            calculateGlycemicLoad: jest.fn().mockResolvedValue(12),
+            calculateGlycemicLoad: jest.fn().mockResolvedValue({
+              gl: 18,
+              gi: 45,
+              availableCarbs: 40,
+              portionSize: 100,
+              category: 'medium',
+              source: 'calculated',
+            }),
           },
         },
         {

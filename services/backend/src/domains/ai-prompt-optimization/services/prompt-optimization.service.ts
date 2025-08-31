@@ -273,7 +273,7 @@ export class PromptOptimizationService {
         prompt = prompt.replace(new RegExp(placeholder, 'g'), String(value));
       } else if (variable.required) {
         // Use default value or safe fallback for required variables
-        const fallback = this.getFallbackValue(variable, userContext);
+        const fallback = this.getFallbackValue(variable);
         prompt = prompt.replace(new RegExp(placeholder, 'g'), fallback);
       } else {
         // Remove optional variable placeholders
@@ -469,7 +469,7 @@ export class PromptOptimizationService {
   /**
    * Get fallback value for required variables
    */
-  private getFallbackValue(variable: PromptVariable, userContext: UserContext): string {
+  private getFallbackValue(variable: PromptVariable): string {
     if (variable.defaultValue !== undefined) {
       return String(variable.defaultValue);
     }
@@ -1048,7 +1048,7 @@ Response Hinglish mein dein aur simple language use karein.`,
       'nutrition_advice_hinglish_legacy',
     ];
 
-    for (const [id, template] of this.templates.entries()) {
+    for (const [id] of this.templates.entries()) {
       if (!defaultTemplateIds.includes(id)) {
         this.templates.delete(id);
       }

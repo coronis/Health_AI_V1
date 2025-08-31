@@ -169,7 +169,7 @@ export class BackgroundJobService {
             result = await this.processReportGeneration(job.data);
             break;
           case this.jobTypes.DATA_CLEANUP:
-            result = await this.processDataCleanup(job.data);
+            result = await this.processDataCleanup();
             break;
           case this.jobTypes.NOTIFICATION_SEND:
             result = await this.processNotificationSend(job.data);
@@ -178,10 +178,10 @@ export class BackgroundJobService {
             result = await this.processHealthInsights(job.data);
             break;
           case this.jobTypes.BACKUP_DATA:
-            result = await this.processBackupData(job.data);
+            result = await this.processBackupData();
             break;
           case this.jobTypes.CACHE_WARMUP:
-            result = await this.processCacheWarmup(job.data);
+            result = await this.processCacheWarmup();
             break;
           default:
             throw new Error(`Unknown job type: ${job.name}`);
@@ -309,7 +309,7 @@ export class BackgroundJobService {
     return { reportId: `report_${Date.now()}`, pages: 5 };
   }
 
-  private async processDataCleanup(data: any): Promise<any> {
+  private async processDataCleanup(): Promise<any> {
     // Clean up old data
     this.logger.log('Processing data cleanup');
 
@@ -339,7 +339,7 @@ export class BackgroundJobService {
     return { insights: 5, recommendations: 3 };
   }
 
-  private async processBackupData(data: any): Promise<any> {
+  private async processBackupData(): Promise<any> {
     // Backup user data
     this.logger.log('Processing data backup');
 
@@ -349,7 +349,7 @@ export class BackgroundJobService {
     return { backupId: `backup_${Date.now()}`, size: '100MB' };
   }
 
-  private async processCacheWarmup(data: any): Promise<any> {
+  private async processCacheWarmup(): Promise<any> {
     // Warm up cache
     this.logger.log('Processing cache warmup');
 

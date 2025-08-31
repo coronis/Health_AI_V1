@@ -223,7 +223,7 @@ export class CostOptimizationService {
     // Optimize each group
     const optimized: BatchedRequest[] = [];
 
-    for (const [groupKey, groupRequests] of groups) {
+    for (const [, groupRequests] of groups) {
       if (groupRequests.length > 1) {
         // Combine similar requests into one optimized request
         const combined = this.combineRequests(groupRequests);

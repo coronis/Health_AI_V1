@@ -14,9 +14,9 @@ import {
 
 describe('AIRoutingService', () => {
   let service: AIRoutingService;
-  let repository: Repository<AIRoutingDecision>;
-  let cacheManager: any;
-  let configService: ConfigService;
+  let _repository: Repository<AIRoutingDecision>;
+  let _cacheManager: any;
+  let _configService: ConfigService;
 
   const mockRepository = {
     create: jest.fn(),
@@ -73,6 +73,9 @@ describe('AIRoutingService', () => {
     }).compile();
 
     service = module.get<AIRoutingService>(AIRoutingService);
+    _repository = module.get<Repository<AIRoutingDecision>>(getRepositoryToken(AIRoutingDecision));
+    _cacheManager = module.get(CACHE_MANAGER);
+    _configService = module.get<ConfigService>(ConfigService);
 
     // Reset mocks
     jest.clearAllMocks();

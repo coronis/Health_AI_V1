@@ -355,6 +355,7 @@ export class PerformanceMonitoringService {
    */
   private getLoadAverage(): number[] {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const os = require('os');
       return os.loadavg();
     } catch {
