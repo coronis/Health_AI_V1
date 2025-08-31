@@ -8,9 +8,7 @@ import { MealPlanService } from './services/meal-plan.service';
 import { MealPlanEntryService } from './services/meal-plan-entry.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([MealPlan, MealPlanEntry]),
-  ],
+  imports: [TypeOrmModule.forFeature([MealPlan, MealPlanEntry])],
   controllers: [MealPlanController, MealPlanEntryController],
   providers: [MealPlanService, MealPlanEntryService],
   exports: [MealPlanService, MealPlanEntryService],
