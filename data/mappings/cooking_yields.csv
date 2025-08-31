@@ -1,0 +1,15 @@
+Food Item,Raw Weight,Cooked Weight,Yield Factor,Notes
+Rice (white),100g,300g,3.0,Absorbs water during cooking
+Rice (brown),100g,250g,2.5,Less water absorption than white rice
+Pasta (dry),100g,250g,2.5,Standard pasta cooking ratio
+Lentils (dry),100g,250g,2.5,Doubled in weight when cooked
+Chickpeas (dry),100g,200g,2.0,Soaked and cooked
+Quinoa (dry),100g,300g,3.0,High water absorption
+Potato (raw),100g,85g,0.85,Water loss during cooking
+Sweet Potato (raw),100g,90g,0.9,Minimal water loss
+Chicken Breast (raw),100g,75g,0.75,Protein coagulation and water loss
+Fish (raw),100g,80g,0.8,Protein coagulation
+Vegetables (leafy),100g,25g,0.25,Significant volume reduction
+Vegetables (root),100g,90g,0.9,Minimal volume change
+Onions (raw),100g,60g,0.6,Water loss during sautéing
+Garlic (raw),100g,70g,0.7,Water loss during cooking

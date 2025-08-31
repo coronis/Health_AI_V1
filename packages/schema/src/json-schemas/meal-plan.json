@@ -1,0 +1,129 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://api.healthcoachai.com/schemas/meal-plan.json",
+  "title": "Meal Plan Schema",
+  "description": "Schema for meal plans and recipes",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "userId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "duration": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 365,
+      "description": "Duration in days"
+    },
+    "meals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "mealType": {
+            "type": "string",
+            "enum": ["breakfast", "lunch", "dinner", "snack"]
+          },
+          "recipe": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "ingredients": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "amount": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "unit": {
+                      "type": "string",
+                      "enum": ["g", "kg", "ml", "l", "cup", "tbsp", "tsp", "piece", "slice"]
+                    }
+                  },
+                  "required": ["name", "amount", "unit"]
+                }
+              },
+              "instructions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "nutrition": {
+                "type": "object",
+                "properties": {
+                  "calories": {"type": "number", "minimum": 0},
+                  "protein": {"type": "number", "minimum": 0},
+                  "carbs": {"type": "number", "minimum": 0},
+                  "fat": {"type": "number", "minimum": 0},
+                  "fiber": {"type": "number", "minimum": 0}
+                },
+                "required": ["calories"]
+              },
+              "prepTime": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Preparation time in minutes"
+              },
+              "cookTime": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Cooking time in minutes"
+              }
+            },
+            "required": ["id", "name", "ingredients", "instructions"]
+          }
+        },
+        "required": ["day", "mealType", "recipe"]
+      }
+    },
+    "nutritionTargets": {
+      "type": "object",
+      "properties": {
+        "dailyCalories": {"type": "number", "minimum": 800, "maximum": 5000},
+        "proteinPercentage": {"type": "number", "minimum": 10, "maximum": 50},
+        "carbsPercentage": {"type": "number", "minimum": 20, "maximum": 70},
+        "fatPercentage": {"type": "number", "minimum": 15, "maximum": 50}
+      }
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": ["id", "userId", "title", "meals", "createdAt", "updatedAt"],
+  "additionalProperties": false
+}

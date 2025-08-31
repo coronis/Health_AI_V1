@@ -1,7 +1,7 @@
 {
-  "name": "@healthcoachai/design-system",
+  "name": "@healthcoachai/design-tokens",
   "version": "0.1.0",
-  "description": "HealthCoachAI Design System - Shared design tokens and components",
+  "description": "HealthCoachAI Design Tokens - Source-of-truth tokens + codegen",
   "private": true,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

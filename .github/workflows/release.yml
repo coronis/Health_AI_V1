@@ -1,0 +1,198 @@
+name: Release Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        type: string
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  prepare-release:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      changelog: ${{ steps.changelog.outputs.changelog }}
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Get version
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          VERSION="${{ github.event.inputs.version }}"
+        else
+          VERSION="${GITHUB_REF#refs/tags/}"
+        fi
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        
+    - name: Generate changelog
+      id: changelog
+      run: |
+        # Install conventional-changelog-cli
+        npm install -g conventional-changelog-cli
+        
+        # Generate changelog
+        conventional-changelog -p angular -i CHANGELOG.md -s -r 0
+        
+        # Extract current version changelog
+        CHANGELOG=$(sed -n "/^## \[/,/^## \[/p" CHANGELOG.md | head -n -1)
+        echo "changelog<<EOF" >> $GITHUB_OUTPUT
+        echo "$CHANGELOG" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+        
+  build-backend:
+    needs: prepare-release
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build backend
+      working-directory: services/backend
+      run: |
+        npm run build
+        npm run test
+        
+    - name: Build Docker image
+      working-directory: services/backend
+      run: |
+        docker build -t healthcoachai/backend:${{ needs.prepare-release.outputs.version }} .
+        docker tag healthcoachai/backend:${{ needs.prepare-release.outputs.version }} healthcoachai/backend:latest
+        
+    - name: Save Docker image
+      run: |
+        docker save healthcoachai/backend:${{ needs.prepare-release.outputs.version }} > backend-image.tar
+        
+    - name: Upload backend artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: backend-release
+        path: |
+          services/backend/dist/
+          backend-image.tar
+          
+  build-mobile:
+    needs: prepare-release
+    strategy:
+      matrix:
+        platform: [ios, android]
+    runs-on: ${{ matrix.platform == 'ios' && 'macos-latest' || 'ubuntu-latest' }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Build iOS
+      if: matrix.platform == 'ios'
+      working-directory: apps/mobile/ios
+      run: |
+        xcodebuild archive \
+          -workspace HealthCoachAI.xcworkspace \
+          -scheme HealthCoachAI \
+          -configuration Release \
+          -archivePath build/HealthCoachAI.xcarchive
+          
+    - name: Build Android
+      if: matrix.platform == 'android'
+      working-directory: apps/mobile/android
+      run: |
+        chmod +x gradlew
+        ./gradlew assembleRelease
+        ./gradlew bundleRelease
+        
+    - name: Upload mobile artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: mobile-${{ matrix.platform }}-release
+        path: |
+          apps/mobile/${{ matrix.platform }}/build/
+          
+  create-release:
+    needs: [prepare-release, build-backend, build-mobile]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+      
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ needs.prepare-release.outputs.version }}
+        release_name: Release ${{ needs.prepare-release.outputs.version }}
+        body: |
+          ## What's Changed
+          
+          ${{ needs.prepare-release.outputs.changelog }}
+          
+          ## Deployment
+          
+          - Backend: Docker image `healthcoachai/backend:${{ needs.prepare-release.outputs.version }}`
+          - iOS: Built for App Store submission
+          - Android: APK and AAB ready for Play Store
+          
+          ## Installation
+          
+          See [Installation Guide](./docs/deployment/installation.md) for details.
+        draft: false
+        prerelease: ${{ contains(needs.prepare-release.outputs.version, '-') }}
+        
+  deploy-production:
+    needs: [prepare-release, create-release]
+    runs-on: ubuntu-latest
+    environment: production
+    if: ${{ !contains(needs.prepare-release.outputs.version, '-') }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Deploy to production
+      run: |
+        echo "Deploying version ${{ needs.prepare-release.outputs.version }} to production"
+        # Add actual deployment steps here
+        
+    - name: Notify deployment
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        channel: '#deployments'
+        text: |
+          🚀 Production deployment completed!
+          Version: ${{ needs.prepare-release.outputs.version }}
+          Status: ${{ job.status }}
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

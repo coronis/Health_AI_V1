@@ -1,0 +1,112 @@
+config:
+  target: 'http://localhost:8080'
+  phases:
+    - duration: 60
+      arrivalRate: 5
+      name: "Warm up"
+    - duration: 120
+      arrivalRate: 10
+      name: "Ramp up load"
+    - duration: 300
+      arrivalRate: 20
+      name: "Sustained load"
+    - duration: 60
+      arrivalRate: 50
+      name: "Peak load"
+  payload:
+    path: "./test-data/users.csv"
+    fields:
+      - "email"
+      - "password"
+
+scenarios:
+  - name: "User Authentication Flow"
+    weight: 30
+    flow:
+      - post:
+          url: "/auth/login"
+          json:
+            email: "{{ email }}"
+            password: "{{ password }}"
+          capture:
+            json: "$.token"
+            as: "token"
+      - get:
+          url: "/users/profile"
+          headers:
+            Authorization: "Bearer {{ token }}"
+          
+  - name: "Meal Plan Generation"
+    weight: 25
+    flow:
+      - post:
+          url: "/auth/login"
+          json:
+            email: "{{ email }}"
+            password: "{{ password }}"
+          capture:
+            json: "$.token"
+            as: "token"
+      - post:
+          url: "/meal-plans/generate"
+          headers:
+            Authorization: "Bearer {{ token }}"
+          json:
+            duration: 7
+            dietaryRestrictions: ["vegetarian"]
+            targetCalories: 2000
+            
+  - name: "Food Search and Logging"
+    weight: 30
+    flow:
+      - post:
+          url: "/auth/login"
+          json:
+            email: "{{ email }}"
+            password: "{{ password }}"
+          capture:
+            json: "$.token"
+            as: "token"
+      - get:
+          url: "/foods/search?q=chicken"
+          headers:
+            Authorization: "Bearer {{ token }}"
+      - post:
+          url: "/food-logs"
+          headers:
+            Authorization: "Bearer {{ token }}"
+          json:
+            foodId: "chicken-breast-100g"
+            quantity: 150
+            mealType: "lunch"
+            
+  - name: "AI Chat Interaction"
+    weight: 15
+    flow:
+      - post:
+          url: "/auth/login"
+          json:
+            email: "{{ email }}"
+            password: "{{ password }}"
+          capture:
+            json: "$.token"
+            as: "token"
+      - post:
+          url: "/chat/messages"
+          headers:
+            Authorization: "Bearer {{ token }}"
+          json:
+            message: "What should I eat for breakfast?"
+            
+expect:
+  - statusCode: 200
+  - contentType: json
+  - hasProperty: "success"
+
+metrics:
+  - name: "response_time_p95"
+    unit: "ms"
+  - name: "response_time_p99"
+    unit: "ms"
+  - name: "error_rate"
+    unit: "percent"

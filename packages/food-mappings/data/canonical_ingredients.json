@@ -1,0 +1,62 @@
+{
+  "ingredients": {
+    "grains": {
+      "rice_basmati": {
+        "names": ["basmati rice", "basmati chawal", "बासमती चावल"],
+        "category": "grain",
+        "nutrition_id": "USDA_20036"
+      },
+      "rice_brown": {
+        "names": ["brown rice", "brown chawal", "भूरे चावल"],
+        "category": "grain",
+        "nutrition_id": "USDA_20037"
+      },
+      "wheat_flour": {
+        "names": ["wheat flour", "gehun ka atta", "गेहूं का आटा"],
+        "category": "grain",
+        "nutrition_id": "USDA_20081"
+      }
+    },
+    "vegetables": {
+      "onion_red": {
+        "names": ["red onion", "laal pyaaz", "लाल प्याज"],
+        "category": "vegetable",
+        "nutrition_id": "USDA_11282"
+      },
+      "tomato_fresh": {
+        "names": ["fresh tomato", "taaza tamatar", "ताजा टमाटर"],
+        "category": "vegetable",
+        "nutrition_id": "USDA_11529"
+      },
+      "potato_russet": {
+        "names": ["russet potato", "aloo", "आलू"],
+        "category": "vegetable",
+        "nutrition_id": "USDA_11674"
+      }
+    },
+    "proteins": {
+      "chicken_breast": {
+        "names": ["chicken breast", "murge ka seena", "मुर्गे का सीना"],
+        "category": "protein",
+        "nutrition_id": "USDA_05062"
+      },
+      "lentils_red": {
+        "names": ["red lentils", "masoor dal", "मसूर दाल"],
+        "category": "legume",
+        "nutrition_id": "USDA_16070"
+      }
+    },
+    "dairy": {
+      "milk_whole": {
+        "names": ["whole milk", "poora doodh", "पूरा दूध"],
+        "category": "dairy",
+        "nutrition_id": "USDA_01077"
+      },
+      "yogurt_plain": {
+        "names": ["plain yogurt", "sadha dahi", "सादा दही"],
+        "category": "dairy",
+        "nutrition_id": "USDA_01116"
+      }
+    }
+  }
+}

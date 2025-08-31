@@ -1,0 +1,99 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://api.healthcoachai.com/schemas/user.json",
+  "title": "User Profile Schema",
+  "description": "Schema for user profile data",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique user identifier"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "User email address"
+    },
+    "profile": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "lastName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "dateOfBirth": {
+          "type": "string",
+          "format": "date"
+        },
+        "gender": {
+          "type": "string",
+          "enum": ["male", "female", "other", "prefer_not_to_say"]
+        },
+        "height": {
+          "type": "number",
+          "minimum": 50,
+          "maximum": 300,
+          "description": "Height in centimeters"
+        },
+        "weight": {
+          "type": "number",
+          "minimum": 20,
+          "maximum": 500,
+          "description": "Weight in kilograms"
+        },
+        "activityLevel": {
+          "type": "string",
+          "enum": ["sedentary", "lightly_active", "moderately_active", "very_active", "extremely_active"]
+        },
+        "goals": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["weight_loss", "weight_gain", "muscle_gain", "maintenance", "improved_health"]
+          }
+        }
+      },
+      "required": ["firstName", "lastName", "dateOfBirth", "gender"]
+    },
+    "preferences": {
+      "type": "object",
+      "properties": {
+        "dietaryRestrictions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["vegetarian", "vegan", "gluten_free", "dairy_free", "nut_free", "halal", "kosher"]
+          }
+        },
+        "cuisinePreferences": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "language": {
+          "type": "string",
+          "enum": ["en", "hi", "hi-en"],
+          "default": "en"
+        }
+      }
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": ["id", "email", "profile", "createdAt", "updatedAt"],
+  "additionalProperties": false
+}
