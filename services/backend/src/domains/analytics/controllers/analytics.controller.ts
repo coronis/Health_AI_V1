@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Query,
-  UseGuards,
-  Req,
-  HttpStatus,
-  HttpException,
-} from '@nestjs/common';
+import { Controller, Get, Query, UseGuards, Req, HttpStatus, HttpException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { AnalyticsService } from '../services/analytics.service';
@@ -32,12 +24,14 @@ export class AnalyticsController {
 
   @Get('weight-trend')
   @ApiOperation({ summary: 'Get weight trend data' })
-  @ApiQuery({ name: 'days', required: false, type: Number, description: 'Number of days to include (default: 30)' })
+  @ApiQuery({
+    name: 'days',
+    required: false,
+    type: Number,
+    description: 'Number of days to include (default: 30)',
+  })
   @ApiResponse({ status: 200, description: 'Weight trend data retrieved successfully' })
-  async getWeightTrend(
-    @Query('days') days?: number,
-    @Req() req: Request,
-  ): Promise<any> {
+  async getWeightTrend(@Req() req: Request, @Query('days') days?: number): Promise<any> {
     const userId = req.user?.['sub'];
     if (!userId) {
       throw new HttpException('User not authenticated', HttpStatus.UNAUTHORIZED);
@@ -51,9 +45,9 @@ export class AnalyticsController {
   @ApiQuery({ name: 'endDate', required: false, description: 'End date (YYYY-MM-DD)' })
   @ApiResponse({ status: 200, description: 'Macro breakdown retrieved successfully' })
   async getMacroBreakdown(
+    @Req() req: Request,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
-    @Req() req: Request,
   ): Promise<any> {
     const userId = req.user?.['sub'];
     if (!userId) {
@@ -64,12 +58,14 @@ export class AnalyticsController {
 
   @Get('micronutrient-analysis')
   @ApiOperation({ summary: 'Get micronutrient deficiency analysis' })
-  @ApiQuery({ name: 'days', required: false, type: Number, description: 'Number of days to analyze (default: 7)' })
+  @ApiQuery({
+    name: 'days',
+    required: false,
+    type: Number,
+    description: 'Number of days to analyze (default: 7)',
+  })
   @ApiResponse({ status: 200, description: 'Micronutrient analysis retrieved successfully' })
-  async getMicronutrientAnalysis(
-    @Query('days') days?: number,
-    @Req() req: Request,
-  ): Promise<any> {
+  async getMicronutrientAnalysis(@Req() req: Request, @Query('days') days?: number): Promise<any> {
     const userId = req.user?.['sub'];
     if (!userId) {
       throw new HttpException('User not authenticated', HttpStatus.UNAUTHORIZED);
@@ -90,12 +86,14 @@ export class AnalyticsController {
 
   @Get('activity-summary')
   @ApiOperation({ summary: 'Get activity and fitness summary' })
-  @ApiQuery({ name: 'days', required: false, type: Number, description: 'Number of days to include (default: 7)' })
+  @ApiQuery({
+    name: 'days',
+    required: false,
+    type: Number,
+    description: 'Number of days to include (default: 7)',
+  })
   @ApiResponse({ status: 200, description: 'Activity summary retrieved successfully' })
-  async getActivitySummary(
-    @Query('days') days?: number,
-    @Req() req: Request,
-  ): Promise<any> {
+  async getActivitySummary(@Req() req: Request, @Query('days') days?: number): Promise<any> {
     const userId = req.user?.['sub'];
     if (!userId) {
       throw new HttpException('User not authenticated', HttpStatus.UNAUTHORIZED);
@@ -105,12 +103,14 @@ export class AnalyticsController {
 
   @Get('adherence-score')
   @ApiOperation({ summary: 'Get meal plan adherence score' })
-  @ApiQuery({ name: 'days', required: false, type: Number, description: 'Number of days to analyze (default: 7)' })
+  @ApiQuery({
+    name: 'days',
+    required: false,
+    type: Number,
+    description: 'Number of days to analyze (default: 7)',
+  })
   @ApiResponse({ status: 200, description: 'Adherence score retrieved successfully' })
-  async getAdherenceScore(
-    @Query('days') days?: number,
-    @Req() req: Request,
-  ): Promise<any> {
+  async getAdherenceScore(@Req() req: Request, @Query('days') days?: number): Promise<any> {
     const userId = req.user?.['sub'];
     if (!userId) {
       throw new HttpException('User not authenticated', HttpStatus.UNAUTHORIZED);
