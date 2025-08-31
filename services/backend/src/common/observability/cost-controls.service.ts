@@ -128,7 +128,7 @@ export class CostControlsService {
     this.updateCostTotals(cost);
 
     // Check for cost alerts
-    this.checkCostAlerts(provider, model, cost, tokens);
+    this.checkCostAlerts(provider, model, cost);
 
     this.logger.log(
       `AI usage recorded: ${provider}/${model} - $${cost.toFixed(4)} (${tokens} tokens)`,
@@ -393,7 +393,7 @@ export class CostControlsService {
   /**
    * Check for cost alerts
    */
-  private checkCostAlerts(provider: string, model: string, cost: number, _tokens: number): void {
+  private checkCostAlerts(provider: string, model: string, cost: number): void {
     // Check for cost spikes
     const recentCosts = this.getRecentCosts(provider, model, 3600000); // Last hour
     const hourlyAvg =
