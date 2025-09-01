@@ -161,9 +161,9 @@ export class HealthReportsController {
         throw new Error('Invalid date');
       }
     } catch (error) {
-      this.logger.error('Invalid test date provided', { 
-        testDate: body.testDate, 
-        error: error.message 
+      this.logger.error('Invalid test date provided', {
+        testDate: body.testDate,
+        error: error.message,
       });
       throw new BadRequestException('Invalid test date format. Use YYYY-MM-DD');
     }

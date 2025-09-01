@@ -48,7 +48,7 @@ export class CreateMealPlanEntryDto {
   plannedTime?: string;
 
   @ApiProperty({ description: 'Portion size', minimum: 0.1, maximum: 10, default: 1.0 })
-  @IsNumber()
+  @IsDecimal({ decimal_digits: '1,2' })
   @Min(0.1)
   @Max(10)
   portionSize: number = 1.0;

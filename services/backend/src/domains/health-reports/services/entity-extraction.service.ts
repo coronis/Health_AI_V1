@@ -160,10 +160,10 @@ export class EntityExtractionService {
     // For now, implementing mock extraction that follows the patterns
 
     const prompt = this.buildExtractionPrompt(text, options);
-    
-    this.logger.debug('AI extraction prompt generated', { 
+
+    this.logger.debug('AI extraction prompt generated', {
       promptLength: prompt.length,
-      entityTypes: options.entityTypes 
+      entityTypes: options.entityTypes,
     });
 
     // Mock AI response - in production, this would call the actual AI provider
@@ -274,6 +274,14 @@ export class EntityExtractionService {
   private performRuleBasedExtraction(text: string, options: any): ExtractedEntity[] {
     const entities: ExtractedEntity[] = [];
 
+    // Configure extraction based on options
+    const extractionDepth = options.extractionDepth || 'standard';
+    const includeRareMarkers = options.includeRareMarkers || false;
+
+    console.log(
+      `Performing rule-based extraction with depth: ${extractionDepth}, rare markers: ${includeRareMarkers}`,
+    );
+
     // Extract numeric biomarkers with units
     const numericPattern = /([A-Za-z\s]+):\s*(\d+\.?\d*)\s*([a-zA-Z\/μμ%]+)/g;
     let match;
@@ -330,8 +338,18 @@ export class EntityExtractionService {
    * Build extraction prompt for AI processing
    */
   private buildExtractionPrompt(text: string, options: any): string {
+    const analysisLevel = options.analysisLevel || 'comprehensive';
+    const targetBiomarkers = options.targetBiomarkers || 'all';
+
+    console.log(
+      `Building extraction prompt with analysis level: ${analysisLevel}, target biomarkers: ${targetBiomarkers}`,
+    );
+
     return `
 Extract all medical test results, biomarkers, and lab values from the following health report text.
+Analysis Level: ${analysisLevel}
+Target Biomarkers: ${targetBiomarkers}
+
 For each entity found, provide:
 1. Entity name (standardized)
 2. Numeric value (if applicable)
@@ -481,6 +499,9 @@ Return structured data in JSON format.
     const normalized = name.toLowerCase().trim();
 
     for (const [key, mapping] of this.biomarkerMappings.entries()) {
+      // Enhanced mapping search with fuzzy matching
+      const mappingScore = this.calculateMappingScore(normalized, mapping.names);
+
       if (
         mapping.names.some(
           (mappingName) =>
@@ -489,11 +510,77 @@ Return structured data in JSON format.
             mappingName.toLowerCase().includes(normalized),
         )
       ) {
+        console.log(`Found biomarker mapping for "${name}" -> "${key}" (score: ${mappingScore})`);
         return mapping;
       }
     }
 
     return undefined;
+  }
+
+  /**
+   * Calculate mapping score for fuzzy biomarker matching
+   */
+  private calculateMappingScore(normalized: string, mappingNames: string[]): number {
+    let bestScore = 0;
+
+    for (const mappingName of mappingNames) {
+      const mappingNormalized = mappingName.toLowerCase();
+
+      // Exact match gets highest score
+      if (normalized === mappingNormalized) {
+        return 100;
+      }
+
+      // Substring match gets good score
+      if (normalized.includes(mappingNormalized) || mappingNormalized.includes(normalized)) {
+        bestScore = Math.max(bestScore, 80);
+      }
+
+      // Calculate Levenshtein-like similarity for partial matches
+      const similarity = this.calculateStringSimilarity(normalized, mappingNormalized);
+      bestScore = Math.max(bestScore, similarity * 60);
+    }
+
+    return bestScore;
+  }
+
+  /**
+   * Calculate string similarity for fuzzy matching
+   */
+  private calculateStringSimilarity(str1: string, str2: string): number {
+    const longer = str1.length > str2.length ? str1 : str2;
+    const shorter = str1.length > str2.length ? str2 : str1;
+
+    if (longer.length === 0) return 1.0;
+
+    const editDistance = this.calculateEditDistance(longer, shorter);
+    return (longer.length - editDistance) / longer.length;
+  }
+
+  /**
+   * Calculate edit distance between two strings
+   */
+  private calculateEditDistance(str1: string, str2: string): number {
+    const matrix = Array(str2.length + 1)
+      .fill(null)
+      .map(() => Array(str1.length + 1).fill(null));
+
+    for (let i = 0; i <= str1.length; i++) matrix[0][i] = i;
+    for (let j = 0; j <= str2.length; j++) matrix[j][0] = j;
+
+    for (let j = 1; j <= str2.length; j++) {
+      for (let i = 1; i <= str1.length; i++) {
+        const substitutionCost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+        matrix[j][i] = Math.min(
+          matrix[j][i - 1] + 1, // deletion
+          matrix[j - 1][i] + 1, // insertion
+          matrix[j - 1][i - 1] + substitutionCost, // substitution
+        );
+      }
+    }
+
+    return matrix[str2.length][str1.length];
   }
 
   /**

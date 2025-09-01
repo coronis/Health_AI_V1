@@ -326,6 +326,9 @@ export class HealthReportsService {
     const timestamp = Date.now();
     const storagePath = `users/${userId}/reports/${timestamp}/${fileHash}`;
 
+    // Log storage operation for audit trail
+    console.log(`Storing health report in bucket: ${bucket}, path: ${storagePath}`);
+
     const uploadResult = await this.objectStorageService.uploadFile(
       file.buffer,
       file.originalName,
@@ -335,6 +338,8 @@ export class HealthReportsService {
         metadata: {
           userId,
           uploadDate: new Date().toISOString(),
+          bucket: bucket,
+          storagePath: storagePath,
         },
         category: 'health-reports',
         userId,

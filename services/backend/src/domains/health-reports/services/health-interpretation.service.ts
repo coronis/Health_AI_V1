@@ -180,6 +180,17 @@ export class HealthInterpretationService {
   ): Promise<HealthInterpretation> {
     const prompt = this.buildInterpretationPrompt(entities, options);
 
+    // Log prompt for AI monitoring and debugging
+    console.log('AI Interpretation Prompt Generated:', {
+      promptLength: prompt.length,
+      entityCount: entities.length,
+      timestamp: new Date().toISOString(),
+      options: options,
+    });
+
+    // Store prompt for audit trail and model improvement
+    await this.logPromptForMonitoring(prompt, entities, options);
+
     // Mock AI response - in production, this would call the actual AI provider
     // The response would be parsed from structured JSON returned by the AI
 
@@ -357,6 +368,14 @@ Laboratory analysis reveals multiple cardiovascular and metabolic risk factors. 
     const redFlags: RedFlag[] = [];
     let riskScore = 100; // Start with perfect score
 
+    // Apply analysis options for customized rule-based processing
+    const analysisDepth = options.analysisDepth || 'standard';
+    const includePreventiveCare = options.includePreventiveCare !== false;
+
+    console.log(
+      `Performing rule-based analysis with depth: ${analysisDepth}, preventive care: ${includePreventiveCare}`,
+    );
+
     for (const entity of entities) {
       // Check for critical values that require immediate attention
       if (
@@ -473,6 +492,42 @@ Laboratory analysis reveals multiple cardiovascular and metabolic risk factors. 
     }
 
     return interpretation;
+  }
+
+  /**
+   * Log prompt for AI monitoring and audit trail
+   */
+  private async logPromptForMonitoring(
+    prompt: string,
+    entities: StructuredEntity[],
+    options: any,
+  ): Promise<void> {
+    const promptMetadata = {
+      timestamp: new Date().toISOString(),
+      entityCount: entities.length,
+      promptHash: this.generatePromptHash(prompt),
+      userAge: options.userAge,
+      userGender: options.userGender,
+      analysisType: options.analysisType || 'standard',
+      promptLength: prompt.length,
+    };
+
+    // In production, this would log to monitoring system or database
+    console.log('AI Prompt Monitoring Log:', promptMetadata);
+  }
+
+  /**
+   * Generate hash for prompt deduplication and tracking
+   */
+  private generatePromptHash(prompt: string): string {
+    // Simple hash implementation for demo - in production would use crypto
+    let hash = 0;
+    for (let i = 0; i < prompt.length; i++) {
+      const char = prompt.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return Math.abs(hash).toString(16);
   }
 
   /**

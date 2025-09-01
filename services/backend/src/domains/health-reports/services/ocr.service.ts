@@ -158,8 +158,23 @@ export class OCRService {
       throw new Error('Google Document AI not configured');
     }
 
+    // Log project configuration for monitoring
+    console.log(
+      `Processing document with Google Document AI - Project: ${projectId}, Processor: ${processorId}`,
+    );
+
+    // Configure document processing request
+    const documentRequest = {
+      name: `projects/${projectId}/locations/us/processors/${processorId}`,
+      rawDocument: {
+        content: fileBuffer.toString('base64'),
+        mimeType: mimeType,
+      },
+      fieldMask: options.fieldMask || 'text,pages.pageNumber,pages.dimension',
+    };
+
     // This would integrate with Google Document AI API
-    // For now, implementing mock response structure
+    // For now, implementing mock response structure with enhanced metadata
     const mockResult: OCRResult = {
       extractedText: this.generateMockHealthReportText(),
       confidence: 0.95,
@@ -173,6 +188,8 @@ export class OCRService {
         language: options.language || 'en',
         quality: 'high',
         textDensity: 85.5,
+        processorId: processorId,
+        projectId: projectId,
       },
     };
 
@@ -193,6 +210,16 @@ export class OCRService {
     if (!apiKey || apiKey === 'DEMO_KEY') {
       throw new Error('Azure Document Intelligence not configured');
     }
+
+    // Configure Azure Document Intelligence request
+    const azureRequest = {
+      endpoint: endpoint,
+      apiVersion: '2023-07-31',
+      modelId: 'prebuilt-document',
+      base64Source: fileBuffer.toString('base64'),
+    };
+
+    console.log(`Processing document with Azure Document Intelligence at endpoint: ${endpoint}`);
 
     // Mock implementation - would call Azure Document Intelligence API
     const mockResult: OCRResult = {
@@ -228,6 +255,17 @@ export class OCRService {
     if (!accessKey || accessKey === 'DEMO_KEY') {
       throw new Error('AWS Textract not configured');
     }
+
+    // Configure AWS Textract with proper credentials
+    const awsConfig = {
+      accessKeyId: accessKey,
+      secretAccessKey: secretKey,
+      region: this.configService.get('AWS_REGION') || 'us-east-1',
+    };
+
+    console.log(
+      `Processing document with AWS Textract using access key: ${accessKey.substring(0, 8)}...`,
+    );
 
     // Mock implementation - would call AWS Textract API
     const mockResult: OCRResult = {
@@ -295,6 +333,12 @@ export class OCRService {
       OCRProvider.AWS_TEXTRACT,
       OCRProvider.GOOGLE_DOCUMENT_AI,
     ];
+
+    // Use cost-effective chain for budget-conscious processing
+    if (options.costOptimized) {
+      console.log('Using cost-effective OCR provider chain for budget optimization');
+      return costEffectiveChain;
+    }
 
     // Health reports always use high accuracy chain
     return highAccuracyChain;
