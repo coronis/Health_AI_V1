@@ -330,12 +330,12 @@ export class HealthReportsService {
       file.buffer,
       file.originalName,
       {
-        bucket,
-        path: storagePath, // Use the calculated storage path
+        category: 'health-reports',
         contentType: file.mimeType,
         encryption: true,
+        userId,
         metadata: {
-          userId,
+          originalPath: storagePath,
           uploadDate: new Date().toISOString(),
         },
         category: 'health-reports',

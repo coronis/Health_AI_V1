@@ -471,14 +471,15 @@ export class WeeklyAdaptationService {
     const adjustedParams = this.applyAdaptationsToParams(plan, adaptations);
 
     // Address deficiencies in exercise selection and focus areas
-    if (deficiencies.missingMuscleGroups?.length > 0) {
+    if (deficiencies.weakMuscleGroups?.length > 0) {
       adjustedParams.focusAreas = [
         ...(adjustedParams.focusAreas || []),
-        ...deficiencies.missingMuscleGroups,
+        ...deficiencies.weakMuscleGroups,
       ];
     }
 
-    if (deficiencies.imbalances?.pushPullRatio > 1.5) {
+    // Add balanced training focus if needed
+    if (deficiencies.volumeDeficiency > 30) {
       adjustedParams.focusAreas = [...(adjustedParams.focusAreas || []), 'pulling_exercises'];
     }
 

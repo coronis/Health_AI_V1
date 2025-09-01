@@ -189,7 +189,7 @@ export class HealthInterpretationService {
 
     const mockInterpretation: HealthInterpretation = {
       overallAssessment: {
-        status: aiModel === 'simple' ? 'fair' : 'needs_attention',
+        status: aiModel === 'simple' ? 'fair' : 'poor',
         riskLevel: 'moderate',
         score: 72,
         keyFindings: [
@@ -369,10 +369,15 @@ Laboratory analysis reveals multiple cardiovascular and metabolic risk factors. 
     for (const entity of entities) {
       // Check for critical values that require immediate attention using thresholds
       const entityThreshold = riskThresholds[entity.entityName.toLowerCase()];
-      if (entityThreshold && entity.value > entityThreshold.high) {
+      const entityValue = entity.getValue();
+      if (entityThreshold && typeof entityValue === 'number' && entityValue > entityThreshold.high) {
         redFlags.push({
-          category: 'critical_value',
-          message: `${entity.entityName} value ${entity.value} exceeds critical threshold ${entityThreshold.high}`,
+          severity: 'urgent' as const,
+          finding: `Critical ${entity.entityName}`,
+          clinicalReason: `${entity.entityName} value ${entityValue} exceeds critical threshold ${entityThreshold.high}`,
+          recommendedAction: 'Immediate medical consultation required',
+          timeframe: 'immediate' as const,
+          specialistConsultation: 'Primary care physician or specialist',
         });
       }
 

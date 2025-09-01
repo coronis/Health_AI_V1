@@ -9,6 +9,7 @@ import {
   UploadedFile,
   BadRequestException,
   Query,
+  Logger,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiResponse, ApiConsumes, ApiBody } from '@nestjs/swagger';
@@ -22,6 +23,8 @@ import { HealthReportType } from '../entities/health-report.entity';
 @ApiTags('health-reports')
 @Controller('health-reports')
 export class HealthReportsController {
+  private readonly logger = new Logger(HealthReportsController.name);
+  
   constructor(
     private readonly healthReportsService: HealthReportsService,
     private readonly healthInterpretationService: HealthInterpretationService,

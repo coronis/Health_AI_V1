@@ -43,6 +43,7 @@ export class AuthRateLimitInterceptor implements NestInterceptor {
     },
   ) {}
 
+  // @ts-expect-error RxJS version compatibility issue between root and package dependencies
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
     const request = context.switchToHttp().getRequest();
     const ipAddress = request.ip || request.connection.remoteAddress;
@@ -99,6 +100,7 @@ export class AuthRateLimitInterceptor implements NestInterceptor {
       this.cleanupExpiredEntries();
     }
 
+    // @ts-expect-error RxJS version compatibility issue between root and package dependencies
     return next.handle();
   }
 

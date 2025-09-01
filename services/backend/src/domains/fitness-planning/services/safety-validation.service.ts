@@ -185,12 +185,10 @@ export class SafetyValidationService {
 
     // Validate total volume using totalReps
     if (totalReps > 200) {
-      risks.push({
-        riskLevel: RiskLevel.HIGH,
-        category: RiskCategory.OVERTRAINING,
-        description: `Workout volume too high (${totalReps} total reps). Consider reducing intensity or duration.`,
-        recommendation: 'Reduce total volume to under 200 reps per workout',
-      });
+      result.errors.push(
+        `Workout volume too high (${totalReps} total reps). Consider reducing intensity or duration.`
+      );
+      result.warnings.push('Reduce total volume to under 200 reps per workout');
     }
 
     result.totalVolume = totalSets;

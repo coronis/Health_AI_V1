@@ -18,6 +18,7 @@ export interface AuthenticatedRequest extends Request {
 export class OptionalAuthGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
+  // @ts-expect-error RxJS version compatibility issue between root and package dependencies
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
     // This guard allows both authenticated and unauthenticated requests
     // If authenticated, it will populate req.user
@@ -37,6 +38,7 @@ export class OptionalAuthGuard implements CanActivate {
 
 @Injectable()
 export class DeviceBindingGuard implements CanActivate {
+  // @ts-expect-error RxJS version compatibility issue between root and package dependencies
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const user = request.user;

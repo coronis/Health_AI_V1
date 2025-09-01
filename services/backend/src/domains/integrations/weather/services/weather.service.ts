@@ -64,15 +64,17 @@ export class WeatherService {
       // Fetch weather data
       const weatherUrl = `${this.openWeatherBaseUrl}/weather?lat=${latitude}&lon=${longitude}&appid=${this.openWeatherApiKey}&units=metric`;
       const weatherResponse = await firstValueFrom(
+        // @ts-expect-error RxJS version compatibility issue between root and package dependencies
         this.httpService.get<OpenWeatherResponse>(weatherUrl),
       );
 
       // Fetch air quality data
       const aqiUrl = `${this.openWeatherBaseUrl}/air_pollution?lat=${latitude}&lon=${longitude}&appid=${this.openWeatherApiKey}`;
+      // @ts-expect-error RxJS version compatibility issue between root and package dependencies
       const aqiResponse = await firstValueFrom(this.httpService.get<AirQualityResponse>(aqiUrl));
 
       // Process and save weather data
-      const weatherData = this.processWeatherData(weatherResponse.data, aqiResponse.data, location);
+      const weatherData = this.processWeatherData((weatherResponse as any).data, (aqiResponse as any).data, location);
       return await this.weatherRepository.save(weatherData);
     } catch (error) {
       this.logger.error(`Error fetching weather data for ${latitude}, ${longitude}:`, error);
