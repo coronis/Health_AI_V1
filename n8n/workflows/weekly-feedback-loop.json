@@ -60,7 +60,7 @@
     {
       "parameters": {
         "url": "={{$env.API_BASE_URL}}/meal-planning/weekly-adaptation/trigger",
-        "authentication": "predefinedCredentialType", 
+        "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpBearerAuth",
         "sendHeaders": true,
         "headerParameters": {
@@ -90,7 +90,7 @@
         }
       },
       "id": "trigger-meal-adaptation",
-      "name": "Trigger Meal Plan Adaptation", 
+      "name": "Trigger Meal Plan Adaptation",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [460, 420]
@@ -99,7 +99,7 @@
       "parameters": {
         "url": "={{$env.API_BASE_URL}}/users/weekly-measurement-request",
         "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "httpBearerAuth", 
+        "nodeCredentialType": "httpBearerAuth",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -108,7 +108,7 @@
               "value": "application/json"
             },
             {
-              "name": "X-N8N-Webhook", 
+              "name": "X-N8N-Webhook",
               "value": "weekly-feedback-loop"
             }
           ]
@@ -129,7 +129,7 @@
       },
       "id": "request-measurements",
       "name": "Request Weekly Measurements",
-      "type": "n8n-nodes-base.httpRequest", 
+      "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [460, 540]
     },
@@ -152,7 +152,7 @@
         "headerParameters": {
           "parameters": [
             {
-              "name": "Content-Type", 
+              "name": "Content-Type",
               "value": "application/json"
             }
           ]
@@ -174,7 +174,7 @@
       "id": "log-completion",
       "name": "Log Completion",
       "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.1, 
+      "typeVersion": 4.1,
       "position": [900, 420]
     }
   ],
@@ -189,7 +189,7 @@
           },
           {
             "node": "Trigger Meal Plan Adaptation",
-            "type": "main", 
+            "type": "main",
             "index": 0
           },
           {
@@ -215,7 +215,7 @@
       "main": [
         [
           {
-            "node": "Consolidate Results", 
+            "node": "Consolidate Results",
             "type": "main",
             "index": 1
           }
@@ -260,14 +260,14 @@
   "tags": [
     {
       "createdAt": "2024-01-01T00:00:00.000Z",
-      "updatedAt": "2024-01-01T00:00:00.000Z", 
+      "updatedAt": "2024-01-01T00:00:00.000Z",
       "id": "phase-13",
       "name": "phase-13"
     },
     {
       "createdAt": "2024-01-01T00:00:00.000Z",
       "updatedAt": "2024-01-01T00:00:00.000Z",
-      "id": "weekly-adaptation", 
+      "id": "weekly-adaptation",
       "name": "weekly-adaptation"
     }
   ]

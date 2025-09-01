@@ -7,16 +7,24 @@
   <img src="https://img.shields.io/badge/Security-OWASP%20ASVS-red" alt="Security" />
 </p>
 
-**HealthCoachAI** is a comprehensive, production-ready, AI-powered health, diet, and fitness application designed to provide celebrity-level nutritionist and fitness coach experiences. Built with security-first principles, scalable architecture, and India-first design while being globally scalable.
+**HealthCoachAI** is a comprehensive, production-ready, AI-powered health, diet,
+and fitness application designed to provide celebrity-level nutritionist and
+fitness coach experiences. Built with security-first principles, scalable
+architecture, and India-first design while being globally scalable.
 
 ## 🎯 Key Features
 
-- **AI-Powered Coaching**: Personalized meal plans and fitness routines using advanced AI models
-- **Multi-Platform**: Native iOS (SwiftUI) and Android (Jetpack Compose) applications
+- **AI-Powered Coaching**: Personalized meal plans and fitness routines using
+  advanced AI models
+- **Multi-Platform**: Native iOS (SwiftUI) and Android (Jetpack Compose)
+  applications
 - **Health Integration**: HealthKit, Google Fit, and Fitbit synchronization
-- **Security-First**: OWASP ASVS aligned with field-level encryption and audit logging
-- **Scalable Architecture**: Designed for 0-10M users with performance optimization
-- **India-First Design**: Hinglish support, Indian cuisine focus, metric-first units
+- **Security-First**: OWASP ASVS aligned with field-level encryption and audit
+  logging
+- **Scalable Architecture**: Designed for 0-10M users with performance
+  optimization
+- **India-First Design**: Hinglish support, Indian cuisine focus, metric-first
+  units
 
 ## 🚀 Quick Start
 
@@ -40,12 +48,14 @@ pnpm run dev
 ## 📱 Mobile Applications
 
 ### iOS (SwiftUI)
+
 - Native iOS application with modern SwiftUI architecture
 - WCAG 2.1 AA accessibility compliance
 - Dark/light mode support
 - HealthKit integration
 
 ### Android (Jetpack Compose)
+
 - Modern Android app with Jetpack Compose
 - Material 3 design system
 - Google Fit integration
@@ -54,13 +64,17 @@ pnpm run dev
 ## 🏗️ Architecture
 
 ### Backend (NestJS + TypeScript)
-- **Domains**: auth, users, meal-planning, fitness-planning, nutrition, health-reports, chat, analytics
+
+- **Domains**: auth, users, meal-planning, fitness-planning, nutrition,
+  health-reports, chat, analytics
 - **Database**: PostgreSQL with pgvector for AI embeddings
 - **Cache**: Redis for performance optimization
-- **AI Integration**: OpenAI, Anthropic, Google Vertex AI with intelligent routing
+- **AI Integration**: OpenAI, Anthropic, Google Vertex AI with intelligent
+  routing
 - **Security**: OWASP ASVS aligned, field-level encryption, audit logging
 
 ### Frontend Platforms
+
 - **Mobile**: Native iOS (SwiftUI) and Android (Jetpack Compose)
 - **Backend API**: RESTful with Swagger documentation
 - **Real-time**: WebSocket support for live updates
@@ -76,16 +90,19 @@ pnpm run dev
 ## 🤖 AI Features
 
 ### Level 1 (High Accuracy)
+
 - Health report analysis
 - Medical data interpretation
 - Critical health decisions
 
 ### Level 2 (Cost Optimized)
+
 - Meal planning and recipes
 - Fitness recommendations
 - General chat assistance
 
 ### AI Providers Supported
+
 - OpenAI (GPT-4, GPT-3.5)
 - Anthropic (Claude Sonnet, Haiku)
 - Google Vertex AI (Gemini Pro)
@@ -93,17 +110,18 @@ pnpm run dev
 
 ## 📊 Performance Targets
 
-| Metric | Target | Current Status |
-|--------|--------|----------------|
-| P95 API Response Time | <2s | ✅ <1.8s |
-| API Availability | >99.9% | ✅ 99.95% |
-| Error Rate | <1% | ✅ 0.3% |
-| Cache Hit Rate | >80% | ✅ 85% |
-| AI Cost Optimization | 50% reduction | ✅ 85% reduction |
+| Metric                | Target        | Current Status   |
+| --------------------- | ------------- | ---------------- |
+| P95 API Response Time | <2s           | ✅ <1.8s         |
+| API Availability      | >99.9%        | ✅ 99.95%        |
+| Error Rate            | <1%           | ✅ 0.3%          |
+| Cache Hit Rate        | >80%          | ✅ 85%           |
+| AI Cost Optimization  | 50% reduction | ✅ 85% reduction |
 
 ## 🔧 Development Status
 
 ### ✅ Completed Phases (95% Complete)
+
 - **Phase 1-2**: Program setup & backend architecture
 - **Phase 3**: Nutrition & calculation engines
 - **Phase 5**: Authentication & privacy baseline
@@ -116,20 +134,25 @@ pnpm run dev
 
 ## 📚 Documentation
 
-- **[User Guide](./USER_GUIDE.md)** - Complete installation and setup instructions
-- **[Repository Verification Report](./REPOSITORY_VERIFICATION_REPORT.md)** - Comprehensive implementation analysis
-- **[API Documentation](http://localhost:8080/api/docs)** - Swagger documentation (when running locally)
+- **[User Guide](./USER_GUIDE.md)** - Complete installation and setup
+  instructions
+- **[Repository Verification Report](./REPOSITORY_VERIFICATION_REPORT.md)** -
+  Comprehensive implementation analysis
+- **[API Documentation](http://localhost:8080/api/docs)** - Swagger
+  documentation (when running locally)
 - **[Architecture Guide](./ARCHITECTURE.md)** - Technical architecture overview
 
 ## 🔐 Demo API Configuration
 
-The application includes demo API configurations for development. For production deployment:
+The application includes demo API configurations for development. For production
+deployment:
 
 1. Replace demo keys in `.env` files with actual credentials
 2. All demo keys are clearly marked and will fail safely in production
 3. See [USER_GUIDE.md](./USER_GUIDE.md) for complete API setup instructions
 
 ### Key Demo APIs to Replace:
+
 - Authentication providers (Google, Apple, Facebook)
 - AI providers (OpenAI, Anthropic, Vertex AI)
 - External services (Twilio, Weather, Health integrations)
@@ -138,6 +161,7 @@ The application includes demo API configurations for development. For production
 ## 🛠️ Technology Stack
 
 ### Backend
+
 - **Framework**: NestJS with TypeScript
 - **Database**: PostgreSQL with pgvector
 - **Cache**: Redis
@@ -147,6 +171,7 @@ The application includes demo API configurations for development. For production
 - **API Documentation**: Swagger/OpenAPI
 
 ### Mobile
+
 - **iOS**: SwiftUI with Combine
 - **Android**: Jetpack Compose with Kotlin
 - **State Management**: MVVM architecture
@@ -154,6 +179,7 @@ The application includes demo API configurations for development. For production
 - **Networking**: Modern HTTP clients
 
 ### DevOps & Monitoring
+
 - **Build System**: pnpm + Turbo monorepo
 - **CI/CD**: GitHub Actions ready
 - **Security**: Gitleaks secret scanning
@@ -163,11 +189,13 @@ The application includes demo API configurations for development. For production
 ## 🏃‍♂️ Running Locally
 
 ### Prerequisites
+
 - Node.js 20+, pnpm 8+
 - PostgreSQL 14+, Redis 6+
 - Xcode 15+ (for iOS), Android Studio (for Android)
 
 ### Quick Start
+
 ```bash
 # Install dependencies
 pnpm install
@@ -202,6 +230,7 @@ pnpm run lint
 ## 🚀 Deployment
 
 The application is production-ready with:
+
 - Docker containerization support
 - Environment-based configuration
 - Health checks and monitoring
@@ -220,7 +249,8 @@ See [USER_GUIDE.md](./USER_GUIDE.md) for detailed deployment instructions.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
+for details.
 
 ## 🎯 Roadmap
 
@@ -232,19 +262,21 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 For questions and support:
+
 - Check the [USER_GUIDE.md](./USER_GUIDE.md) for common issues
-- Review the [REPOSITORY_VERIFICATION_REPORT.md](./REPOSITORY_VERIFICATION_REPORT.md) for implementation details
+- Review the
+  [REPOSITORY_VERIFICATION_REPORT.md](./REPOSITORY_VERIFICATION_REPORT.md) for
+  implementation details
 - Create an issue for bugs or feature requests
 
 ---
 
-**HealthCoachAI** - Bringing AI-powered health coaching to everyone, everywhere. 🌍💪
-Commit:      cd5226711335c68be1e720b318b7bc3135a30eb2
-Author:      John
-Email:       john@users.noreply.github.com
-Date:        2022-08-03T12:31:40Z
-Fingerprint: cd5226711335c68be1e720b318b7bc3135a30eb2:cmd/generate/config/rules/sidekiq.go:sidekiq-secret:23
-```
+**HealthCoachAI** - Bringing AI-powered health coaching to everyone, everywhere.
+🌍💪 Commit: cd5226711335c68be1e720b318b7bc3135a30eb2 Author: John Email:
+john@users.noreply.github.com Date: 2022-08-03T12:31:40Z Fingerprint:
+cd5226711335c68be1e720b318b7bc3135a30eb2:cmd/generate/config/rules/sidekiq.go:sidekiq-secret:23
+
+````
 
 ## Getting Started
 
@@ -273,7 +305,7 @@ docker run -v ${path_to_host_folder_to_scan}:/path zricethezav/gitleaks:latest [
 git clone https://github.com/zricethezav/gitleaks.git
 cd gitleaks
 make build
-```
+````
 
 ### GitHub Action
 

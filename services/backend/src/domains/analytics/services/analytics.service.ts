@@ -239,14 +239,17 @@ export class AnalyticsService {
   }
 
   async getGoalProgress(userId: string): Promise<any> {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
+    const user = await this.userRepository.findOne({ 
+      where: { id: userId },
+      relations: ['goals', 'profile']
+    });
     const activePlan = await this.mealPlanRepository.findOne({
       where: { userId, isActive: true },
     });
 
     // Use user data for personalized goals
-    const userGoals = user?.healthGoals || [];
-    const userMetrics = user?.healthMetrics || {};
+    const userGoals = user?.goals || null;
+    const userProfile = user?.profile || null;
 
     // Mock goal data - in production this would come from user preferences/goals
     const goals = [

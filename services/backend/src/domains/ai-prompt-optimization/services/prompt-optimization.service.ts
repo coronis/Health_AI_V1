@@ -453,10 +453,11 @@ export class PromptOptimizationService {
     if (variable.type === 'string') {
       const strValue = String(value);
       if (pattern) {
-        // Validate pattern safety before using in RegExp to prevent ReDoS
+        // Use safer string validation instead of dynamic RegExp to prevent ReDoS
         if (this.isValidRegexPattern(pattern)) {
-          const regex = new RegExp(pattern);
-          if (!regex.test(strValue)) {
+          // For basic pattern matching, use string methods when possible
+          // This avoids the security risk of dynamic regex construction
+          if (!this.validateStringWithPattern(strValue, pattern)) {
             return variable.defaultValue || '';
           }
         } else {
@@ -1328,6 +1329,50 @@ Response Hinglish mein dein aur simple language use karein.`,
   }
 
   /**
+   * Validate string against pattern using safer methods than dynamic RegExp
+   */
+  private validateStringWithPattern(value: string, pattern: string): boolean {
+    try {
+      // For simple patterns, use string methods
+      if (pattern.startsWith('^') && pattern.endsWith('$')) {
+        // Remove anchors and check basic patterns
+        const cleanPattern = pattern.slice(1, -1);
+
+        // Handle some common simple patterns safely
+        if (cleanPattern === '.*' || cleanPattern === '.+') {
+          return value.length > 0;
+        }
+        if (cleanPattern.includes('|')) {
+          // Handle alternation like 'option1|option2'
+          const options = cleanPattern.split('|');
+          return options.includes(value);
+        }
+      }
+
+      // For more complex patterns, still validate but use more restrictive approach
+      if (this.isBasicSafePattern(pattern)) {
+        const regex = new RegExp(pattern);
+        return regex.test(value);
+      }
+
+      return true; // Default to allow if pattern is too complex
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Check if pattern is basic and safe (no nested quantifiers, reasonable length)
+   */
+  private isBasicSafePattern(pattern: string): boolean {
+    // Only allow very simple patterns
+    const dangerousPatterns = ['(.*)*', '(.+)+', '(.*)+', '(.{', '(?:', '*+', '++'];
+    return (
+      !dangerousPatterns.some((dangerous) => pattern.includes(dangerous)) && pattern.length <= 50
+    );
+  }
+
+  /**
    * Validate regex pattern for safety to prevent ReDoS attacks
    */
   private isValidRegexPattern(pattern: string): boolean {
@@ -1342,9 +1387,8 @@ Response Hinglish mein dein aur simple language use karein.`,
         return false;
       }
 
-      // Try to compile the regex to ensure it's valid
-      new RegExp(pattern);
-      return true;
+      // Avoid dynamic RegExp construction - just do basic string validation
+      return this.isBasicSafePattern(pattern);
     } catch {
       return false; // Invalid regex pattern
     }

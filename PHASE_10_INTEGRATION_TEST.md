@@ -1,6 +1,7 @@
 # AI Router Integration Test Script
 
-This script tests the integration between the AI routing service and n8n workflows.
+This script tests the integration between the AI routing service and n8n
+workflows.
 
 ## Prerequisites
 
@@ -11,6 +12,7 @@ This script tests the integration between the AI routing service and n8n workflo
 ## Test Scenarios
 
 ### 1. Daily Quota Reset
+
 ```bash
 # Trigger quota reset workflow
 curl -X POST http://localhost:5678/webhook/ai-quota-reset \
@@ -19,6 +21,7 @@ curl -X POST http://localhost:5678/webhook/ai-quota-reset \
 ```
 
 ### 2. Provider Failover
+
 ```bash
 # Trigger provider failover
 curl -X POST http://localhost:5678/webhook/ai-provider-failover \
@@ -32,6 +35,7 @@ curl -X POST http://localhost:5678/webhook/ai-provider-failover \
 ```
 
 ### 3. AI Routing Request
+
 ```bash
 # Test AI routing with DLP
 curl -X POST http://localhost:8080/ai-routing/route \
@@ -47,6 +51,7 @@ curl -X POST http://localhost:8080/ai-routing/route \
 ```
 
 ### 4. Webhook Routing
+
 ```bash
 # Test n8n webhook routing
 curl -X POST http://localhost:8080/webhooks/ai-routing/route \
@@ -62,6 +67,7 @@ curl -X POST http://localhost:8080/webhooks/ai-routing/route \
 ```
 
 ### 5. Analytics Dashboard
+
 ```bash
 # Get routing analytics
 curl -X GET "http://localhost:8080/ai-routing/analytics?startDate=2024-08-01&endDate=2024-08-30" \
@@ -70,7 +76,8 @@ curl -X GET "http://localhost:8080/ai-routing/analytics?startDate=2024-08-01&end
 
 ## Expected Results
 
-1. **Quota Reset**: Should return `{"success": true}` and trigger Slack notifications
+1. **Quota Reset**: Should return `{"success": true}` and trigger Slack
+   notifications
 2. **Provider Failover**: Should activate alternative providers and send alerts
 3. **AI Routing**: Should return routing decision with DLP-processed content
 4. **Webhook Routing**: Should process request and return structured response

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
+import { Repository, In, Between } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 
 import { ChatContext, ContextType } from '../entities/chat-context.entity';

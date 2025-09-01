@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 
 export interface CostAlert {
   id: string;
-  type: 'budget_exceeded' | 'spike_detected' | 'quota_warning' | 'unusual_usage';
+  type: 'budget_exceeded' | 'spike_detected' | 'quota_warning' | 'unusual_usage' | 'efficiency_degraded';
   severity: 'low' | 'medium' | 'high' | 'critical';
   message: string;
   threshold: number;
