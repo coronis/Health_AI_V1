@@ -317,13 +317,22 @@ export default function FitnessPage() {
             {/* AI Coach Tip */}
             <div className="bg-primary-50 rounded-xl p-6">
               <div className="flex items-start space-x-3">
-                <HeartIconSolid className="h-6 w-6 text-primary-600 mt-1" />
+                <TrophyIcon className="h-6 w-6 text-primary-600 mt-1" />
                 <div>
-                  <h3 className="font-medium text-primary-900 mb-2">AI Coach Tip</h3>
-                  <p className="text-primary-700 text-sm">
-                    Great job staying consistent! Your strength has improved 15% this month. 
-                    Consider adding 5 more minutes to your cardio sessions for better endurance.
+                  <h3 className="font-medium text-primary-900 mb-2">Achievement Unlocked!</h3>
+                  <p className="text-primary-700 text-sm mb-3">
+                    Great job staying consistent! Your strength has improved 15% this month.
                   </p>
+                  <div className="flex items-center space-x-2">
+                    <UserGroupIcon className="h-4 w-4 text-primary-600" />
+                    <span className="text-xs text-primary-600">Share with fitness community</span>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 pt-4 border-t border-primary-200">
+                <div className="flex items-center space-x-2">
+                  <HeartIconSolid className="h-5 w-5 text-red-500" />
+                  <span className="text-sm text-primary-800">AI Coach Tip: Consider adding 5 more minutes to your cardio sessions for better endurance.</span>
                 </div>
               </div>
             </div>

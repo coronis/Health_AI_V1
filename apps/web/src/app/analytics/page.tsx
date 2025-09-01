@@ -416,12 +416,24 @@ export default function AnalyticsPage() {
             <h3 className="text-lg font-semibold text-gray-900 mb-4 font-display">
               Health Trends
             </h3>
-            <div className="text-center py-12">
-              <ChartBarIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500 mb-4">Advanced health trend analysis</p>
-              <p className="text-sm text-gray-400">
-                Connect health devices to see detailed trends for heart rate, blood pressure, and more.
-              </p>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <CalendarDaysIcon className="h-6 w-6 text-blue-600" />
+                  <div>
+                    <p className="font-medium text-gray-900">Sleep Schedule Analysis</p>
+                    <p className="text-sm text-gray-600">7-day pattern review</p>
+                  </div>
+                </div>
+                <div className="text-sm text-blue-600 font-medium">View Details</div>
+              </div>
+              <div className="text-center py-8">
+                <ChartBarIcon className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                <p className="text-gray-500 mb-2">Advanced health trend analysis</p>
+                <p className="text-sm text-gray-400">
+                  Connect health devices to see detailed trends for heart rate, blood pressure, and more.
+                </p>
+              </div>
             </div>
           </div>
 

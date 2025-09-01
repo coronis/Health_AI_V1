@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { 
   PaperAirplaneIcon,
   MicrophoneIcon,
@@ -58,8 +58,28 @@ export default function ChatPage() {
   )
 
   const currentSession = sessionState.data
-  const messages = currentSession?.messages || []
+  const messages = useMemo(() => currentSession?.messages || [], [currentSession?.messages])
   const suggestedQuestions = suggestedQuestionsState.data || []
+
+  // Enhanced message preprocessing with domain classification
+  const processedMessages = useMemo(() => {
+    return messages.map((msg: ChatMessage) => ({
+      ...msg,
+      processedContent: msg.type === 'assistant' ? 
+        msg.message.replace(/\*(.*?)\*/g, '<strong>$1</strong>') : msg.message,
+      domainValidated: msg.metadata?.domainClassification?.isInScope ?? true
+    }))
+  }, [messages])
+
+  // Enhanced session initialization with context
+  const sessionContext = useMemo(() => ({
+    userGoals: ['weight_loss', 'muscle_gain'],
+    currentPage: 'chat',
+    userPreferences: {
+      language: 'en',
+      responseStyle: 'friendly'
+    }
+  }), [])
 
   // Create initial session
   useEffect(() => {
@@ -68,16 +88,13 @@ export default function ChatPage() {
     }
   }, [currentSessionId, createSessionState.loading])
 
-  // Auto-scroll to bottom
+  // Auto-scroll to bottom with improved performance
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  }, [processedMessages])
 
   const initializeSession = async () => {
-    const session = await createSession(userId, 'general_health', {
-      userGoals: ['weight_loss', 'muscle_gain'],
-      currentPage: 'chat'
-    })
+    const session = await createSession(userId, 'general_health', sessionContext)
     
     if (session) {
       setCurrentSessionId(session.id)
@@ -225,20 +242,23 @@ export default function ChatPage() {
           </div>
         )}
 
-        {messages.map((msg) => (
+        {processedMessages.map((msg) => (
           <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-xs lg:max-w-md px-4 py-3 rounded-lg ${
               msg.type === 'user' 
                 ? 'bg-primary-500 text-white' 
                 : 'bg-white border border-gray-200 text-gray-900'
             }`}>
-              <div className="whitespace-pre-wrap text-sm">{msg.message}</div>
+              <div 
+                className="whitespace-pre-wrap text-sm" 
+                dangerouslySetInnerHTML={{ __html: msg.processedContent }}
+              />
               <div className={`text-xs mt-2 ${
                 msg.type === 'user' ? 'text-primary-100' : 'text-gray-500'
               }`}>
                 {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </div>
-              {msg.metadata?.domainClassification && !msg.metadata.domainClassification.isInScope && (
+              {!msg.domainValidated && (
                 <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800">
                   ⚠️ This question is outside my health expertise. I can only help with nutrition, fitness, and wellness topics.
                 </div>
