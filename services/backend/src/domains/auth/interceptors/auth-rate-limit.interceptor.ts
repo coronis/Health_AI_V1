@@ -7,10 +7,8 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { AuditLog, AuditEventType, AuditSeverity } from '../entities/audit-log.entity';
 import { AuditService } from '../services/audit.service';
+import { AuditEventType, AuditSeverity } from '../entities/audit-log.entity';
 
 export interface RateLimitConfig {
   windowMs: number; // Time window in milliseconds
@@ -45,6 +43,7 @@ export class AuthRateLimitInterceptor implements NestInterceptor {
     },
   ) {}
 
+  // @ts-expect-error RxJS version compatibility issue between root and package dependencies
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
     const request = context.switchToHttp().getRequest();
     const ipAddress = request.ip || request.connection.remoteAddress;
@@ -101,6 +100,7 @@ export class AuthRateLimitInterceptor implements NestInterceptor {
       this.cleanupExpiredEntries();
     }
 
+    // @ts-expect-error RxJS version compatibility issue between root and package dependencies
     return next.handle();
   }
 

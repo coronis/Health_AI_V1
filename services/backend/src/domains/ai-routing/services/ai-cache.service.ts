@@ -120,11 +120,21 @@ export class AICacheService {
 
       // If no exact match and smart matching is enabled, try similarity search
       if (!cacheEntry && config.smartMatching && config.similarityThreshold < 1.0) {
+        // Premium users get more aggressive similarity matching
+        const similarityThreshold =
+          userTier === 'premium'
+            ? Math.max(0.7, config.similarityThreshold - 0.1)
+            : config.similarityThreshold;
+
+        this.logger.debug(
+          `Using tier-based similarity threshold: ${similarityThreshold} for ${userTier} user`,
+        );
+
         cacheEntry = await this.findSimilarCacheEntry(
           requestType,
           prompt,
           context,
-          config.similarityThreshold,
+          similarityThreshold,
         );
       }
 

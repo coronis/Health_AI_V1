@@ -357,12 +357,13 @@ export class OAuthService {
       }
 
       const response = await firstValueFrom(
+        // @ts-expect-error RxJS version compatibility issue between root and package dependencies
         this.httpService.post(tokenUrl, tokenParams.toString(), {
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         }),
       );
 
-      const data = response.data;
+      const data = (response as any).data;
       return {
         accessToken: data.access_token,
         refreshToken: data.refresh_token,
@@ -411,9 +412,10 @@ export class OAuthService {
           throw new BadRequestException(`Unsupported OAuth provider: ${provider}`);
       }
 
+      // @ts-expect-error RxJS version compatibility issue between root and package dependencies
       const response = await firstValueFrom(this.httpService.get(userInfoUrl, { headers }));
 
-      const data = response.data;
+      const data = (response as any).data;
 
       return this.normalizeUserInfo(provider, data);
     } catch (error) {

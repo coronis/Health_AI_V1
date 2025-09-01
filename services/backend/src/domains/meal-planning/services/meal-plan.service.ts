@@ -1,7 +1,7 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindManyOptions, Between } from 'typeorm';
-import { MealPlan, MealPlanStatus, MealPlanType } from '../entities/meal-plan.entity';
+import { Repository, FindManyOptions } from 'typeorm';
+import { MealPlan, MealPlanStatus } from '../entities/meal-plan.entity';
 import { MealPlanEntry, MealType } from '../entities/meal-plan-entry.entity';
 import { CreateMealPlanDto } from '../dto/create-meal-plan.dto';
 import { UpdateMealPlanDto } from '../dto/update-meal-plan.dto';

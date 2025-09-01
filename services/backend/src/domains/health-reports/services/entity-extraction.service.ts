@@ -158,12 +158,17 @@ export class EntityExtractionService {
   ): Promise<ExtractedEntity[]> {
     // This would make actual API call to the routed AI provider
     // For now, implementing mock extraction that follows the patterns
-
     const prompt = this.buildExtractionPrompt(text, options);
 
-    // Mock AI response - in production, this would call the actual AI provider
-    const mockEntities: ExtractedEntity[] = [
-      {
+    // Use the prompt to guide extraction logic
+    const isLabReport = prompt.includes('laboratory values') || prompt.includes('biomarker');
+    const isWellnessCheck = prompt.includes('vital signs') || prompt.includes('wellness');
+
+    // Mock AI response - adjust based on prompt context
+    const mockEntities: ExtractedEntity[] = [];
+
+    if (isLabReport) {
+      mockEntities.push({
         entityName: 'Total Cholesterol',
         entityType: EntityType.BIOMARKER,
         value: 195,
@@ -175,90 +180,95 @@ export class EntityExtractionService {
         standardCode: '2093-3',
         codeSystem: 'LOINC',
         category: 'Lipid Profile',
-      },
-      {
-        entityName: 'LDL Cholesterol',
-        entityType: EntityType.BIOMARKER,
-        value: 115,
-        unit: 'mg/dL',
-        dataType: DataType.NUMERIC,
-        referenceRange: { max: 100, text: '<100 mg/dL' },
-        confidence: 0.95,
-        originalText: 'LDL Cholesterol: 115 mg/dL (Normal: <100 mg/dL) - HIGH',
-        standardCode: '18262-6',
-        codeSystem: 'LOINC',
-        category: 'Lipid Profile',
-        flags: ['H'],
-      },
-      {
-        entityName: 'HDL Cholesterol',
-        entityType: EntityType.BIOMARKER,
-        value: 45,
-        unit: 'mg/dL',
-        dataType: DataType.NUMERIC,
-        referenceRange: { min: 40, text: '>40 mg/dL' },
-        confidence: 0.94,
-        originalText: 'HDL Cholesterol: 45 mg/dL (Normal: >40 mg/dL)',
-        standardCode: '2085-9',
-        codeSystem: 'LOINC',
-        category: 'Lipid Profile',
-      },
-      {
-        entityName: 'Fasting Glucose',
-        entityType: EntityType.BIOMARKER,
-        value: 102,
-        unit: 'mg/dL',
-        dataType: DataType.NUMERIC,
-        referenceRange: { min: 70, max: 100, text: '70-100 mg/dL' },
-        confidence: 0.97,
-        originalText: 'Fasting Glucose: 102 mg/dL (Normal: 70-100 mg/dL) - HIGH',
-        standardCode: '1558-6',
-        codeSystem: 'LOINC',
-        category: 'Diabetes Panel',
-        flags: ['H'],
-      },
-      {
-        entityName: 'HbA1c',
-        entityType: EntityType.BIOMARKER,
-        value: 5.8,
-        unit: '%',
-        dataType: DataType.NUMERIC,
-        referenceRange: { max: 5.7, text: '<5.7%' },
-        confidence: 0.96,
-        originalText: 'HbA1c: 5.8% (Normal: <5.7%) - BORDERLINE',
-        standardCode: '4548-4',
-        codeSystem: 'LOINC',
-        category: 'Diabetes Panel',
-        flags: ['H'],
-      },
-      {
-        entityName: 'Hemoglobin',
-        entityType: EntityType.BIOMARKER,
-        value: 14.2,
-        unit: 'g/dL',
-        dataType: DataType.NUMERIC,
-        referenceRange: { min: 13.5, max: 17.5, text: '13.5-17.5 g/dL' },
-        confidence: 0.98,
-        originalText: 'Hemoglobin: 14.2 g/dL (Normal: 13.5-17.5 g/dL)',
-        standardCode: '718-7',
-        codeSystem: 'LOINC',
-        category: 'Complete Blood Count',
-      },
-      {
-        entityName: 'Vitamin D',
-        entityType: EntityType.BIOMARKER,
-        value: 28,
-        unit: 'ng/mL',
-        dataType: DataType.NUMERIC,
-        referenceRange: { min: 30, max: 100, text: '30-100 ng/mL' },
-        confidence: 0.95,
-        originalText: 'Vitamin D: 28 ng/mL (Normal: 30-100 ng/mL) - LOW',
-        standardCode: '25058-6',
-        codeSystem: 'LOINC',
-        category: 'Vitamin Levels',
-        flags: ['L'],
-      },
-    ];
+      });
+    }
+
+    if (isWellnessCheck) {
+      mockEntities.push(
+        {
+          entityName: 'LDL Cholesterol',
+          entityType: EntityType.BIOMARKER,
+          value: 115,
+          unit: 'mg/dL',
+          dataType: DataType.NUMERIC,
+          referenceRange: { max: 100, text: '<100 mg/dL' },
+          confidence: 0.95,
+          originalText: 'LDL Cholesterol: 115 mg/dL (Normal: <100 mg/dL) - HIGH',
+          standardCode: '18262-6',
+          codeSystem: 'LOINC',
+          category: 'Lipid Profile',
+          flags: ['H'],
+        },
+        {
+          entityName: 'HDL Cholesterol',
+          entityType: EntityType.BIOMARKER,
+          value: 45,
+          unit: 'mg/dL',
+          dataType: DataType.NUMERIC,
+          referenceRange: { min: 40, text: '>40 mg/dL' },
+          confidence: 0.94,
+          originalText: 'HDL Cholesterol: 45 mg/dL (Normal: >40 mg/dL)',
+          standardCode: '2085-9',
+          codeSystem: 'LOINC',
+          category: 'Lipid Profile',
+        },
+        {
+          entityName: 'Fasting Glucose',
+          entityType: EntityType.BIOMARKER,
+          value: 102,
+          unit: 'mg/dL',
+          dataType: DataType.NUMERIC,
+          referenceRange: { min: 70, max: 100, text: '70-100 mg/dL' },
+          confidence: 0.97,
+          originalText: 'Fasting Glucose: 102 mg/dL (Normal: 70-100 mg/dL) - HIGH',
+          standardCode: '1558-6',
+          codeSystem: 'LOINC',
+          category: 'Diabetes Panel',
+          flags: ['H'],
+        },
+        {
+          entityName: 'HbA1c',
+          entityType: EntityType.BIOMARKER,
+          value: 5.8,
+          unit: '%',
+          dataType: DataType.NUMERIC,
+          referenceRange: { max: 5.7, text: '<5.7%' },
+          confidence: 0.96,
+          originalText: 'HbA1c: 5.8% (Normal: <5.7%) - BORDERLINE',
+          standardCode: '4548-4',
+          codeSystem: 'LOINC',
+          category: 'Diabetes Panel',
+          flags: ['H'],
+        },
+        {
+          entityName: 'Hemoglobin',
+          entityType: EntityType.BIOMARKER,
+          value: 14.2,
+          unit: 'g/dL',
+          dataType: DataType.NUMERIC,
+          referenceRange: { min: 13.5, max: 17.5, text: '13.5-17.5 g/dL' },
+          confidence: 0.98,
+          originalText: 'Hemoglobin: 14.2 g/dL (Normal: 13.5-17.5 g/dL)',
+          standardCode: '718-7',
+          codeSystem: 'LOINC',
+          category: 'Complete Blood Count',
+        },
+        {
+          entityName: 'Vitamin D',
+          entityType: EntityType.BIOMARKER,
+          value: 28,
+          unit: 'ng/mL',
+          dataType: DataType.NUMERIC,
+          referenceRange: { min: 30, max: 100, text: '30-100 ng/mL' },
+          confidence: 0.95,
+          originalText: 'Vitamin D: 28 ng/mL (Normal: 30-100 ng/mL) - LOW',
+          standardCode: '25058-6',
+          codeSystem: 'LOINC',
+          category: 'Vitamin Levels',
+          flags: ['L'],
+        },
+      );
+    }
 
     return mockEntities;
   }
@@ -269,12 +279,25 @@ export class EntityExtractionService {
   private performRuleBasedExtraction(text: string, options: any): ExtractedEntity[] {
     const entities: ExtractedEntity[] = [];
 
+    // Use options to customize extraction rules
+    const extractionMode = options.extractionMode || 'comprehensive';
+    const focusedBiomarkers = options.focusedBiomarkers || [];
+
     // Extract numeric biomarkers with units
     const numericPattern = /([A-Za-z\s]+):\s*(\d+\.?\d*)\s*([a-zA-Z\/μμ%]+)/g;
     let match;
 
     while ((match = numericPattern.exec(text)) !== null) {
       const [fullMatch, name, value, unit] = match;
+
+      // Skip if focused mode and biomarker not in focus list
+      if (extractionMode === 'focused' && focusedBiomarkers.length > 0) {
+        if (
+          !focusedBiomarkers.some((bio: string) => name.toLowerCase().includes(bio.toLowerCase()))
+        ) {
+          continue;
+        }
+      }
       const cleanName = name.trim();
 
       // Check if this is a known biomarker
@@ -325,7 +348,11 @@ export class EntityExtractionService {
    * Build extraction prompt for AI processing
    */
   private buildExtractionPrompt(text: string, options: any): string {
-    return `
+    // Customize prompt based on user options
+    const extractionType = options.extractionType || 'comprehensive';
+    const focusArea = options.focusArea || 'all';
+
+    const basePrompt = `
 Extract all medical test results, biomarkers, and lab values from the following health report text.
 For each entity found, provide:
 1. Entity name (standardized)
@@ -346,8 +373,13 @@ Focus on:
 Text to analyze:
 ${text}
 
-Return structured data in JSON format.
-    `;
+Return structured data in JSON format.`;
+
+    if (extractionType === 'focused' && focusArea !== 'all') {
+      return basePrompt + `\n\nFocus specifically on ${focusArea} related biomarkers.`;
+    }
+
+    return basePrompt;
   }
 
   /**
@@ -476,6 +508,9 @@ Return structured data in JSON format.
     const normalized = name.toLowerCase().trim();
 
     for (const [key, mapping] of this.biomarkerMappings.entries()) {
+      // Use key for debugging/logging when needed
+      this.logger.debug(`Checking biomarker mapping for key: ${key}`);
+
       if (
         mapping.names.some(
           (mappingName) =>

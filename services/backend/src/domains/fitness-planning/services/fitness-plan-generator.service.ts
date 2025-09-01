@@ -21,7 +21,6 @@ import {
   ExerciseCategory,
 } from '../entities/exercise.entity';
 import { ExerciseLibraryService } from './exercise-library.service';
-import { GenerateFitnessPlanDto } from '../dto/fitness-plan.dto';
 
 interface PlanGenerationParams {
   planType: FitnessPlanType;
@@ -38,15 +37,6 @@ interface PlanGenerationParams {
   workoutIntensityPreference?: string;
   progressiveOverloadEnabled?: boolean;
   deloadWeekFrequency?: number;
-}
-
-interface WorkoutTemplate {
-  name: string;
-  description: string;
-  duration: number;
-  exercises: ExerciseTemplate[];
-  restBetweenSets: number;
-  restBetweenExercises: number;
 }
 
 interface ExerciseTemplate {
@@ -264,6 +254,9 @@ export class FitnessPlanGeneratorService {
 
     const constraints = baseConstraints[experienceLevel];
 
+    // Adjust constraints based on available workout duration
+    const timeAdjustment = workoutDuration < 30 ? 0.7 : workoutDuration < 60 ? 1.0 : 1.3;
+
     // Adjust based on plan type
     const typeMultipliers = {
       [FitnessPlanType.WEIGHT_LOSS]: { sets: 0.8, intensity: 0.9 },
@@ -280,8 +273,12 @@ export class FitnessPlanGeneratorService {
     const multiplier = typeMultipliers[planType];
 
     return {
-      maxSetsPerWorkout: Math.round(constraints.maxSetsPerWorkout * multiplier.sets),
-      maxSetsPerMuscleGroup: Math.round(constraints.maxSetsPerMuscleGroup * multiplier.sets),
+      maxSetsPerWorkout: Math.round(
+        constraints.maxSetsPerWorkout * multiplier.sets * timeAdjustment,
+      ),
+      maxSetsPerMuscleGroup: Math.round(
+        constraints.maxSetsPerMuscleGroup * multiplier.sets * timeAdjustment,
+      ),
       targetIntensity: Math.min(10, Math.round(constraints.targetIntensity * multiplier.intensity)),
       restBetweenSets: constraints.restBetweenSets,
       restBetweenExercises: constraints.restBetweenExercises,
@@ -398,6 +395,17 @@ export class FitnessPlanGeneratorService {
       params.planType,
       params.maxWorkoutDurationMinutes,
     );
+
+    // Apply adaptations to workout constraints if available
+    if (adaptations) {
+      constraints.targetIntensity *= adaptations.intensityAdjustment || 1.0;
+      constraints.maxSetsPerWorkout = Math.round(
+        constraints.maxSetsPerWorkout * (adaptations.volumeAdjustment || 1.0),
+      );
+      constraints.restBetweenSets = Math.round(
+        constraints.restBetweenSets * (adaptations.restAdjustment || 1.0),
+      );
+    }
 
     const workout = this.workoutRepository.create({
       weekId: week.id,
@@ -597,8 +605,15 @@ export class FitnessPlanGeneratorService {
     const progressionRate = 1.05; // 5% increase per week
     const progressionFactor = Math.pow(progressionRate, weekNumber - 1);
 
-    // This would typically adjust weights, reps, or sets based on the progression
-    // For now, we'll implement a basic progression by increasing target reps
+    // Apply progression factor using experience level from params
+    const experienceMultiplier =
+      params.experienceLevel === 'beginner'
+        ? 0.8
+        : params.experienceLevel === 'intermediate'
+          ? 1.0
+          : 1.2;
+
+    // Apply progression factor to adjust weights, reps, or sets based on the progression
     const workouts = await this.workoutRepository.find({
       where: { weekId: week.id },
       relations: ['exercises'],
@@ -606,17 +621,29 @@ export class FitnessPlanGeneratorService {
 
     for (const workout of workouts) {
       for (const exercise of workout.exercises) {
+        // Apply progression factor with experience multiplier to target reps and weight recommendations
+        const adjustedProgressionFactor = progressionFactor * experienceMultiplier;
+
         if (exercise.targetRepsRangeMax) {
-          exercise.targetRepsRangeMax = Math.min(
-            exercise.targetRepsRangeMax + 1,
-            exercise.targetRepsRangeMax * 1.2,
+          exercise.targetRepsRangeMax = Math.round(
+            Math.min(
+              exercise.targetRepsRangeMax * adjustedProgressionFactor,
+              exercise.targetRepsRangeMax * 1.2,
+            ),
           );
         }
         if (exercise.targetRepsPerSet) {
-          exercise.targetRepsPerSet = Math.min(
-            exercise.targetRepsPerSet + 1,
-            exercise.targetRepsPerSet * 1.2,
+          exercise.targetRepsPerSet = Math.round(
+            Math.min(
+              exercise.targetRepsPerSet * adjustedProgressionFactor,
+              exercise.targetRepsPerSet * 1.2,
+            ),
           );
+        }
+        // Apply progression to weight recommendations if available
+        if (exercise.targetWeightKg) {
+          exercise.targetWeightKg =
+            Math.round(exercise.targetWeightKg * adjustedProgressionFactor * 100) / 100; // Round to 2 decimal places
         }
         await this.exerciseRepository.save(exercise);
       }
@@ -661,7 +688,10 @@ export class FitnessPlanGeneratorService {
     workoutNumber: number,
     workoutsPerWeek: number,
   ): MuscleGroup[] {
-    return schedule[workoutNumber.toString()] || [MuscleGroup.FULL_BODY];
+    // Adjust muscle group selection based on workouts per week for optimal distribution
+    const adjustedWorkoutNumber = workoutsPerWeek <= 3 ? Math.min(workoutNumber, 3) : workoutNumber;
+
+    return schedule[adjustedWorkoutNumber.toString()] || [MuscleGroup.FULL_BODY];
   }
 
   private generatePlanName(planType: FitnessPlanType, experienceLevel: ExperienceLevel): string {
@@ -849,14 +879,16 @@ export class FitnessPlanGeneratorService {
     workout.estimatedDurationMinutes = 60;
     workout.exercises = [];
 
-    // Basic workout structure - simplified for this fix
+    // Basic workout structure - use intensity to adjust target reps and rest times
     const exerciseCount = Math.floor(6 * volume);
     for (let i = 0; i < exerciseCount; i++) {
       const exercise = new FitnessPlanExercise();
       exercise.sortOrder = i + 1;
       exercise.targetSets = 3;
-      exercise.targetRepsPerSet = 12;
-      exercise.restTimeSeconds = 60;
+      // Adjust target reps based on intensity - higher intensity = lower reps
+      exercise.targetRepsPerSet = Math.round(12 * (1 - intensity * 0.3) + 6 * intensity);
+      // Adjust rest time based on intensity - higher intensity = more rest
+      exercise.restTimeSeconds = Math.round(60 + intensity * 120);
       exercise.exerciseType = ExerciseType.COMPOUND;
       exercise.status = ExerciseStatus.PLANNED;
       exercise.exerciseName = `Exercise ${i + 1}`;

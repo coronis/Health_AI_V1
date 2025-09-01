@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { promises as fs } from 'fs';
+import * as path from 'path';
 import { User } from '../../users/entities/user.entity';
 import { JsonTemplateLoaderService } from './json-template-loader.service';
 import { CostOptimizationService, BatchedRequest } from './cost-optimization.service';
@@ -13,8 +15,17 @@ export interface PromptTemplate {
   category: PromptCategory;
   name: string;
   description: string;
-  template: string;
+  systemPrompt: string;
+  userPromptTemplate: string;
+  template: string; // Keep for backward compatibility
   variables: PromptVariable[];
+  constraints?: {
+    maxTokens?: number;
+    temperature?: number;
+    topP?: number;
+    frequencyPenalty?: number;
+    presencePenalty?: number;
+  };
   costOptimized: boolean;
   language: 'en' | 'hi' | 'hinglish';
   metadata?: Record<string, any>;
@@ -479,6 +490,45 @@ export class PromptOptimizationService {
       return String(variable.defaultValue);
     }
 
+    // Use user context to provide personalized fallbacks when available
+    if (userContext) {
+      // Helper function to determine age group from age
+      const getAgeGroup = (age?: number): string => {
+        if (!age) return 'adult';
+        if (age < 18) return 'youth';
+        if (age < 65) return 'adult';
+        return 'senior';
+      };
+
+      // Helper function to get gender-neutral term
+      const getGenderNeutralTerm = (gender?: string): string => {
+        if (!gender) return 'person';
+        const lowerGender = gender.toLowerCase();
+        if (lowerGender.indexOf('male') !== -1) return 'person';
+        if (lowerGender.indexOf('female') !== -1) return 'person';
+        return 'person';
+      };
+
+      const contextualFallbacks: Record<string, string> = {
+        user_name: userContext.profile?.name || 'user',
+        userName: userContext.profile?.name || 'user',
+        user_age: getAgeGroup(userContext.profile?.age),
+        userAge: getAgeGroup(userContext.profile?.age),
+        user_gender: getGenderNeutralTerm(userContext.profile?.gender),
+        userGender: getGenderNeutralTerm(userContext.profile?.gender),
+        health_conditions: userContext.healthData?.conditions?.join(', ') || 'none reported',
+        healthConditions: userContext.healthData?.conditions?.join(', ') || 'none reported',
+        dietary_restrictions: userContext.preferences?.restrictions?.join(', ') || 'none specified',
+        dietaryRestrictions: userContext.preferences?.restrictions?.join(', ') || 'none specified',
+        user_goals: userContext.preferences?.goals?.join(', ') || 'general wellness',
+        userGoals: userContext.preferences?.goals?.join(', ') || 'general wellness',
+      };
+
+      if (contextualFallbacks[variable.name]) {
+        return contextualFallbacks[variable.name];
+      }
+    }
+
     // Provide safe defaults based on variable type and context
     const safeFallbacks: Record<string, string> = {
       user_name: 'user',
@@ -649,6 +699,23 @@ export class PromptOptimizationService {
       description: 'Provides personalized nutrition advice based on user profile and query',
       language: 'en',
       costOptimized: true,
+      systemPrompt: `You are a certified nutritionist providing personalized advice. Always:
+1. Consider health conditions and dietary restrictions
+2. Align with user's stated goals
+3. Be culturally appropriate for their location
+4. Provide safe and evidence-based recommendations
+5. Include specific food recommendations when relevant
+6. Keep responses concise and practical`,
+      userPromptTemplate: `User Profile:
+- Name: {{user_name}}
+- Age: {{user_age}} years old {{user_gender}} from {{user_location}}
+- Health conditions: {{health_conditions}}
+- Dietary restrictions: {{dietary_restrictions}}
+- Diet type: {{diet_type}}
+- Current goals: {{user_goals}}
+- Allergies: {{user_allergies}}
+
+User Query: {{user_query}}`,
       template: `You are a certified nutritionist providing personalized advice to {{user_name}}, a {{user_age}} year old {{user_gender}} from {{user_location}}.
 
 User Profile:
@@ -667,6 +734,11 @@ Please provide specific, actionable nutrition advice that:
 4. Is safe and evidence-based
 
 Keep the response concise, practical, and include specific food recommendations when relevant.`,
+      constraints: {
+        maxTokens: 1000,
+        temperature: 0.7,
+        topP: 0.9,
+      },
       variables: [
         {
           name: 'user_name',
@@ -743,6 +815,35 @@ Keep the response concise, practical, and include specific food recommendations 
       description: 'Creates personalized weekly meal plans',
       language: 'en',
       costOptimized: true,
+      systemPrompt: `You are a certified nutritionist and meal planning expert. Create structured, balanced weekly meal plans that:
+1. Meet the user's nutritional needs based on their profile
+2. Include calorie estimates for each meal
+3. Focus on specific dietary goals and preferences
+4. Use culturally appropriate cuisines
+5. Provide simple cooking instructions
+6. Include a comprehensive shopping list`,
+      userPromptTemplate: `Create a personalized weekly meal plan for {{user_name}}.
+
+User Details:
+- Age: {{user_age}} years
+- Weight: {{user_weight}} kg  
+- Height: {{user_height}} cm
+- Activity level: {{user_lifestyle}}
+- Health conditions: {{health_conditions}}
+- Diet preference: {{diet_type}}
+- Favorite cuisines: {{user_cuisines}}
+- Allergies/restrictions: {{dietary_restrictions}}
+- Goals: {{user_goals}}
+
+Requirements:
+- 7 days of meals (breakfast, lunch, dinner, 2 snacks)
+- Include calorie estimates for each meal
+- Focus on {{meal_focus}} if specified
+- Use primarily {{user_cuisines}} cuisine
+- Ensure nutritional balance
+- Provide simple cooking instructions
+
+Format as a structured weekly plan with shopping list.`,
       template: `Create a personalized weekly meal plan for {{user_name}}.
 
 User Details:
@@ -765,6 +866,11 @@ Requirements:
 - Provide simple cooking instructions
 
 Format as a structured weekly plan with shopping list.`,
+      constraints: {
+        maxTokens: 1500,
+        temperature: 0.7,
+        topP: 0.9,
+      },
       variables: [
         {
           name: 'user_name',
@@ -854,6 +960,26 @@ Format as a structured weekly plan with shopping list.`,
       description: 'Provides personalized fitness advice and workout recommendations',
       language: 'en',
       costOptimized: true,
+      systemPrompt: `You are a certified fitness trainer and exercise physiologist. Always:
+1. Provide specific, safe exercise recommendations
+2. Consider the user's current fitness level and health conditions
+3. Include proper workout frequency and duration guidelines
+4. Suggest progression plans for improvement
+5. Emphasize safety considerations and proper form
+6. Give practical tips for maintaining consistency`,
+      userPromptTemplate: `Provide personalized fitness guidance for {{user_name}}.
+
+Current Status:
+- Age: {{user_age}}
+- Current weight: {{user_weight}} kg
+- Target weight: {{target_weight}} kg
+- Fitness level: {{fitness_level}}
+- Available time: {{workout_time}} minutes per session
+- Equipment: {{available_equipment}}
+- Health considerations: {{health_conditions}}
+- Fitness goals: {{user_goals}}
+
+User Question: {{user_query}}`,
       template: `Provide personalized fitness guidance for {{user_name}}.
 
 Current Status:
@@ -876,6 +1002,11 @@ Please provide:
 5. Tips for consistency
 
 Consider their current fitness level and any health conditions.`,
+      constraints: {
+        maxTokens: 1200,
+        temperature: 0.7,
+        topP: 0.9,
+      },
       variables: [
         {
           name: 'user_name',
@@ -952,6 +1083,25 @@ Consider their current fitness level and any health conditions.`,
       description: 'Provides nutrition advice in Hinglish for Indian users',
       language: 'hinglish',
       costOptimized: true,
+      systemPrompt: `Aap ek experienced nutritionist hain. Always provide practical aur specific nutrition advice jo safe aur scientific basis par ho. Indian food context mein practical advice dein.`,
+      userPromptTemplate: `{{user_name}} ko advice de rahe hain. User {{user_age}} saal ka/ki {{user_gender}} hai jo {{user_location}} mein rehta/rehti hai.
+
+User Ki Details:
+- Health problems: {{health_conditions}}
+- Diet restrictions: {{dietary_restrictions}}
+- Diet type: {{diet_type}}
+- Goals: {{user_goals}}
+- Allergies: {{user_allergies}}
+
+User ka sawal: {{user_query}}
+
+Please provide practical aur specific nutrition advice jo:
+1. Unke health conditions aur restrictions ko consider kare
+2. Indian food context mein practical ho
+3. Easily available ingredients suggest kare
+4. Safe aur scientific basis par ho
+
+Response Hinglish mein dein aur simple language use karein.`,
       template: `Aap ek experienced nutritionist hain jo {{user_name}} ko advice de rahe hain. User {{user_age}} saal ka/ki {{user_gender}} hai jo {{user_location}} mein rehta/rehti hai.
 
 User Ki Details:
@@ -1055,6 +1205,7 @@ Response Hinglish mein dein aur simple language use karein.`,
 
     for (const [id, template] of this.templates.entries()) {
       if (!defaultTemplateIds.includes(id)) {
+        this.logger.debug(`Removing non-default template: ${template.category}/${id}`);
         this.templates.delete(id);
       }
     }
@@ -1185,10 +1336,10 @@ Response Hinglish mein dein aur simple language use karein.`,
     if (!filename || typeof filename !== 'string') {
       throw new Error('Invalid filename provided');
     }
-    
+
     // Remove any path traversal sequences and unsafe characters
     // First replace path traversal sequences specifically
-    let sanitized = filename
+    const sanitized = filename
       .replace(/\.\./g, '') // Remove all .. sequences
       .replace(/[\/\\]/g, '_') // Replace forward and backward slashes
       .replace(/[^a-zA-Z0-9\-_\.]/g, '_') // Only allow safe characters
@@ -1196,11 +1347,11 @@ Response Hinglish mein dein aur simple language use karein.`,
       .replace(/\.+$/, '') // Remove trailing dots
       .replace(/_+/g, '_') // Collapse multiple underscores
       .substring(0, 255); // Limit length
-    
+
     if (!sanitized || sanitized.length === 0) {
       throw new Error('Filename becomes empty after sanitization');
     }
-    
+
     return sanitized;
   }
 
@@ -1215,18 +1366,16 @@ Response Hinglish mein dein aur simple language use karein.`,
 
       // Optional: Save to file system for backup
       if (this.configService.get('ENABLE_FILE_BACKUP')) {
-        const fs = require('fs').promises;
-        const path = require('path');
         const templatesDir = path.join(process.cwd(), 'data', 'templates');
-        
+
         // Ensure directory exists
         await fs.mkdir(templatesDir, { recursive: true });
-        
+
         // Sanitize template ID to prevent path traversal
         const safeFilename = this.sanitizeFilename(template.id);
         const filePath = path.join(templatesDir, `${safeFilename}.json`);
         await fs.writeFile(filePath, JSON.stringify(template, null, 2));
-        
+
         this.logger.debug(`Template saved to file: ${filePath}`);
       }
     } catch (error) {
@@ -1244,7 +1393,7 @@ Response Hinglish mein dein aur simple language use karein.`,
     costEffective: string[];
   } {
     const usageData: Record<string, { count: number; totalTime: number; totalCost: number }> = {};
-    
+
     // Analyze template usage patterns
     for (const [templateId, template] of this.templates.entries()) {
       const templateWithUsage = template as any; // Type assertion for usage tracking
@@ -1257,8 +1406,7 @@ Response Hinglish mein dein aur simple language use karein.`,
     }
 
     // Sort by usage count
-    const sortedByUsage = Object.entries(usageData)
-      .sort(([, a], [, b]) => b.count - a.count);
+    const sortedByUsage = Object.entries(usageData).sort(([, a], [, b]) => b.count - a.count);
 
     const mostUsed = sortedByUsage.slice(0, 5).map(([id]) => id);
     const leastUsed = sortedByUsage.slice(-5).map(([id]) => id);

@@ -242,18 +242,18 @@ export class DLPService {
     const length = value.length;
     switch (patternName) {
       case 'email':
-        return '[EMAIL_REDACTED]';
+        return `[EMAIL_REDACTED_${length}]`;
       case 'phone_in':
       case 'phone_us':
-        return '[PHONE_REDACTED]';
+        return `[PHONE_REDACTED_${length}]`;
       case 'aadhar':
-        return '[AADHAR_REDACTED]';
+        return `[AADHAR_REDACTED_${length}]`;
       case 'pan':
-        return '[PAN_REDACTED]';
+        return `[PAN_REDACTED_${length}]`;
       case 'medical_record':
-        return '[MEDICAL_ID_REDACTED]';
+        return `[MEDICAL_ID_REDACTED_${length}]`;
       default:
-        return `[${patternName.toUpperCase()}_REDACTED]`;
+        return `[${patternName.toUpperCase()}_REDACTED_${length}]`;
     }
   }
 

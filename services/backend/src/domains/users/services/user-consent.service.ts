@@ -1,8 +1,7 @@
 import { Injectable, Logger, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
+import { Repository } from 'typeorm';
 import { UserConsent, ConsentType, ConsentStatus } from '../entities/user-consent.entity';
-import { User } from '../entities/user.entity';
 
 export interface ConsentRequest {
   consentType: ConsentType;

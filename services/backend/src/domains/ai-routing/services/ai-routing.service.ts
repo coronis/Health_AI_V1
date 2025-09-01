@@ -17,6 +17,8 @@ export interface AIRoutingRequest {
   userId?: string;
   sessionId?: string;
   requestType: RequestType;
+  systemPrompt?: string;
+  userPrompt?: string;
   contextTokens?: number;
   maxResponseTokens?: number;
   emergencyRequest?: boolean;

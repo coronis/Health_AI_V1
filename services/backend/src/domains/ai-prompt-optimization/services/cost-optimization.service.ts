@@ -229,9 +229,11 @@ export class CostOptimizationService {
     for (const [groupKey, groupRequests] of groups) {
       if (groupRequests.length > 1) {
         // Combine similar requests into one optimized request
+        this.logger.debug(`Optimizing group ${groupKey} with ${groupRequests.length} requests`);
         const combined = this.combineRequests(groupRequests);
         optimized.push(combined);
       } else {
+        this.logger.debug(`Group ${groupKey} has single request, no optimization needed`);
         optimized.push(groupRequests[0]);
       }
     }
@@ -481,8 +483,14 @@ export class CostOptimizationService {
       totalCost,
       averageTokensPerRequest: totalTokens / totalRequests,
       averageCostPerRequest: totalCost / totalRequests,
-      costByModel: await this.getCostByModel(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), new Date()), // Enhanced model tracking implementation
-      tokensByModel: await this.getTokensByModel(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), new Date()), // Enhanced model tracking implementation
+      costByModel: await this.getCostByModel(
+        new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        new Date(),
+      ), // Enhanced model tracking implementation
+      tokensByModel: await this.getTokensByModel(
+        new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        new Date(),
+      ), // Enhanced model tracking implementation
       requestsByCategory,
       dailyCost,
       monthlyCost,
@@ -495,7 +503,7 @@ export class CostOptimizationService {
    */
   private async getCostByModel(startDate: Date, endDate: Date): Promise<Record<string, number>> {
     const modelCosts: Record<string, number> = {};
-    
+
     try {
       // Get cached model usage data
       const cacheKey = `model_costs_${startDate.toISOString().split('T')[0]}_${endDate.toISOString().split('T')[0]}`;
@@ -534,7 +542,7 @@ export class CostOptimizationService {
    */
   private async getTokensByModel(startDate: Date, endDate: Date): Promise<Record<string, number>> {
     const modelTokens: Record<string, number> = {};
-    
+
     try {
       // Get cached model token data
       const cacheKey = `model_tokens_${startDate.toISOString().split('T')[0]}_${endDate.toISOString().split('T')[0]}`;

@@ -1,8 +1,8 @@
-import { Injectable, Logger, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, MoreThan } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 
 import { FitnessPlan, FitnessPlanStatus } from '../entities/fitness-plan.entity';
 import { FitnessPlanWeek } from '../entities/fitness-plan-week.entity';
@@ -470,14 +470,27 @@ export class WeeklyAdaptationService {
     // Apply adaptations to create modified plan parameters
     const adjustedParams = this.applyAdaptationsToParams(plan, adaptations);
 
+    // Address deficiencies in exercise selection and focus areas
+    if (deficiencies.weakMuscleGroups?.length > 0) {
+      adjustedParams.focusAreas = [
+        ...(adjustedParams.focusAreas || []),
+        ...deficiencies.weakMuscleGroups,
+      ];
+    }
+
+    // Add balanced training focus if needed
+    if (deficiencies.volumeDeficiency > 30) {
+      adjustedParams.focusAreas = [...(adjustedParams.focusAreas || []), 'pulling_exercises'];
+    }
+
     // Generate next week using adjusted parameters
     const nextWeek = await this.planGeneratorService.generateWeeklyPlan(
       plan.planType,
       plan.experienceLevel,
       nextWeekNumber,
-      plan.workoutsPerWeek,
-      [], // Available equipment - will be populated from user profile
-      [], // Focus areas - will be populated from plan
+      adjustedParams.workoutsPerWeek,
+      adjustedParams.availableEquipment || [],
+      adjustedParams.focusAreas || [],
       adaptations[0] || null,
     );
 

@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { JWTService } from '../services/jwt.service';
 import { AuditService } from '../services/audit.service';
@@ -10,9 +9,6 @@ import { JwtService as NestJwtService } from '@nestjs/jwt';
 
 describe('JWTService', () => {
   let service: JWTService;
-  let sessionRepository: Repository<UserSession>;
-  let jwtService: NestJwtService;
-  let auditService: AuditService;
 
   const mockSessionRepository = {
     create: jest.fn(),
@@ -67,9 +63,6 @@ describe('JWTService', () => {
     }).compile();
 
     service = module.get<JWTService>(JWTService);
-    sessionRepository = module.get<Repository<UserSession>>(getRepositoryToken(UserSession));
-    jwtService = module.get<NestJwtService>(NestJwtService);
-    auditService = module.get<AuditService>(AuditService);
   });
 
   afterEach(() => {

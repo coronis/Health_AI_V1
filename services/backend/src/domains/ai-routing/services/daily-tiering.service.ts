@@ -128,14 +128,33 @@ export class DailyTieringService {
     const userTier = await this.getUserTier();
     const dailyUsage = await this.getDailyUsage(userId);
 
-    // Check request limits
+    // Apply tier-specific adjustments to limits
+    let tierMultiplier = 1.0;
+    switch (userTier) {
+      case 'premium':
+        tierMultiplier = 2.0;
+        break;
+      case 'pro':
+        tierMultiplier = 1.5;
+        break;
+      case 'free':
+      default:
+        tierMultiplier = 1.0;
+        break;
+    }
+
+    this.logger.debug(`Applying tier multiplier ${tierMultiplier} for ${userTier} user ${userId}`);
+
+    // Check request limits with tier adjustments
     const currentRequests =
       requestLevel === 'level1' ? dailyUsage.usage.level1Requests : dailyUsage.usage.level2Requests;
 
-    const requestLimit =
+    const baseRequestLimit =
       requestLevel === 'level1'
         ? dailyUsage.limits.level1Requests
         : dailyUsage.limits.level2Requests;
+
+    const requestLimit = Math.floor(baseRequestLimit * tierMultiplier);
 
     if (currentRequests >= requestLimit) {
       return {
@@ -272,7 +291,7 @@ export class DailyTieringService {
         this.logger.warn(`Failed to get user tier for ${userId}, using default: ${error.message}`);
       }
     }
-    
+
     // Fallback to environment-based tier or default
     return this.configService.get('DEFAULT_USER_TIER', 'free');
   }
@@ -332,7 +351,7 @@ export class DailyTieringService {
       // Aggregate statistics from cache and user service
       const allKeys = await this.cacheManager.store.keys('daily_usage:*');
       const usersByTier: Record<string, number> = { free: 0, premium: 0, pro: 0 };
-      let totalRequests = { level1: 0, level2: 0 };
+      const totalRequests = { level1: 0, level2: 0 };
       let totalCost = 0;
       let blockedUsers = 0;
 

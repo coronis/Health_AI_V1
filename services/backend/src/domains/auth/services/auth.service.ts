@@ -1,4 +1,4 @@
-import { Injectable, Logger, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../../users/services/users.service';
 import { OTPService } from './otp.service';
 import { JWTService, SessionInfo, TokenPair } from './jwt.service';
@@ -7,7 +7,6 @@ import { AuditService } from './audit.service';
 import { AuditEventType } from '../entities/audit-log.entity';
 import { OTPType } from '../entities/user-otp.entity';
 import { OAuthProvider } from '../entities/user-oauth-account.entity';
-import { User } from '../../users/entities/user.entity';
 
 export interface AuthContext {
   ipAddress?: string;

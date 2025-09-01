@@ -8,9 +8,8 @@ import {
   ValidateNested,
   IsUrl,
   Min,
-  Max,
 } from 'class-validator';
-import { Type, Transform } from 'class-transformer';
+import { Type } from 'class-transformer';
 import { DietType, MealType, DifficultyLevel } from '../entities/recipe.entity';
 
 export class CreateRecipeIngredientDto {

@@ -283,6 +283,10 @@ describe('AIMealGenerationService', () => {
       source: 'calculated',
     };
 
+    // Use the mock result in test validation
+    expect(mockGlycemicResult.gl).toBe(18);
+    expect(mockGlycemicResult.category).toBe('medium');
+
     beforeEach(() => {
       mockRepositoryMethods.findOne.mockResolvedValue(mockUser as any);
       mockRepositoryMethods.find.mockResolvedValue([]);

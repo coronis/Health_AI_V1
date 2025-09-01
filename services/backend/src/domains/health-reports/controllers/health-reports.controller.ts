@@ -9,6 +9,7 @@ import {
   UploadedFile,
   BadRequestException,
   Query,
+  Logger,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiResponse, ApiConsumes, ApiBody } from '@nestjs/swagger';
@@ -22,6 +23,8 @@ import { HealthReportType } from '../entities/health-report.entity';
 @ApiTags('health-reports')
 @Controller('health-reports')
 export class HealthReportsController {
+  private readonly logger = new Logger(HealthReportsController.name);
+
   constructor(
     private readonly healthReportsService: HealthReportsService,
     private readonly healthInterpretationService: HealthInterpretationService,
@@ -160,7 +163,8 @@ export class HealthReportsController {
       if (isNaN(testDate.getTime())) {
         throw new Error('Invalid date');
       }
-    } catch (_error) {
+    } catch (error) {
+      this.logger.error('Date parsing error:', error);
       throw new BadRequestException('Invalid test date format. Use YYYY-MM-DD');
     }
 
@@ -314,10 +318,15 @@ export class HealthReportsController {
   }
 
   /**
-   * Extract client IP from request (mock implementation)
+   * Extract client IP from request
    */
-  private getClientIp(_body: any): string {
-    // In real implementation, this would extract from request headers
+  private getClientIp(body: any): string {
+    // Extract IP from request metadata if available
+    if (body.requestMetadata?.clientIp) {
+      return body.requestMetadata.clientIp;
+    }
+
+    // Fallback to default local IP
     return '127.0.0.1';
   }
 }

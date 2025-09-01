@@ -1,11 +1,19 @@
-import { Exercise, ExerciseCategory, DifficultyLevel, MuscleGroup, EquipmentType } from '../../src/domains/fitness-planning/entities/exercise.entity';
+import {
+  Exercise,
+  ExerciseCategory,
+  DifficultyLevel,
+  MuscleGroup,
+  EquipmentType,
+} from '../../src/domains/fitness-planning/entities/exercise.entity';
 
 export const exerciseSeeds: Partial<Exercise>[] = [
   // Bodyweight Exercises
   {
     name: 'Push-ups',
-    description: 'Classic bodyweight exercise for upper body strength. Targets chest, shoulders, and triceps.',
-    instructions: '1. Start in plank position with hands slightly wider than shoulders\n2. Lower body until chest nearly touches floor\n3. Push back up to starting position\n4. Keep core tight throughout movement',
+    description:
+      'Classic bodyweight exercise for upper body strength. Targets chest, shoulders, and triceps.',
+    instructions:
+      '1. Start in plank position with hands slightly wider than shoulders\n2. Lower body until chest nearly touches floor\n3. Push back up to starting position\n4. Keep core tight throughout movement',
     category: ExerciseCategory.CALISTHENICS,
     difficultyLevel: DifficultyLevel.BEGINNER,
     primaryMuscleGroup: MuscleGroup.CHEST,
@@ -29,14 +37,15 @@ export const exerciseSeeds: Partial<Exercise>[] = [
   {
     name: 'Squats',
     description: 'Fundamental lower body exercise targeting quadriceps, glutes, and hamstrings.',
-    instructions: '1. Stand with feet shoulder-width apart\n2. Lower hips back and down as if sitting in chair\n3. Keep chest up and weight on heels\n4. Return to standing position',
+    instructions:
+      '1. Stand with feet shoulder-width apart\n2. Lower hips back and down as if sitting in chair\n3. Keep chest up and weight on heels\n4. Return to standing position',
     category: ExerciseCategory.CALISTHENICS,
     difficultyLevel: DifficultyLevel.BEGINNER,
     primaryMuscleGroup: MuscleGroup.QUADRICEPS,
     secondaryMuscleGroups: [MuscleGroup.GLUTES, MuscleGroup.HAMSTRINGS, MuscleGroup.CORE],
     equipment: [EquipmentType.NONE],
     healthConditionsToAvoid: ['knee injury', 'hip replacement'],
-    safetyNotes: 'Keep knees in line with toes. Don\'t let knees cave inward.',
+    safetyNotes: "Keep knees in line with toes. Don't let knees cave inward.",
     formCues: ['Weight on heels', 'Chest up', 'Knees track over toes'],
     defaultSets: 3,
     defaultRepsMin: 10,
@@ -54,13 +63,14 @@ export const exerciseSeeds: Partial<Exercise>[] = [
   {
     name: 'Plank',
     description: 'Isometric core strengthening exercise that also engages shoulders and glutes.',
-    instructions: '1. Start in push-up position\n2. Lower to forearms\n3. Hold straight line from head to heels\n4. Breathe normally while holding position',
+    instructions:
+      '1. Start in push-up position\n2. Lower to forearms\n3. Hold straight line from head to heels\n4. Breathe normally while holding position',
     category: ExerciseCategory.CORE,
     difficultyLevel: DifficultyLevel.BEGINNER,
     primaryMuscleGroup: MuscleGroup.CORE,
     secondaryMuscleGroups: [MuscleGroup.SHOULDERS, MuscleGroup.GLUTES],
     equipment: [EquipmentType.YOGA_MAT],
-    safetyNotes: 'Don\'t let hips sag or pike up. Stop if you feel strain in lower back.',
+    safetyNotes: "Don't let hips sag or pike up. Stop if you feel strain in lower back.",
     formCues: ['Straight line', 'Engaged core', 'Neutral neck'],
     defaultSets: 3,
     defaultDurationSeconds: 30,
@@ -76,8 +86,10 @@ export const exerciseSeeds: Partial<Exercise>[] = [
   },
   {
     name: 'Mountain Climbers',
-    description: 'Dynamic cardio exercise that combines core strength with cardiovascular conditioning.',
-    instructions: '1. Start in plank position\n2. Bring right knee to chest\n3. Quickly switch legs\n4. Continue alternating at fast pace',
+    description:
+      'Dynamic cardio exercise that combines core strength with cardiovascular conditioning.',
+    instructions:
+      '1. Start in plank position\n2. Bring right knee to chest\n3. Quickly switch legs\n4. Continue alternating at fast pace',
     category: ExerciseCategory.CARDIO,
     difficultyLevel: DifficultyLevel.INTERMEDIATE,
     primaryMuscleGroup: MuscleGroup.CORE,
@@ -102,8 +114,10 @@ export const exerciseSeeds: Partial<Exercise>[] = [
   // Resistance Band Exercises
   {
     name: 'Resistance Band Rows',
-    description: 'Upper back strengthening exercise using resistance bands. Great for posture improvement.',
-    instructions: '1. Secure band at chest height\n2. Hold handles with arms extended\n3. Pull handles to sides of torso\n4. Squeeze shoulder blades together\n5. Slowly return to start',
+    description:
+      'Upper back strengthening exercise using resistance bands. Great for posture improvement.',
+    instructions:
+      '1. Secure band at chest height\n2. Hold handles with arms extended\n3. Pull handles to sides of torso\n4. Squeeze shoulder blades together\n5. Slowly return to start',
     category: ExerciseCategory.RESISTANCE,
     difficultyLevel: DifficultyLevel.BEGINNER,
     primaryMuscleGroup: MuscleGroup.BACK,
@@ -128,7 +142,8 @@ export const exerciseSeeds: Partial<Exercise>[] = [
   {
     name: 'Dumbbell Squats',
     description: 'Weighted squat variation using dumbbells to increase resistance and challenge.',
-    instructions: '1. Hold dumbbells at shoulders or sides\n2. Stand with feet shoulder-width apart\n3. Lower into squat position\n4. Drive through heels to return to standing',
+    instructions:
+      '1. Hold dumbbells at shoulders or sides\n2. Stand with feet shoulder-width apart\n3. Lower into squat position\n4. Drive through heels to return to standing',
     category: ExerciseCategory.RESISTANCE,
     difficultyLevel: DifficultyLevel.INTERMEDIATE,
     primaryMuscleGroup: MuscleGroup.QUADRICEPS,
@@ -153,8 +168,10 @@ export const exerciseSeeds: Partial<Exercise>[] = [
   // Yoga/Flexibility
   {
     name: 'Cat-Cow Stretch',
-    description: 'Gentle spinal mobility exercise that helps reduce back tension and improve flexibility.',
-    instructions: '1. Start on hands and knees\n2. Arch back and look up (Cow)\n3. Round spine and tuck chin (Cat)\n4. Flow smoothly between positions',
+    description:
+      'Gentle spinal mobility exercise that helps reduce back tension and improve flexibility.',
+    instructions:
+      '1. Start on hands and knees\n2. Arch back and look up (Cow)\n3. Round spine and tuck chin (Cat)\n4. Flow smoothly between positions',
     category: ExerciseCategory.YOGA,
     difficultyLevel: DifficultyLevel.BEGINNER,
     primaryMuscleGroup: MuscleGroup.BACK,
@@ -180,7 +197,8 @@ export const exerciseSeeds: Partial<Exercise>[] = [
   {
     name: 'Dead Bug',
     description: 'Core stability exercise that teaches proper core engagement while moving limbs.',
-    instructions: '1. Lie on back with arms up and knees bent 90°\n2. Lower opposite arm and leg slowly\n3. Return to start position\n4. Repeat on other side',
+    instructions:
+      '1. Lie on back with arms up and knees bent 90°\n2. Lower opposite arm and leg slowly\n3. Return to start position\n4. Repeat on other side',
     category: ExerciseCategory.CORE,
     difficultyLevel: DifficultyLevel.BEGINNER,
     primaryMuscleGroup: MuscleGroup.CORE,
@@ -205,7 +223,8 @@ export const exerciseSeeds: Partial<Exercise>[] = [
   {
     name: 'Jumping Jacks',
     description: 'Classic cardio exercise that elevates heart rate and improves coordination.',
-    instructions: '1. Start with feet together, arms at sides\n2. Jump feet apart while raising arms overhead\n3. Jump back to starting position\n4. Maintain steady rhythm',
+    instructions:
+      '1. Start with feet together, arms at sides\n2. Jump feet apart while raising arms overhead\n3. Jump back to starting position\n4. Maintain steady rhythm',
     category: ExerciseCategory.CARDIO,
     difficultyLevel: DifficultyLevel.BEGINNER,
     primaryMuscleGroup: MuscleGroup.CARDIO,
@@ -231,8 +250,10 @@ export const exerciseSeeds: Partial<Exercise>[] = [
   // Advanced Exercises
   {
     name: 'Burpees',
-    description: 'Full-body exercise combining squat, plank, push-up, and jump for ultimate conditioning.',
-    instructions: '1. Start standing\n2. Squat down and place hands on floor\n3. Jump feet back to plank\n4. Do push-up (optional)\n5. Jump feet back to squat\n6. Jump up with arms overhead',
+    description:
+      'Full-body exercise combining squat, plank, push-up, and jump for ultimate conditioning.',
+    instructions:
+      '1. Start standing\n2. Squat down and place hands on floor\n3. Jump feet back to plank\n4. Do push-up (optional)\n5. Jump feet back to squat\n6. Jump up with arms overhead',
     category: ExerciseCategory.CALISTHENICS,
     difficultyLevel: DifficultyLevel.ADVANCED,
     primaryMuscleGroup: MuscleGroup.FULL_BODY,

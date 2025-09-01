@@ -5,7 +5,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere, Like, ILike, In } from 'typeorm';
+import { Repository, ILike, In } from 'typeorm';
 import {
   Exercise,
   ExerciseCategory,
@@ -17,7 +17,6 @@ import {
   CreateExerciseDto,
   UpdateExerciseDto,
   ExerciseFilterDto,
-  ExerciseResponseDto,
   ExerciseStatsDto,
 } from '../dto/exercise.dto';
 
@@ -363,8 +362,8 @@ export class ExerciseLibraryService {
 
     const maxLevel = levelOrder[userProfile.experienceLevel];
     const allowedLevels = Object.entries(levelOrder)
-      .filter(([_, value]) => value <= maxLevel)
-      .map(([key, _]) => key);
+      .filter(([, value]) => value <= maxLevel)
+      .map(([key]) => key);
 
     queryBuilder.andWhere('exercise.difficultyLevel IN (:...allowedLevels)', { allowedLevels });
 

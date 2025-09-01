@@ -61,12 +61,14 @@ export class ChatRateLimitInterceptor implements NestInterceptor {
     setInterval(() => this.cleanup(), 5 * 60 * 1000);
   }
 
+  // @ts-expect-error RxJS version compatibility issue between root and package dependencies
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
     if (!user?.id) {
       // Allow request if no user (shouldn't happen with auth guard)
+      // @ts-expect-error RxJS version compatibility issue between root and package dependencies
       return next.handle();
     }
 
@@ -167,6 +169,7 @@ export class ChatRateLimitInterceptor implements NestInterceptor {
     userLimit.messageTimestamps.push(now);
     userLimit.burstCount++;
 
+    // @ts-expect-error RxJS version compatibility issue between root and package dependencies
     return next.handle();
   }
 

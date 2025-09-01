@@ -300,7 +300,7 @@ export class HinglishNLPService {
   }
 
   private applyTransliterations(text: string, transliterations: Record<string, string>): string {
-    const processedText = text;
+    let processedText = text;
     const words = text.split(/\s+/);
 
     for (let i = 0; i < words.length; i++) {
@@ -313,7 +313,8 @@ export class HinglishNLPService {
       }
     }
 
-    return words.join(' ');
+    processedText = words.join(' ');
+    return processedText;
   }
 
   private applyNormalizations(text: string, normalizations: Record<string, string>): string {

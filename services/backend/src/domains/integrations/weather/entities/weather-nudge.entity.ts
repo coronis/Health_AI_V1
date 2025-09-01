@@ -9,7 +9,7 @@ import {
   Index,
 } from 'typeorm';
 import { User } from '../../../users/entities/user.entity';
-import { WeatherData, AQILevel } from './weather-data.entity';
+import { WeatherData } from './weather-data.entity';
 
 export enum NudgeType {
   WORKOUT_INDOOR = 'workout_indoor',

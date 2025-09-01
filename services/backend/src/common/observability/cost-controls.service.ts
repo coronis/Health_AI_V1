@@ -409,21 +409,19 @@ export class CostControlsService {
       );
     }
 
-    // Check daily limits
-    const policy = this.providerPolicies.get(provider);
-    if (policy && policy.dailyLimits[model]) {
-      const dailyTokens = this.getDailyTokenUsage(provider, model);
-      const limit = policy.dailyLimits[model];
+    // Check for token usage anomalies
+    const recentTokenUsage = this.getRecentTokenUsage(provider, model, 3600000);
+    const tokenAvg =
+      recentTokenUsage.reduce((sum, t) => sum + t.tokens, 0) / Math.max(1, recentTokenUsage.length);
 
-      if (dailyTokens > limit * 0.9) {
-        this.createAlert(
-          'quota_warning',
-          'medium',
-          `Approaching daily token limit for ${provider}/${model}: ${dailyTokens}/${limit}`,
-          limit,
-          dailyTokens,
-        );
-      }
+    if (tokens > tokenAvg * 2 && tokens > 5000) {
+      this.createAlert(
+        'unusual_usage',
+        'medium',
+        `High token usage for ${provider}/${model}: ${tokens} tokens (2x hourly average)`,
+        tokenAvg,
+        tokens,
+      );
     }
   }
 
@@ -621,6 +619,13 @@ export class CostControlsService {
   }
 
   private getRecentCosts(provider: string, model: string, timeWindow: number) {
+    const key = `${provider}:${model}`;
+    const history = this.costHistory.get(key) || [];
+    const cutoff = Date.now() - timeWindow;
+    return history.filter((h) => h.timestamp.getTime() > cutoff);
+  }
+
+  private getRecentTokenUsage(provider: string, model: string, timeWindow: number) {
     const key = `${provider}:${model}`;
     const history = this.costHistory.get(key) || [];
     const cutoff = Date.now() - timeWindow;

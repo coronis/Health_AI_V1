@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Exercise, DifficultyLevel, ExerciseCategory } from '../entities/exercise.entity';
 import { FitnessPlan, ExperienceLevel, FitnessPlanType } from '../entities/fitness-plan.entity';
 import { FitnessPlanWorkout } from '../entities/fitness-plan-workout.entity';
@@ -181,6 +181,14 @@ export class SafetyValidationService {
       if (exercise.intensityLevel && exercise.intensityLevel >= 8) {
         highIntensityExercises++;
       }
+    }
+
+    // Validate total volume using totalReps
+    if (totalReps > 200) {
+      result.errors.push(
+        `Workout volume too high (${totalReps} total reps). Consider reducing intensity or duration.`,
+      );
+      result.warnings.push('Reduce total volume to under 200 reps per workout');
     }
 
     result.totalVolume = totalSets;
@@ -584,9 +592,17 @@ export class SafetyValidationService {
       }
     }
 
-    // Check for imbalances
+    // Check for imbalances using squattingMovements and hingingMovements
     if (pushingMovements > pullingMovements * 1.5) {
       warnings.push('More pushing than pulling exercises - may lead to muscle imbalances');
+    }
+
+    if (squattingMovements === 0 && hingingMovements === 0) {
+      warnings.push('No lower body compound movements - consider adding squats or deadlifts');
+    }
+
+    if (squattingMovements > hingingMovements * 2) {
+      warnings.push('Squatting movements dominate - balance with more hinging patterns');
     }
 
     if (pullingMovements > pushingMovements * 1.5) {
@@ -623,11 +639,26 @@ export class SafetyValidationService {
     const warnings: string[] = [];
     const recommendations: string[] = [];
 
-    // This would check if the plan type aligns with user's stated goals
-    // Implementation would depend on how user goals are structured
-
+    // Check if the plan type aligns with user's stated goals based on userProfile
     if (plan.planType === FitnessPlanType.WEIGHT_LOSS && plan.workoutsPerWeek < 4) {
       warnings.push('Weight loss goals typically benefit from 4+ workouts per week');
+    }
+
+    // Use userProfile experience level to validate plan intensity
+    if (
+      userProfile.experienceLevel === ExperienceLevel.BEGINNER &&
+      plan.planType === FitnessPlanType.STRENGTH_BUILDING
+    ) {
+      recommendations.push(
+        'Consider starting with general fitness before focusing on strength building',
+      );
+    }
+
+    // Check age-appropriate recommendations
+    if (userProfile.age && userProfile.age >= 65) {
+      recommendations.push(
+        'Include balance and flexibility exercises appropriate for your age group',
+      );
     }
 
     if (plan.planType === FitnessPlanType.MUSCLE_GAIN && plan.workoutsPerWeek > 5) {

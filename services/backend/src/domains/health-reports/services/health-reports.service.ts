@@ -330,14 +330,15 @@ export class HealthReportsService {
       file.buffer,
       file.originalName,
       {
+        category: 'health-reports',
         contentType: file.mimeType,
         encryption: true,
-        metadata: {
-          userId,
-          uploadDate: new Date().toISOString(),
-        },
-        category: 'health-reports',
         userId,
+        metadata: {
+          originalPath: storagePath,
+          uploadDate: new Date().toISOString(),
+          bucket: bucket, // Add bucket info to metadata instead
+        },
       },
     );
 

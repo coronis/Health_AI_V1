@@ -158,8 +158,12 @@ export class OCRService {
       throw new Error('Google Document AI not configured');
     }
 
+    if (!projectId || !processorId) {
+      throw new Error('Google Cloud project configuration incomplete');
+    }
+
     // This would integrate with Google Document AI API
-    // For now, implementing mock response structure
+    // For now, implementing mock response structure with proper config validation
     const mockResult: OCRResult = {
       extractedText: this.generateMockHealthReportText(),
       confidence: 0.95,
@@ -192,6 +196,10 @@ export class OCRService {
 
     if (!apiKey || apiKey === 'DEMO_KEY') {
       throw new Error('Azure Document Intelligence not configured');
+    }
+
+    if (!endpoint) {
+      throw new Error('Azure Document Intelligence endpoint not configured');
     }
 
     // Mock implementation - would call Azure Document Intelligence API
@@ -227,6 +235,10 @@ export class OCRService {
 
     if (!accessKey || accessKey === 'DEMO_KEY') {
       throw new Error('AWS Textract not configured');
+    }
+
+    if (!secretKey || secretKey === 'DEMO_SECRET') {
+      throw new Error('AWS Textract secret key not configured');
     }
 
     // Mock implementation - would call AWS Textract API
@@ -296,7 +308,11 @@ export class OCRService {
       OCRProvider.GOOGLE_DOCUMENT_AI,
     ];
 
-    // Health reports always use high accuracy chain
+    // Health reports use high accuracy chain by default, but allow cost-effective mode
+    if (options?.costEffective && !options?.highAccuracy) {
+      return costEffectiveChain;
+    }
+
     return highAccuracyChain;
   }
 

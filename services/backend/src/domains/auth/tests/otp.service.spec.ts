@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { OTPService } from '../services/otp.service';
 import { AuditService } from '../services/audit.service';
@@ -8,8 +7,6 @@ import { UserOTP, OTPType, OTPStatus } from '../entities/user-otp.entity';
 
 describe('OTPService', () => {
   let service: OTPService;
-  let repository: Repository<UserOTP>;
-  let auditService: AuditService;
 
   const mockRepository = {
     create: jest.fn(),
@@ -57,8 +54,6 @@ describe('OTPService', () => {
     }).compile();
 
     service = module.get<OTPService>(OTPService);
-    repository = module.get<Repository<UserOTP>>(getRepositoryToken(UserOTP));
-    auditService = module.get<AuditService>(AuditService);
   });
 
   afterEach(() => {

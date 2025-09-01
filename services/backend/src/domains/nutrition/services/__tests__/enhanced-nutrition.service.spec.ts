@@ -11,7 +11,6 @@ import { CookingMethod } from '../../enums/cooking-method.enum';
 
 describe('EnhancedNutritionService', () => {
   let service: EnhancedNutritionService;
-  let mockNutritionService: jest.Mocked<NutritionCalculationService>;
   let mockCookingService: jest.Mocked<CookingTransformationService>;
   let mockGlycemicService: jest.Mocked<GlycemicIndexService>;
 
@@ -123,9 +122,11 @@ describe('EnhancedNutritionService', () => {
     }).compile();
 
     service = module.get<EnhancedNutritionService>(EnhancedNutritionService);
-    mockNutritionService = module.get(NutritionCalculationService);
     mockCookingService = module.get(CookingTransformationService);
     mockGlycemicService = module.get(GlycemicIndexService);
+
+    // Get nutrition service for potential future use in tests
+    module.get(NutritionCalculationService);
   });
 
   it('should be defined', () => {

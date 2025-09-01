@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { ConfigService } from '@nestjs/config';
 import { AIRoutingService } from '../services/ai-routing.service';
@@ -14,9 +13,6 @@ import {
 
 describe('AIRoutingService', () => {
   let service: AIRoutingService;
-  let repository: Repository<AIRoutingDecision>;
-  let cacheManager: any;
-  let configService: ConfigService;
 
   const mockRepository = {
     create: jest.fn(),

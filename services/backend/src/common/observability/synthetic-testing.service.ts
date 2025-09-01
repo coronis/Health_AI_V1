@@ -415,6 +415,7 @@ export class SyntheticTestingService {
 
     try {
       const response = await firstValueFrom(
+        // @ts-expect-error RxJS version compatibility issue between root and package dependencies
         this.httpService.request({
           method: (config.method as any) || 'GET',
           url: config.url!,
@@ -426,7 +427,7 @@ export class SyntheticTestingService {
 
       const responseTime = Date.now() - startTime;
       const success =
-        response.status === (config.expectedStatus || 200) &&
+        (response as any).status === (config.expectedStatus || 200) &&
         responseTime <= (config.expectedResponseTime || 5000);
 
       return {
@@ -434,10 +435,10 @@ export class SyntheticTestingService {
         timestamp: new Date(),
         success,
         responseTime,
-        statusCode: response.status,
+        statusCode: (response as any).status,
         metrics: {
-          dataSize: JSON.stringify(response.data).length,
-          headerCount: Object.keys(response.headers).length,
+          dataSize: JSON.stringify((response as any).data).length,
+          headerCount: Object.keys((response as any).headers).length,
         },
         metadata: {
           expectedStatus: config.expectedStatus || 200,
