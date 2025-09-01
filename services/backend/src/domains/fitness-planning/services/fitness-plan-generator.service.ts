@@ -590,8 +590,7 @@ export class FitnessPlanGeneratorService {
     const progressionRate = 1.05; // 5% increase per week
     const progressionFactor = Math.pow(progressionRate, weekNumber - 1);
 
-    // This would typically adjust weights, reps, or sets based on the progression
-    // For now, we'll implement a basic progression by increasing target reps
+    // Apply progression factor to adjust weights, reps, or sets based on the progression
     const workouts = await this.workoutRepository.find({
       where: { weekId: week.id },
       relations: ['exercises'],
@@ -599,17 +598,28 @@ export class FitnessPlanGeneratorService {
 
     for (const workout of workouts) {
       for (const exercise of workout.exercises) {
+        // Apply progression factor to target reps and weight recommendations
         if (exercise.targetRepsRangeMax) {
-          exercise.targetRepsRangeMax = Math.min(
-            exercise.targetRepsRangeMax + 1,
-            exercise.targetRepsRangeMax * 1.2,
+          exercise.targetRepsRangeMax = Math.round(
+            Math.min(
+              exercise.targetRepsRangeMax * progressionFactor,
+              exercise.targetRepsRangeMax * 1.2,
+            )
           );
         }
         if (exercise.targetRepsPerSet) {
-          exercise.targetRepsPerSet = Math.min(
-            exercise.targetRepsPerSet + 1,
-            exercise.targetRepsPerSet * 1.2,
+          exercise.targetRepsPerSet = Math.round(
+            Math.min(
+              exercise.targetRepsPerSet * progressionFactor,
+              exercise.targetRepsPerSet * 1.2,
+            )
           );
+        }
+        // Apply progression to weight recommendations if available
+        if (exercise.recommendedWeight) {
+          exercise.recommendedWeight = Math.round(
+            exercise.recommendedWeight * progressionFactor * 100
+          ) / 100; // Round to 2 decimal places
         }
         await this.exerciseRepository.save(exercise);
       }

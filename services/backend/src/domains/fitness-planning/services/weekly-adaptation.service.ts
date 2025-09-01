@@ -475,9 +475,9 @@ export class WeeklyAdaptationService {
       plan.planType,
       plan.experienceLevel,
       nextWeekNumber,
-      plan.workoutsPerWeek,
-      [], // Available equipment - will be populated from user profile
-      [], // Focus areas - will be populated from plan
+      adjustedParams.workoutsPerWeek,
+      adjustedParams.availableEquipment || [],
+      adjustedParams.focusAreas || [],
       adaptations[0] || null,
     );
 

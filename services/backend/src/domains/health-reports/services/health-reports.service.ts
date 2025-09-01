@@ -330,6 +330,7 @@ export class HealthReportsService {
       file.buffer,
       file.originalName,
       {
+        bucket,
         contentType: file.mimeType,
         encryption: true,
         metadata: {
