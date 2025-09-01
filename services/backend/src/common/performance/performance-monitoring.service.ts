@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PerformanceObserver, performance } from 'perf_hooks';
+import * as os from 'os';
 
 export interface PerformanceMetrics {
   responseTime: {
@@ -355,7 +356,6 @@ export class PerformanceMonitoringService {
    */
   private getLoadAverage(): number[] {
     try {
-      const os = require('os');
       return os.loadavg();
     } catch {
       return [0, 0, 0];

@@ -310,13 +310,58 @@ export class BackgroundJobService {
   }
 
   private async processDataCleanup(data: any): Promise<any> {
-    // Clean up old data
-    this.logger.log('Processing data cleanup');
+    // Clean up old data based on provided criteria
+    this.logger.log('Processing data cleanup', { criteria: data });
 
-    // Simulate processing
-    await this.delay(3000);
+    const cleanupResults = {
+      deleted: 0,
+      cleaned: false,
+      errors: [],
+    };
 
-    return { deleted: 100, cleaned: true };
+    try {
+      // Process cleanup based on data criteria
+      if (data.type === 'logs' && data.olderThan) {
+        const deletedLogs = await this.cleanupOldLogs(data.olderThan);
+        cleanupResults.deleted += deletedLogs;
+      }
+
+      if (data.type === 'cache' && data.pattern) {
+        const clearedCache = await this.cleanupCachePattern(data.pattern);
+        cleanupResults.deleted += clearedCache;
+      }
+
+      if (data.type === 'temp_files' && data.directory) {
+        const deletedFiles = await this.cleanupTempFiles(data.directory);
+        cleanupResults.deleted += deletedFiles;
+      }
+
+      cleanupResults.cleaned = true;
+      this.logger.log('Data cleanup completed', cleanupResults);
+    } catch (error) {
+      cleanupResults.errors.push(error.message);
+      this.logger.error('Data cleanup failed', error);
+    }
+
+    return cleanupResults;
+  }
+
+  private async cleanupOldLogs(olderThan: string): Promise<number> {
+    // Implementation would depend on log storage system
+    this.logger.debug(`Cleaning logs older than ${olderThan}`);
+    return 10; // Placeholder
+  }
+
+  private async cleanupCachePattern(pattern: string): Promise<number> {
+    // Implementation would depend on cache system
+    this.logger.debug(`Cleaning cache with pattern ${pattern}`);
+    return 5; // Placeholder
+  }
+
+  private async cleanupTempFiles(directory: string): Promise<number> {
+    // Implementation would depend on file system
+    this.logger.debug(`Cleaning temp files in ${directory}`);
+    return 3; // Placeholder
   }
 
   private async processNotificationSend(data: any): Promise<any> {
@@ -341,22 +386,57 @@ export class BackgroundJobService {
 
   private async processBackupData(data: any): Promise<any> {
     // Backup user data
-    this.logger.log('Processing data backup');
+    this.logger.log('Processing data backup', {
+      userId: data.userId,
+      backupType: data.type,
+      includeFiles: data.includeFiles,
+    });
 
-    // Simulate processing
-    await this.delay(8000);
+    const backupResult = {
+      backupId: `backup_${Date.now()}`,
+      size: '0MB',
+      userId: data.userId,
+      type: data.type || 'full',
+    };
 
-    return { backupId: `backup_${Date.now()}`, size: '100MB' };
+    // Simulate processing based on backup type
+    if (data.type === 'incremental') {
+      await this.delay(2000);
+      backupResult.size = '10MB';
+    } else {
+      await this.delay(8000);
+      backupResult.size = '100MB';
+    }
+
+    return backupResult;
   }
 
   private async processCacheWarmup(data: any): Promise<any> {
     // Warm up cache
-    this.logger.log('Processing cache warmup');
+    this.logger.log('Processing cache warmup', {
+      cacheType: data.cacheType,
+      priority: data.priority,
+    });
 
-    // Simulate processing
-    await this.delay(2000);
+    const warmupResult = {
+      warmedUp: true,
+      keys: 0,
+      cacheType: data.cacheType || 'default',
+    };
 
-    return { warmedUp: true, keys: 50 };
+    // Process different cache types
+    if (data.cacheType === 'user_profiles') {
+      await this.delay(3000);
+      warmupResult.keys = 100;
+    } else if (data.cacheType === 'meal_plans') {
+      await this.delay(4000);
+      warmupResult.keys = 75;
+    } else {
+      await this.delay(2000);
+      warmupResult.keys = 50;
+    }
+
+    return warmupResult;
   }
 
   private delay(ms: number): Promise<void> {
