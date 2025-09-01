@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between } from 'typeorm';
 import { MealLog } from '../../logs/entities/meal-log.entity';
@@ -7,6 +7,8 @@ import { User } from '../../users/entities/user.entity';
 
 @Injectable()
 export class AnalyticsService {
+  private readonly logger = new Logger(AnalyticsService.name);
+
   constructor(
     @InjectRepository(MealLog)
     private mealLogRepository: Repository<MealLog>,
@@ -254,7 +256,7 @@ export class AnalyticsService {
     }
 
     // Use user data to customize goals - in production this would come from user preferences/goals
-    const userAge = this.calculateAge(user.dateOfBirth);
+    const userAge = user.profile?.age || this.calculateAge(user.profile?.birthday);
     const baseCalories = this.calculateBaseCalories(user, userAge);
 
     const goals = [

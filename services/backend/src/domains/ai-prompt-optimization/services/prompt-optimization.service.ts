@@ -492,19 +492,36 @@ export class PromptOptimizationService {
 
     // Use user context to provide personalized fallbacks when available
     if (userContext) {
+      // Helper function to determine age group from age
+      const getAgeGroup = (age?: number): string => {
+        if (!age) return 'adult';
+        if (age < 18) return 'youth';
+        if (age < 65) return 'adult';
+        return 'senior';
+      };
+
+      // Helper function to get gender-neutral term
+      const getGenderNeutralTerm = (gender?: string): string => {
+        if (!gender) return 'person';
+        const lowerGender = gender.toLowerCase();
+        if (lowerGender.indexOf('male') !== -1) return 'person';
+        if (lowerGender.indexOf('female') !== -1) return 'person';
+        return 'person';
+      };
+
       const contextualFallbacks: Record<string, string> = {
-        user_name: userContext.preferredName || userContext.firstName || 'user',
-        userName: userContext.preferredName || userContext.firstName || 'user',
-        user_age: userContext.ageGroup || 'adult',
-        userAge: userContext.ageGroup || 'adult',
-        user_gender: userContext.genderNeutralTerm || 'person',
-        userGender: userContext.genderNeutralTerm || 'person',
-        health_conditions: userContext.healthConditions?.join(', ') || 'none reported',
-        healthConditions: userContext.healthConditions?.join(', ') || 'none reported',
-        dietary_restrictions: userContext.dietaryRestrictions?.join(', ') || 'none specified',
-        dietaryRestrictions: userContext.dietaryRestrictions?.join(', ') || 'none specified',
-        user_goals: userContext.primaryGoals?.join(', ') || 'general wellness',
-        userGoals: userContext.primaryGoals?.join(', ') || 'general wellness',
+        user_name: userContext.profile?.name || 'user',
+        userName: userContext.profile?.name || 'user',
+        user_age: getAgeGroup(userContext.profile?.age),
+        userAge: getAgeGroup(userContext.profile?.age),
+        user_gender: getGenderNeutralTerm(userContext.profile?.gender),
+        userGender: getGenderNeutralTerm(userContext.profile?.gender),
+        health_conditions: userContext.healthData?.conditions?.join(', ') || 'none reported',
+        healthConditions: userContext.healthData?.conditions?.join(', ') || 'none reported',
+        dietary_restrictions: userContext.preferences?.restrictions?.join(', ') || 'none specified',
+        dietaryRestrictions: userContext.preferences?.restrictions?.join(', ') || 'none specified',
+        user_goals: userContext.preferences?.goals?.join(', ') || 'general wellness',
+        userGoals: userContext.preferences?.goals?.join(', ') || 'general wellness',
       };
 
       if (contextualFallbacks[variable.name]) {
