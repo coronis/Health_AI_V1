@@ -191,12 +191,15 @@ export class RecipeController {
   ): Promise<{ recipes: Recipe[]; dietType: DietType; total: number }> {
     this.logger.debug(`Fetching recipes for diet type: ${dietType}`);
 
-    const recipes = await this.recipeService.findByDietType(dietType, Number(limit));
+    const result = await this.recipeService.findWithFilters(
+      { dietType: [dietType] },
+      Number(limit)
+    );
 
     return {
-      recipes,
+      recipes: result.recipes,
       dietType,
-      total: recipes.length,
+      total: result.total,
     };
   }
 

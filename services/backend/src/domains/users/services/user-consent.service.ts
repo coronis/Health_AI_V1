@@ -315,7 +315,7 @@ export class UserConsentService {
       // Get user information for complete export
       const user: User | null = await this.userRepository.findOne({
         where: { id: userId },
-        select: ['id', 'email', 'firstName', 'lastName', 'createdAt'],
+        select: ['id', 'email', 'name', 'createdAt'],
       });
 
       const consentData = {
@@ -323,7 +323,7 @@ export class UserConsentService {
         userInfo: user
           ? {
               email: user.email,
-              name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+              name: user.name || '',
               accountCreated: user.createdAt,
             }
           : null,

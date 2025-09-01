@@ -209,23 +209,19 @@ export class EnhancedNutritionService {
     }
 
     // Calculate detailed nutrition using the nutrition calculation service
-    const nutritionInput: NutritionCalculationInput = {
-      foodId: ingredient.foodId,
-      quantity: ingredient.rawWeight,
-      unit: 'g',
-      cookingMethod: ingredient.cookingParams?.method,
-      includeMinerals: true,
-      includeVitamins: true,
-    };
+    // TODO: Pass userProfile and userGoals as parameters when available
+    // const nutritionInput: NutritionCalculationInput = {
+    //   userProfile: userProfile,
+    //   userGoals: userGoals,
+    //   currentWeight: ingredient.rawWeight,
+    // };
+    // const detailedNutrition = await this.baseNutritionService.calculateNutrition(nutritionInput);
 
-    const detailedNutrition = await this.nutritionService.calculateNutrition(nutritionInput);
-
-    // Use detailed nutrition for enhanced analysis and micronutrient calculations
-    const enhancedMicronutrients = detailedNutrition?.micronutrients || {};
+    // Use enhanced nutrition for enhanced analysis and micronutrient calculations
     console.log(`Enhanced nutrition analysis completed for ${ingredient.name}:`, {
-      vitamins: detailedNutrition?.vitamins || {},
-      minerals: detailedNutrition?.minerals || {},
-      antioxidants: detailedNutrition?.antioxidants || {},
+      rawNutrients: ingredient.rawNutrients,
+      cookedNutrients,
+      cookedWeight,
     });
 
     // Calculate nutrition contribution percentage
@@ -242,7 +238,6 @@ export class EnhancedNutritionService {
       cookedNutrients,
       cookedWeight,
       nutritionContribution,
-      enhancedMicronutrients, // Include enhanced micronutrient analysis
     };
   }
 
