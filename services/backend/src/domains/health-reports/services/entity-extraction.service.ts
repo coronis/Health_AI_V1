@@ -160,6 +160,11 @@ export class EntityExtractionService {
     // For now, implementing mock extraction that follows the patterns
 
     const prompt = this.buildExtractionPrompt(text, options);
+    
+    this.logger.debug('AI extraction prompt generated', { 
+      promptLength: prompt.length,
+      entityTypes: options.entityTypes 
+    });
 
     // Mock AI response - in production, this would call the actual AI provider
     const mockEntities: ExtractedEntity[] = [

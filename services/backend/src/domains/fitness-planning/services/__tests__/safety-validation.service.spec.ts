@@ -196,6 +196,7 @@ describe('SafetyValidationService', () => {
         targetRepsPerSet: 12,
         intensityLevel: 6,
         notes: '',
+        exerciseType: ExerciseType.BODYWEIGHT, // Use the imported ExerciseType
         isCompleted: jest.fn().mockReturnValue(false),
         isSkipped: jest.fn().mockReturnValue(false),
         getCompletionPercentage: jest.fn().mockReturnValue(0),

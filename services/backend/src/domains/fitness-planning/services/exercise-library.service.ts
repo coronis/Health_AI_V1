@@ -363,8 +363,8 @@ export class ExerciseLibraryService {
 
     const maxLevel = levelOrder[userProfile.experienceLevel];
     const allowedLevels = Object.entries(levelOrder)
-      .filter(([_, value]) => value <= maxLevel)
-      .map(([key, _]) => key);
+      .filter(([, value]) => value <= maxLevel)
+      .map(([key]) => key);
 
     queryBuilder.andWhere('exercise.difficultyLevel IN (:...allowedLevels)', { allowedLevels });
 
@@ -498,6 +498,79 @@ export class ExerciseLibraryService {
       active,
       mostUsed,
       highestRated,
+    };
+  }
+
+  /**
+   * Search exercises by name with fuzzy matching
+   */
+  async searchExercisesByName(searchTerm: string, limit = 10): Promise<ExerciseResponseDto[]> {
+    const whereConditions: FindOptionsWhere<Exercise>[] = [
+      {
+        name: Like(`%${searchTerm}%`),
+        isActive: true,
+        isApproved: true,
+      },
+      {
+        description: Like(`%${searchTerm}%`),
+        isActive: true,
+        isApproved: true,
+      },
+    ];
+
+    const exercises = await this.exerciseRepository.find({
+      where: whereConditions,
+      take: limit,
+      order: { usageCount: 'DESC' },
+    });
+
+    return exercises.map((exercise) => this.toResponseDto(exercise));
+  }
+
+  private toResponseDto(exercise: Exercise): ExerciseResponseDto {
+    return {
+      id: exercise.id,
+      name: exercise.name,
+      description: exercise.description,
+      instructions: exercise.instructions,
+      category: exercise.category,
+      difficultyLevel: exercise.difficultyLevel,
+      primaryMuscleGroup: exercise.primaryMuscleGroup,
+      secondaryMuscleGroups: exercise.secondaryMuscleGroups,
+      equipment: exercise.equipment,
+      contraindications: exercise.contraindications,
+      healthConditionsToAvoid: exercise.healthConditionsToAvoid,
+      injuryWarnings: exercise.injuryWarnings,
+      safetyNotes: exercise.safetyNotes,
+      formCues: exercise.formCues,
+      videoUrl: exercise.videoUrl,
+      thumbnailUrl: exercise.thumbnailUrl,
+      imageUrls: exercise.imageUrls,
+      demoGifUrl: exercise.demoGifUrl,
+      defaultSets: exercise.defaultSets,
+      defaultRepsMin: exercise.defaultRepsMin,
+      defaultRepsMax: exercise.defaultRepsMax,
+      defaultDurationSeconds: exercise.defaultDurationSeconds,
+      defaultRestSeconds: exercise.defaultRestSeconds,
+      progressionExercises: exercise.progressionExercises,
+      regressionExercises: exercise.regressionExercises,
+      alternativeExercises: exercise.alternativeExercises,
+      substituteExercises: exercise.substituteExercises,
+      caloriesPerMinute: exercise.caloriesPerMinute,
+      metValue: exercise.metValue,
+      tags: exercise.tags,
+      workoutTypes: exercise.workoutTypes,
+      isCompound: exercise.isCompound,
+      isUnilateral: exercise.isUnilateral,
+      isBodyweight: exercise.isBodyweight,
+      isCardio: exercise.isCardio,
+      isActive: exercise.isActive,
+      isApproved: exercise.isApproved,
+      usageCount: exercise.usageCount,
+      averageRating: exercise.averageRating,
+      totalRatings: exercise.totalRatings,
+      createdAt: exercise.createdAt,
+      updatedAt: exercise.updatedAt,
     };
   }
 

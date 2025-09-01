@@ -79,6 +79,82 @@ export class FitnessPlanGeneratorService {
   ) {}
 
   /**
+   * Generate a fitness plan from DTO input
+   */
+  async generateFromDto(userId: string, dto: GenerateFitnessPlanDto): Promise<FitnessPlan> {
+    const params: PlanGenerationParams = {
+      planType: dto.planType,
+      experienceLevel: dto.experienceLevel,
+      durationWeeks: dto.durationWeeks,
+      workoutsPerWeek: dto.workoutsPerWeek,
+      maxWorkoutDurationMinutes: dto.maxWorkoutDurationMinutes,
+      availableEquipment: dto.availableEquipment,
+      focusAreas: dto.focusAreas,
+      healthConditions: dto.healthConditions,
+      physicalLimitations: dto.physicalLimitations,
+      preferredExerciseTypes: dto.preferredExerciseTypes,
+      dislikedExercises: dto.dislikedExercises,
+      workoutIntensityPreference: dto.workoutIntensityPreference,
+      progressiveOverloadEnabled: dto.progressiveOverloadEnabled,
+      deloadWeekFrequency: dto.deloadWeekFrequency,
+    };
+
+    return this.generateFitnessPlan(userId, params);
+  }
+
+  /**
+   * Create workout templates for different plan types
+   */
+  private createWorkoutTemplates(
+    planType: FitnessPlanType,
+    workoutsPerWeek: number,
+  ): WorkoutTemplate[] {
+    const templates: WorkoutTemplate[] = [];
+
+    const baseWorkouts = Math.min(workoutsPerWeek, 6); // Use workoutsPerWeek parameter
+
+    switch (planType) {
+      case FitnessPlanType.WEIGHT_LOSS:
+        for (let i = 0; i < baseWorkouts; i++) {
+          templates.push({
+            name: 'Cardio + Strength Circuit',
+            description: 'High-intensity circuit for maximum calorie burn',
+            duration: 45,
+            exercises: [],
+            restBetweenSets: 30,
+            restBetweenExercises: 45,
+          });
+        }
+        break;
+      case FitnessPlanType.MUSCLE_GAIN:
+        for (let i = 0; i < baseWorkouts; i++) {
+          templates.push({
+            name: 'Strength Training',
+            description: 'Progressive overload focused strength training',
+            duration: 60,
+            exercises: [],
+            restBetweenSets: 90,
+            restBetweenExercises: 120,
+          });
+        }
+        break;
+      default:
+        for (let i = 0; i < baseWorkouts; i++) {
+          templates.push({
+            name: 'Balanced Workout',
+            description: 'General fitness and health maintenance',
+            duration: 50,
+            exercises: [],
+            restBetweenSets: 60,
+            restBetweenExercises: 90,
+          });
+        }
+    }
+
+    return templates;
+  }
+
+  /**
    * Generate a complete fitness plan based on user requirements
    */
   async generateFitnessPlan(userId: string, params: PlanGenerationParams): Promise<FitnessPlan> {
@@ -279,12 +355,25 @@ export class FitnessPlanGeneratorService {
 
     const multiplier = typeMultipliers[planType];
 
+    // Adjust constraints based on workout duration
+    const durationMultiplier = workoutDuration > 60 ? 1.2 : workoutDuration < 30 ? 0.7 : 1.0;
+
     return {
-      maxSetsPerWorkout: Math.round(constraints.maxSetsPerWorkout * multiplier.sets),
-      maxSetsPerMuscleGroup: Math.round(constraints.maxSetsPerMuscleGroup * multiplier.sets),
+      maxSetsPerWorkout: Math.round(
+        constraints.maxSetsPerWorkout * multiplier.sets * durationMultiplier,
+      ),
+      maxSetsPerMuscleGroup: Math.round(
+        constraints.maxSetsPerMuscleGroup * multiplier.sets * durationMultiplier,
+      ),
       targetIntensity: Math.min(10, Math.round(constraints.targetIntensity * multiplier.intensity)),
-      restBetweenSets: constraints.restBetweenSets,
-      restBetweenExercises: constraints.restBetweenExercises,
+      restBetweenSets:
+        workoutDuration < 30
+          ? Math.round(constraints.restBetweenSets * 0.8)
+          : constraints.restBetweenSets,
+      restBetweenExercises:
+        workoutDuration < 30
+          ? Math.round(constraints.restBetweenExercises * 0.8)
+          : constraints.restBetweenExercises,
     };
   }
 
@@ -399,6 +488,21 @@ export class FitnessPlanGeneratorService {
       params.maxWorkoutDurationMinutes,
     );
 
+    // Apply adaptations if provided
+    const adaptedConstraints = adaptations
+      ? {
+          ...constraints,
+          maxSetsPerWorkout: adaptations.adjustVolume
+            ? Math.round(constraints.maxSetsPerWorkout * (1 + adaptations.adjustVolume / 100))
+            : constraints.maxSetsPerWorkout,
+          targetIntensity: adaptations.increaseDifficulty
+            ? Math.min(10, constraints.targetIntensity + 1)
+            : adaptations.decreaseDifficulty
+              ? Math.max(1, constraints.targetIntensity - 1)
+              : constraints.targetIntensity,
+        }
+      : constraints;
+
     const workout = this.workoutRepository.create({
       weekId: week.id,
       workoutName: this.generateWorkoutName(targetMuscleGroups, workoutNumber),
@@ -406,8 +510,8 @@ export class FitnessPlanGeneratorService {
       dayOfWeek: workoutNumber,
       estimatedDurationMinutes: params.maxWorkoutDurationMinutes,
       primaryMuscleGroups: targetMuscleGroups.map((mg) => mg.toString()),
-      restBetweenSets: constraints.restBetweenSets,
-      restBetweenExercises: constraints.restBetweenExercises,
+      restBetweenSets: adaptedConstraints.restBetweenSets,
+      restBetweenExercises: adaptedConstraints.restBetweenExercises,
       status: WorkoutStatus.PLANNED,
     });
 
@@ -594,8 +698,20 @@ export class FitnessPlanGeneratorService {
     weekNumber: number,
     params: PlanGenerationParams,
   ): Promise<void> {
-    const progressionRate = 1.05; // 5% increase per week
+    // Use custom progression rate from params if available
+    const progressionRate = params.progressiveOverloadEnabled ? 1.05 : 1.0; // 5% increase per week if enabled
     const progressionFactor = Math.pow(progressionRate, weekNumber - 1);
+
+    // Adjust progression based on user experience level
+    const experienceMultipliers = {
+      [ExperienceLevel.BEGINNER]: 0.8,
+      [ExperienceLevel.INTERMEDIATE]: 1.0,
+      [ExperienceLevel.ADVANCED]: 1.2,
+      [ExperienceLevel.EXPERT]: 1.3,
+    };
+
+    const adjustedProgressionFactor =
+      progressionFactor * experienceMultipliers[params.experienceLevel];
 
     // This would typically adjust weights, reps, or sets based on the progression
     // For now, we'll implement a basic progression by increasing target reps
@@ -608,13 +724,13 @@ export class FitnessPlanGeneratorService {
       for (const exercise of workout.exercises) {
         if (exercise.targetRepsRangeMax) {
           exercise.targetRepsRangeMax = Math.min(
-            exercise.targetRepsRangeMax + 1,
+            Math.round(exercise.targetRepsRangeMax * adjustedProgressionFactor),
             exercise.targetRepsRangeMax * 1.2,
           );
         }
         if (exercise.targetRepsPerSet) {
           exercise.targetRepsPerSet = Math.min(
-            exercise.targetRepsPerSet + 1,
+            Math.round(exercise.targetRepsPerSet * adjustedProgressionFactor),
             exercise.targetRepsPerSet * 1.2,
           );
         }
@@ -661,7 +777,9 @@ export class FitnessPlanGeneratorService {
     workoutNumber: number,
     workoutsPerWeek: number,
   ): MuscleGroup[] {
-    return schedule[workoutNumber.toString()] || [MuscleGroup.FULL_BODY];
+    // If workout number exceeds scheduled workouts, repeat the cycle
+    const effectiveWorkoutNumber = ((workoutNumber - 1) % workoutsPerWeek) + 1;
+    return schedule[effectiveWorkoutNumber.toString()] || [MuscleGroup.FULL_BODY];
   }
 
   private generatePlanName(planType: FitnessPlanType, experienceLevel: ExperienceLevel): string {
@@ -849,14 +967,16 @@ export class FitnessPlanGeneratorService {
     workout.estimatedDurationMinutes = 60;
     workout.exercises = [];
 
-    // Basic workout structure - simplified for this fix
+    // Basic workout structure - using intensity parameter
     const exerciseCount = Math.floor(6 * volume);
+    const baseReps = Math.round(12 * intensity); // Use intensity to adjust reps
+
     for (let i = 0; i < exerciseCount; i++) {
       const exercise = new FitnessPlanExercise();
       exercise.sortOrder = i + 1;
       exercise.targetSets = 3;
-      exercise.targetRepsPerSet = 12;
-      exercise.restTimeSeconds = 60;
+      exercise.targetRepsPerSet = Math.max(6, baseReps); // Use intensity-adjusted reps
+      exercise.restTimeSeconds = Math.round(60 / intensity); // Adjust rest based on intensity
       exercise.exerciseType = ExerciseType.COMPOUND;
       exercise.status = ExerciseStatus.PLANNED;
       exercise.exerciseName = `Exercise ${i + 1}`;

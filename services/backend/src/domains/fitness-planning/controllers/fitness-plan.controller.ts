@@ -54,7 +54,7 @@ export class FitnessPlanController {
   ): Promise<FitnessPlanResponseDto> {
     const userId = req.user?.userId || 'test-user';
     const plan = await this.fitnessPlanService.createFitnessPlan(userId, createDto);
-    
+
     // Transform to response DTO
     return {
       id: plan.id,

@@ -435,14 +435,11 @@ export class HealthDataService {
     };
   }
 
-  private async exchangeGoogleFitAuthCode(
-    authCode: string,
-    config: ProviderConfig,
-  ): Promise<any> {
+  private async exchangeGoogleFitAuthCode(authCode: string, config: ProviderConfig): Promise<any> {
     // Implement Google Fit OAuth flow
     const clientId = config.clientId;
     const clientSecret = config.clientSecret;
-    
+
     try {
       // Exchange authorization code for access token
       const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
@@ -468,7 +465,7 @@ export class HealthDataService {
       return {
         accessToken: tokenData.access_token,
         refreshToken: tokenData.refresh_token,
-        expiresAt: new Date(Date.now() + (tokenData.expires_in * 1000)),
+        expiresAt: new Date(Date.now() + tokenData.expires_in * 1000),
       };
     } catch (error) {
       this.logger.error('Google Fit auth code exchange failed', error);
@@ -490,7 +487,7 @@ export class HealthDataService {
     try {
       const baseUrl = 'https://api.fitbit.com/1/user/-';
       const dateRange = `${startDate.toISOString().split('T')[0]}/${endDate.toISOString().split('T')[0]}`;
-      
+
       let endpoint = '';
       switch (dataType) {
         case HealthDataType.STEPS:
@@ -511,7 +508,7 @@ export class HealthDataService {
 
       const response = await fetch(endpoint, {
         headers: {
-          'Authorization': `Bearer ${connection.accessToken}`,
+          Authorization: `Bearer ${connection.accessToken}`,
         },
       });
 
@@ -537,14 +534,15 @@ export class HealthDataService {
       const baseUrl = 'https://www.googleapis.com/fitness/v1/users/me';
       const startTimeNanos = startDate.getTime() * 1000000;
       const endTimeNanos = endDate.getTime() * 1000000;
-      
+
       let dataSource = '';
       switch (dataType) {
         case HealthDataType.STEPS:
           dataSource = 'derived:com.google.step_count.delta:com.google.android.gms:estimated_steps';
           break;
         case HealthDataType.HEART_RATE:
-          dataSource = 'derived:com.google.heart_rate.bpm:com.google.android.gms:merge_heart_rate_bpm';
+          dataSource =
+            'derived:com.google.heart_rate.bpm:com.google.android.gms:merge_heart_rate_bpm';
           break;
         case HealthDataType.SLEEP:
           dataSource = 'derived:com.google.sleep.segment:com.google.android.gms:merged';
@@ -560,7 +558,7 @@ export class HealthDataService {
 
       const response = await fetch(endpoint, {
         headers: {
-          'Authorization': `Bearer ${connection.accessToken}`,
+          Authorization: `Bearer ${connection.accessToken}`,
         },
       });
 
@@ -574,7 +572,6 @@ export class HealthDataService {
       this.logger.error('Google Fit data fetch failed', error);
       return [];
     }
-  }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

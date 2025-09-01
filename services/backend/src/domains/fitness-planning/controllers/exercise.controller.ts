@@ -47,7 +47,7 @@ export class ExerciseController {
     // In a real app, you'd extract user ID from JWT token
     const createdBy = req.user?.userId || 'system';
     const exercise = await this.exerciseLibraryService.createExercise(createExerciseDto, createdBy);
-    
+
     // Transform to response DTO
     return {
       id: exercise.id,
