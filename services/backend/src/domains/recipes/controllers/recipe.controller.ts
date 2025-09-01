@@ -166,6 +166,40 @@ export class RecipeController {
     return { recipes };
   }
 
+  @Get('diet-types')
+  @ApiOperation({ summary: 'Get available diet types' })
+  @ApiResponse({ status: 200, description: 'Diet types retrieved successfully' })
+  async getAvailableDietTypes(): Promise<{ dietTypes: DietType[]; count: number }> {
+    // Return all available diet types from the enum
+    const dietTypes = Object.values(DietType);
+
+    this.logger.debug(`Retrieved ${dietTypes.length} available diet types`);
+
+    return {
+      dietTypes,
+      count: dietTypes.length,
+    };
+  }
+
+  @Get('by-diet/:dietType')
+  @ApiOperation({ summary: 'Get recipes by diet type' })
+  @ApiResponse({ status: 200, description: 'Recipes filtered by diet type' })
+  @ApiParam({ name: 'dietType', description: 'Diet type filter', enum: DietType })
+  async getRecipesByDietType(
+    @Param('dietType') dietType: DietType,
+    @Query('limit') limit: number = 20,
+  ): Promise<{ recipes: Recipe[]; dietType: DietType; total: number }> {
+    this.logger.debug(`Fetching recipes for diet type: ${dietType}`);
+
+    const recipes = await this.recipeService.findByDietType(dietType, Number(limit));
+
+    return {
+      recipes,
+      dietType,
+      total: recipes.length,
+    };
+  }
+
   @Get('recent')
   @ApiOperation({ summary: 'Get recently added recipes' })
   @ApiResponse({ status: 200, description: 'Recent recipes retrieved successfully' })

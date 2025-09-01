@@ -217,6 +217,12 @@ export class RecipeService {
     this.logger.debug(`Deleting recipe: ${id}`);
 
     const recipe = await this.findById(id);
+
+    // Log recipe details before deletion for audit trail
+    this.logger.log(
+      `Deleting recipe: ${recipe.name} (ID: ${recipe.id}), Cuisine: ${recipe.cuisine}, Diet: ${recipe.dietType}`,
+    );
+
     const deleted = await this.recipeRepository.delete(id);
 
     if (!deleted) {

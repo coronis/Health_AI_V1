@@ -173,6 +173,14 @@ export class OCRService {
       fieldMask: options.fieldMask || 'text,pages.pageNumber,pages.dimension',
     };
 
+    // Log request configuration for monitoring and debugging
+    console.log('Google Document AI request configured:', {
+      processorName: documentRequest.name,
+      contentLength: documentRequest.rawDocument.content.length,
+      mimeType: documentRequest.rawDocument.mimeType,
+      fieldMask: documentRequest.fieldMask,
+    });
+
     // This would integrate with Google Document AI API
     // For now, implementing mock response structure with enhanced metadata
     const mockResult: OCRResult = {
@@ -221,6 +229,14 @@ export class OCRService {
 
     console.log(`Processing document with Azure Document Intelligence at endpoint: ${endpoint}`);
 
+    // Log Azure request details for monitoring
+    console.log('Azure Document Intelligence request configured:', {
+      endpoint: azureRequest.endpoint,
+      apiVersion: azureRequest.apiVersion,
+      modelId: azureRequest.modelId,
+      documentSize: azureRequest.base64Source.length,
+    });
+
     // Mock implementation - would call Azure Document Intelligence API
     const mockResult: OCRResult = {
       extractedText: this.generateMockHealthReportText(),
@@ -266,6 +282,14 @@ export class OCRService {
     console.log(
       `Processing document with AWS Textract using access key: ${accessKey.substring(0, 8)}...`,
     );
+
+    // Log AWS configuration for monitoring
+    console.log('AWS Textract configuration:', {
+      region: awsConfig.region,
+      accessKeyMasked: `${awsConfig.accessKeyId.substring(0, 8)}...`,
+      documentSize: fileBuffer.length,
+      mimeType: mimeType,
+    });
 
     // Mock implementation - would call AWS Textract API
     const mockResult: OCRResult = {

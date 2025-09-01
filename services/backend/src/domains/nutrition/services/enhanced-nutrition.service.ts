@@ -220,6 +220,14 @@ export class EnhancedNutritionService {
 
     const detailedNutrition = await this.nutritionService.calculateNutrition(nutritionInput);
 
+    // Use detailed nutrition for enhanced analysis and micronutrient calculations
+    const enhancedMicronutrients = detailedNutrition?.micronutrients || {};
+    console.log(`Enhanced nutrition analysis completed for ${ingredient.name}:`, {
+      vitamins: detailedNutrition?.vitamins || {},
+      minerals: detailedNutrition?.minerals || {},
+      antioxidants: detailedNutrition?.antioxidants || {},
+    });
+
     // Calculate nutrition contribution percentage
     const totalCalories = Object.values(ingredient.rawNutrients).reduce(
       (sum, val) => sum + (val || 0),
@@ -234,6 +242,7 @@ export class EnhancedNutritionService {
       cookedNutrients,
       cookedWeight,
       nutritionContribution,
+      enhancedMicronutrients, // Include enhanced micronutrient analysis
     };
   }
 

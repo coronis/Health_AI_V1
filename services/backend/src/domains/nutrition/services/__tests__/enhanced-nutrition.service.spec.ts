@@ -134,6 +134,14 @@ describe('EnhancedNutritionService', () => {
 
   describe('analyzeRecipe', () => {
     it('should analyze a simple recipe with raw and cooked ingredients', async () => {
+      // Setup mockNutritionService for nutrition calculation integration
+      mockNutritionService.calculateCompleteNutritionPlan.mockResolvedValue({
+        totalCalories: 450,
+        macros: { protein: 12, carbs: 85, fat: 2 },
+        micronutrients: { iron: 2.5, calcium: 45 },
+        dailyValues: { iron: 15, calcium: 4.5 },
+      });
+
       // Mock cooking transformation for rice
       mockCookingService.applyCookingTransformation.mockReturnValue({
         yieldFactor: 2.5, // Rice expands when cooked

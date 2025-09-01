@@ -147,7 +147,20 @@ export class WeeklyAdaptationService {
   async adaptUserFitnessPlan(request: WeeklyAdaptationRequest): Promise<WeeklyAdaptationResult> {
     const { userId, adaptationType = 'automatic' } = request;
 
-    this.logger.log(`Starting weekly adaptation for user ${userId}`);
+    // Validate input parameters
+    if (!userId || typeof userId !== 'string' || userId.trim().length === 0) {
+      throw new BadRequestException('Valid user ID is required for weekly adaptation');
+    }
+
+    // Validate adaptation type
+    const validAdaptationTypes = ['automatic', 'manual', 'ai_driven'];
+    if (!validAdaptationTypes.includes(adaptationType)) {
+      throw new BadRequestException(
+        `Invalid adaptation type: ${adaptationType}. Must be one of: ${validAdaptationTypes.join(', ')}`,
+      );
+    }
+
+    this.logger.log(`Starting weekly adaptation for user ${userId} with type: ${adaptationType}`);
 
     // Get user and their current active plan
     const user = await this.userRepository.findOne({ where: { id: userId } });

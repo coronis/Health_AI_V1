@@ -744,10 +744,12 @@ export class SafetyValidationService {
    */
   private assessWorkoutVolume(totalReps: number, exerciseCount: number): string {
     const repsPerExercise = totalReps / exerciseCount;
-    
+
     // Use reps per exercise for more accurate volume assessment
-    console.log(`Volume assessment: ${totalReps} total reps, ${repsPerExercise.toFixed(1)} reps per exercise`);
-    
+    console.log(
+      `Volume assessment: ${totalReps} total reps, ${repsPerExercise.toFixed(1)} reps per exercise`,
+    );
+
     if (totalReps < 50 || repsPerExercise < 8) return 'low';
     if (totalReps < 120 || repsPerExercise < 15) return 'moderate';
     if (totalReps < 200 || repsPerExercise < 25) return 'high';
