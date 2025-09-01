@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import {
   PaperAirplaneIcon,
   MicrophoneIcon,
@@ -87,6 +87,14 @@ export default function ChatPage() {
     []
   );
 
+  const initializeSession = useCallback(async () => {
+    const session = await createSession(userId, 'general_health', sessionContext);
+
+    if (session) {
+      setCurrentSessionId(session.id);
+    }
+  }, [createSession, userId, sessionContext]);
+
   // Create initial session
   useEffect(() => {
     if (!currentSessionId && !createSessionState.loading) {
@@ -98,14 +106,6 @@ export default function ChatPage() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [processedMessages]);
-
-  const initializeSession = useCallback(async () => {
-    const session = await createSession(userId, 'general_health', sessionContext);
-
-    if (session) {
-      setCurrentSessionId(session.id);
-    }
-  }, [createSession, userId, sessionContext]);
 
   const handleSendMessage = async () => {
     if (!message.trim() || !currentSessionId || messageState.loading) return;

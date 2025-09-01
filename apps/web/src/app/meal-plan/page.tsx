@@ -81,16 +81,6 @@ export default function MealPlanPage() {
   const currentMealPlan = mealPlanState.data;
   const selectedDayPlan = currentMealPlan?.days[selectedDay];
 
-  // Generate initial meal plan if none exists
-  useEffect(() => {
-    const initializeMealPlan = async () => {
-      if (!mealPlanState.loading && !mealPlanState.data && !mealPlanState.error) {
-        await handleGeneratePlan();
-      }
-    };
-    initializeMealPlan();
-  }, [mealPlanState.loading, mealPlanState.data, mealPlanState.error, handleGeneratePlan]);
-
   const handleGeneratePlan = useCallback(async () => {
     setIsGeneratingPlan(true);
     const result = await generateMealPlan({
@@ -110,6 +100,16 @@ export default function MealPlanPage() {
     }
     setIsGeneratingPlan(false);
   }, [generateMealPlan, userId, refetchMealPlan]);
+
+  // Generate initial meal plan if none exists
+  useEffect(() => {
+    const initializeMealPlan = async () => {
+      if (!mealPlanState.loading && !mealPlanState.data && !mealPlanState.error) {
+        await handleGeneratePlan();
+      }
+    };
+    initializeMealPlan();
+  }, [mealPlanState.loading, mealPlanState.data, mealPlanState.error, handleGeneratePlan]);
 
   const handleSwapMeal = async (mealType: string, dayIndex: number) => {
     if (!currentMealPlan) return;

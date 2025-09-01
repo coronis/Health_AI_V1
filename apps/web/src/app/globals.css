@@ -28,30 +28,93 @@ body {
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition-property: color, background-color, border-color;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  
+  .btn:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--tw-ring-offset-color), 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  }
+  
+  .btn:disabled {
+    opacity: 0.5;
+    pointer-events: none;
   }
   
   .btn-primary {
-    @apply btn bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500;
+    background-color: #14B8A6;
+    color: #ffffff;
+  }
+  
+  .btn-primary:hover {
+    background-color: #0D9488;
   }
   
   .btn-secondary {
-    @apply btn bg-secondary-500 text-white hover:bg-secondary-600 focus:ring-secondary-500;
+    background-color: #F0653E;
+    color: #ffffff;
+  }
+  
+  .btn-secondary:hover {
+    background-color: #EA580C;
   }
   
   .btn-outline {
-    @apply btn border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-primary-500;
+    border: 1px solid #D1D5DB;
+    background-color: #ffffff;
+    color: #374151;
+  }
+  
+  .btn-outline:hover {
+    background-color: #F9FAFB;
   }
   
   .card {
-    @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6;
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    border: 1px solid #E5E7EB;
+    padding: 1.5rem;
   }
   
   .input {
-    @apply block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500;
+    display: block;
+    width: 100%;
+    border-radius: 0.5rem;
+    border: 1px solid #D1D5DB;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: #9CA3AF;
+  }
+  
+  .input:focus {
+    border-color: #14B8A6;
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 1px #14B8A6;
   }
   
   .label {
-    @apply block text-sm font-medium text-gray-700 mb-2;
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
   }
 }

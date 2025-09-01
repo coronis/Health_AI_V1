@@ -551,6 +551,13 @@ export class DomainScopedChatService {
       contextTokens: Math.ceil(message.length / 4), // Rough estimate
       maxResponseTokens: 1000,
       accuracyRequirement: routingLevel === 'L1' ? 0.95 : 0.85,
+      payload: {
+        systemPrompt, // Include the built system prompt in the payload
+        domainClassification,
+        ragContext,
+        routingLevel,
+        originalMessage: message,
+      },
     };
   }
 

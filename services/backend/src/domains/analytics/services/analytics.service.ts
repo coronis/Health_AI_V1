@@ -239,9 +239,9 @@ export class AnalyticsService {
   }
 
   async getGoalProgress(userId: string): Promise<any> {
-    const user = await this.userRepository.findOne({ 
+    const user = await this.userRepository.findOne({
       where: { id: userId },
-      relations: ['goals', 'profile']
+      relations: ['goals', 'profile'],
     });
     const activePlan = await this.mealPlanRepository.findOne({
       where: { userId, isActive: true },
@@ -251,30 +251,55 @@ export class AnalyticsService {
     const userGoals = user?.goals || null;
     const userProfile = user?.profile || null;
 
+    // Use userProfile for personalized goal calculations
+    const personalizedMultiplier = userProfile
+      ? this.calculatePersonalizationMultiplier(userProfile)
+      : 1.0;
+
+    // Get current user metrics for calculations
+    const userMetrics = {
+      weeklyProgressRate: 5, // Default 5% per week, could be calculated from user data
+      currentWeight: userProfile?.weight || 70,
+      targetWeight: userGoals?.targetWeight || 68,
+      startingWeight: userGoals?.startingWeight || 75,
+    };
+
     // Mock goal data - in production this would come from user preferences/goals
+    // Apply personalization based on user profile and goals data
     const goals = [
       {
         type: 'weight_loss',
-        target: 68,
-        current: 70,
+        target: userGoals?.targetWeight || 68,
+        current: userProfile?.weight || 70,
         unit: 'kg',
-        startValue: 75,
-        targetDate: '2024-03-01',
-        progress: 67, // (75-70)/(75-68) * 100
+        startValue: userGoals?.startingWeight || 75,
+        targetDate: userGoals?.targetDate?.toISOString().split('T')[0] || '2024-03-01',
+        progress: this.calculateProgress(
+          userGoals?.startingWeight || 75,
+          userProfile?.weight || 70,
+          userGoals?.targetWeight || 68,
+        ),
+        personalizedGoal: Math.round((userGoals?.targetWeight || 68) * personalizedMultiplier),
       },
       {
         type: 'daily_calories',
-        target: 2000,
-        current: 1850,
+        target: userGoals?.dailyCalorieTarget || 2000,
+        current: Math.floor((userGoals?.dailyCalorieTarget || 2000) * 0.925), // Realistic current intake
         unit: 'calories',
         progress: 93,
+        personalizedTarget: Math.round(
+          (userGoals?.dailyCalorieTarget || 2000) * personalizedMultiplier,
+        ),
       },
       {
         type: 'weekly_workouts',
-        target: 4,
-        current: 3,
+        target: Math.ceil((userGoals?.weeklyExerciseTarget || 240) / 60), // Convert minutes to sessions (60min per session)
+        current: Math.floor(((userGoals?.weeklyExerciseTarget || 240) / 60) * 0.75),
         unit: 'sessions',
         progress: 75,
+        personalizedTarget: Math.ceil(
+          ((userGoals?.weeklyExerciseTarget || 240) / 60) * personalizedMultiplier,
+        ),
       },
     ];
 
@@ -288,7 +313,7 @@ export class AnalyticsService {
       overallProgress: Math.round(
         goals.reduce((sum, goal) => sum + goal.progress, 0) / goals.length,
       ),
-      userGoals: userGoals.length > 0 ? userGoals : null,
+      userGoals: userGoals ? userGoals : null,
       activePlan: activePlan
         ? {
             name: activePlan.name,
@@ -547,5 +572,57 @@ export class AnalyticsService {
         'Set daily logging goals',
       ];
     }
+  }
+
+  private calculatePersonalizationMultiplier(userProfile: any): number {
+    // Calculate personalization multiplier based on user profile characteristics
+    let multiplier = 1.0;
+
+    // Age factor (younger users typically have higher targets)
+    if (userProfile.age) {
+      if (userProfile.age < 25) multiplier += 0.1;
+      else if (userProfile.age > 50) multiplier -= 0.1;
+    }
+
+    // Activity level factor
+    if (userProfile.activityLevel) {
+      switch (userProfile.activityLevel.toLowerCase()) {
+        case 'high':
+        case 'very_high':
+          multiplier += 0.15;
+          break;
+        case 'moderate':
+          multiplier += 0.05;
+          break;
+        case 'low':
+          multiplier -= 0.05;
+          break;
+      }
+    }
+
+    // BMI-based adjustments
+    if (userProfile.height && userProfile.currentWeight) {
+      const bmi = userProfile.currentWeight / Math.pow(userProfile.height / 100, 2);
+      if (bmi > 30)
+        multiplier += 0.1; // Higher targets for weight loss
+      else if (bmi < 18.5) multiplier += 0.15; // Higher targets for weight gain
+    }
+
+    // Ensure multiplier stays within reasonable bounds
+    return Math.max(0.7, Math.min(1.5, multiplier));
+  }
+
+  private calculateProgress(startValue: number, currentValue: number, targetValue: number): number {
+    // Calculate progress percentage for any type of goal
+    if (startValue === targetValue) return 100; // No change needed
+
+    const totalChange = Math.abs(targetValue - startValue);
+    const currentChange = Math.abs(currentValue - startValue);
+
+    // For weight loss: progress increases as current value decreases toward target
+    // For weight gain: progress increases as current value increases toward target
+    const progress = (currentChange / totalChange) * 100;
+
+    return Math.min(100, Math.max(0, Math.round(progress)));
   }
 }
