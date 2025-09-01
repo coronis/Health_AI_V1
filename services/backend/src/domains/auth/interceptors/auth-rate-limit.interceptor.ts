@@ -7,9 +7,6 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { AuditLog, AuditEventType, AuditSeverity } from '../entities/audit-log.entity';
 import { AuditService } from '../services/audit.service';
 
 export interface RateLimitConfig {

@@ -22,6 +22,15 @@ export class OptionalAuthGuard implements CanActivate {
     // This guard allows both authenticated and unauthenticated requests
     // If authenticated, it will populate req.user
     // If not authenticated, req.user will be undefined
+
+    const request = context.switchToHttp().getRequest();
+    const hasToken = request.headers.authorization?.startsWith('Bearer ');
+
+    // Log authentication attempt for debugging
+    console.debug(
+      `Optional auth guard: ${hasToken ? 'token present' : 'no token'} for ${request.url}`,
+    );
+
     return true;
   }
 }

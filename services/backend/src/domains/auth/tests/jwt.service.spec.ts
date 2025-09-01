@@ -10,9 +10,6 @@ import { JwtService as NestJwtService } from '@nestjs/jwt';
 
 describe('JWTService', () => {
   let service: JWTService;
-  let sessionRepository: Repository<UserSession>;
-  let jwtService: NestJwtService;
-  let auditService: AuditService;
 
   const mockSessionRepository = {
     create: jest.fn(),

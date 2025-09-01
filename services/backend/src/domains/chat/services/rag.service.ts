@@ -661,8 +661,21 @@ export class RAGService {
 
   private async getRecentHealthReports(userId: string, timeRange?: any): Promise<any[]> {
     try {
+      // Build where conditions with optional time filtering
+      const whereConditions: any = { userId };
+
+      if (timeRange) {
+        // Add date filtering based on timeRange
+        const { startDate, endDate } = timeRange;
+        if (startDate || endDate) {
+          whereConditions.testDate = {};
+          if (startDate) whereConditions.testDate.gte = startDate;
+          if (endDate) whereConditions.testDate.lte = endDate;
+        }
+      }
+
       const reports = await this.healthReportRepository.find({
-        where: { userId },
+        where: whereConditions,
         order: { testDate: 'DESC' },
         take: 3,
       });
@@ -682,8 +695,21 @@ export class RAGService {
 
   private async getRecentMealPlans(userId: string, timeRange?: any): Promise<any[]> {
     try {
+      // Build where conditions with optional time filtering
+      const whereConditions: any = { userId };
+
+      if (timeRange) {
+        // Add date filtering based on timeRange
+        const { startDate, endDate } = timeRange;
+        if (startDate || endDate) {
+          whereConditions.createdAt = {};
+          if (startDate) whereConditions.createdAt.gte = startDate;
+          if (endDate) whereConditions.createdAt.lte = endDate;
+        }
+      }
+
       const mealPlans = await this.mealPlanRepository.find({
-        where: { userId },
+        where: whereConditions,
         order: { createdAt: 'DESC' },
         take: 2,
         relations: ['entries'],
@@ -704,8 +730,21 @@ export class RAGService {
 
   private async getRecentFitnessPlans(userId: string, timeRange?: any): Promise<any[]> {
     try {
+      // Build where conditions with optional time filtering
+      const whereConditions: any = { userId };
+
+      if (timeRange) {
+        // Add date filtering based on timeRange
+        const { startDate, endDate } = timeRange;
+        if (startDate || endDate) {
+          whereConditions.createdAt = {};
+          if (startDate) whereConditions.createdAt.gte = startDate;
+          if (endDate) whereConditions.createdAt.lte = endDate;
+        }
+      }
+
       const fitnessPlans = await this.fitnessPlanRepository.find({
-        where: { userId },
+        where: whereConditions,
         order: { createdAt: 'DESC' },
         take: 2,
         relations: ['weeks', 'weeks.workouts', 'weeks.workouts.exercises'],
@@ -726,8 +765,26 @@ export class RAGService {
 
   private async getRecentRecipes(userId: string, timeRange?: any): Promise<any[]> {
     try {
+      // Build where conditions with optional time filtering
+      const whereConditions: any = {};
+
+      // Note: If recipes don't have userId field, we might need to filter by user's meal plans
+      // For now, assuming recipes can be filtered by time range if provided
+      // TODO: In production, filter recipes by user's meal plans or favorites using userId
+      this.logger.debug(`Fetching recipes for user ${userId} with timeRange:`, timeRange);
+
+      if (timeRange) {
+        const { startDate, endDate } = timeRange;
+        if (startDate || endDate) {
+          whereConditions.createdAt = {};
+          if (startDate) whereConditions.createdAt.gte = startDate;
+          if (endDate) whereConditions.createdAt.lte = endDate;
+        }
+      }
+
       // Get recipes from user's recent meal plans or favorites
       const recipes = await this.recipeRepository.find({
+        where: Object.keys(whereConditions).length > 0 ? whereConditions : undefined,
         order: { createdAt: 'DESC' },
         take: 5,
         relations: ['ingredients'],

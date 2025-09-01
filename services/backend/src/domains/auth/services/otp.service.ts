@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { UserOTP, OTPType, OTPStatus } from '../entities/user-otp.entity';
 import { AuditService } from './audit.service';
 import { AuditEventType } from '../entities/audit-log.entity';
-import * as crypto from 'crypto';
+import * as twilio from 'twilio';
 
 // Create TooManyRequestsException since it's not exported from @nestjs/common
 class TooManyRequestsException extends HttpException {
@@ -287,7 +287,7 @@ export class OTPService {
         authToken.length > 10
       ) {
         try {
-          const client = require('twilio')(accountSid, authToken);
+          const client = twilio(accountSid, authToken);
 
           await client.messages.create({
             body: message,

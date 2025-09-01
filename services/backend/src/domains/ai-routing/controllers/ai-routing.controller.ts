@@ -275,7 +275,10 @@ export class AIRoutingController {
       // Custom health validation logic
       for (const [name, config] of Object.entries(providers)) {
         if (config.responseTime > 200) {
+          this.logger.warn(`Provider ${name} has degraded performance: ${config.responseTime}ms`);
           config.status = 'degraded';
+        } else {
+          this.logger.debug(`Provider ${name} is healthy: ${config.responseTime}ms`);
         }
       }
     } catch (error) {

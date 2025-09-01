@@ -21,7 +21,6 @@ import {
   ExerciseCategory,
 } from '../entities/exercise.entity';
 import { ExerciseLibraryService } from './exercise-library.service';
-import { GenerateFitnessPlanDto } from '../dto/fitness-plan.dto';
 
 interface PlanGenerationParams {
   planType: FitnessPlanType;
@@ -38,15 +37,6 @@ interface PlanGenerationParams {
   workoutIntensityPreference?: string;
   progressiveOverloadEnabled?: boolean;
   deloadWeekFrequency?: number;
-}
-
-interface WorkoutTemplate {
-  name: string;
-  description: string;
-  duration: number;
-  exercises: ExerciseTemplate[];
-  restBetweenSets: number;
-  restBetweenExercises: number;
 }
 
 interface ExerciseTemplate {
@@ -264,6 +254,9 @@ export class FitnessPlanGeneratorService {
 
     const constraints = baseConstraints[experienceLevel];
 
+    // Adjust constraints based on available workout duration
+    const timeAdjustment = workoutDuration < 30 ? 0.7 : workoutDuration < 60 ? 1.0 : 1.3;
+
     // Adjust based on plan type
     const typeMultipliers = {
       [FitnessPlanType.WEIGHT_LOSS]: { sets: 0.8, intensity: 0.9 },
@@ -280,8 +273,8 @@ export class FitnessPlanGeneratorService {
     const multiplier = typeMultipliers[planType];
 
     return {
-      maxSetsPerWorkout: Math.round(constraints.maxSetsPerWorkout * multiplier.sets),
-      maxSetsPerMuscleGroup: Math.round(constraints.maxSetsPerMuscleGroup * multiplier.sets),
+      maxSetsPerWorkout: Math.round(constraints.maxSetsPerWorkout * multiplier.sets * timeAdjustment),
+      maxSetsPerMuscleGroup: Math.round(constraints.maxSetsPerMuscleGroup * multiplier.sets * timeAdjustment),
       targetIntensity: Math.min(10, Math.round(constraints.targetIntensity * multiplier.intensity)),
       restBetweenSets: constraints.restBetweenSets,
       restBetweenExercises: constraints.restBetweenExercises,

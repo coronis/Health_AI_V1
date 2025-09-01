@@ -490,6 +490,28 @@ export class PromptOptimizationService {
       return String(variable.defaultValue);
     }
 
+    // Use user context to provide personalized fallbacks when available
+    if (userContext) {
+      const contextualFallbacks: Record<string, string> = {
+        user_name: userContext.preferredName || userContext.firstName || 'user',
+        userName: userContext.preferredName || userContext.firstName || 'user',
+        user_age: userContext.ageGroup || 'adult',
+        userAge: userContext.ageGroup || 'adult',
+        user_gender: userContext.genderNeutralTerm || 'person',
+        userGender: userContext.genderNeutralTerm || 'person',
+        health_conditions: userContext.healthConditions?.join(', ') || 'none reported',
+        healthConditions: userContext.healthConditions?.join(', ') || 'none reported',
+        dietary_restrictions: userContext.dietaryRestrictions?.join(', ') || 'none specified',
+        dietaryRestrictions: userContext.dietaryRestrictions?.join(', ') || 'none specified',
+        user_goals: userContext.primaryGoals?.join(', ') || 'general wellness',
+        userGoals: userContext.primaryGoals?.join(', ') || 'general wellness',
+      };
+
+      if (contextualFallbacks[variable.name]) {
+        return contextualFallbacks[variable.name];
+      }
+    }
+
     // Provide safe defaults based on variable type and context
     const safeFallbacks: Record<string, string> = {
       user_name: 'user',
@@ -1147,6 +1169,7 @@ Response Hinglish mein dein aur simple language use karein.`,
 
     for (const [id, template] of this.templates.entries()) {
       if (!defaultTemplateIds.includes(id)) {
+        this.logger.debug(`Removing non-default template: ${template.category}/${id}`);
         this.templates.delete(id);
       }
     }

@@ -8,8 +8,6 @@ import { UserOTP, OTPType, OTPStatus } from '../entities/user-otp.entity';
 
 describe('OTPService', () => {
   let service: OTPService;
-  let repository: Repository<UserOTP>;
-  let auditService: AuditService;
 
   const mockRepository = {
     create: jest.fn(),

@@ -128,14 +128,33 @@ export class DailyTieringService {
     const userTier = await this.getUserTier();
     const dailyUsage = await this.getDailyUsage(userId);
 
-    // Check request limits
+    // Apply tier-specific adjustments to limits
+    let tierMultiplier = 1.0;
+    switch (userTier) {
+      case 'premium':
+        tierMultiplier = 2.0;
+        break;
+      case 'pro':
+        tierMultiplier = 1.5;
+        break;
+      case 'free':
+      default:
+        tierMultiplier = 1.0;
+        break;
+    }
+
+    this.logger.debug(`Applying tier multiplier ${tierMultiplier} for ${userTier} user ${userId}`);
+
+    // Check request limits with tier adjustments
     const currentRequests =
       requestLevel === 'level1' ? dailyUsage.usage.level1Requests : dailyUsage.usage.level2Requests;
 
-    const requestLimit =
+    const baseRequestLimit =
       requestLevel === 'level1'
         ? dailyUsage.limits.level1Requests
         : dailyUsage.limits.level2Requests;
+
+    const requestLimit = Math.floor(baseRequestLimit * tierMultiplier);
 
     if (currentRequests >= requestLimit) {
       return {

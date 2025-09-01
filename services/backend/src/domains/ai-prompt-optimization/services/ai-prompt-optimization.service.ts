@@ -6,7 +6,6 @@ import { ConfigService } from '@nestjs/config';
 import {
   AIPromptTemplate,
   PromptCategory,
-  VariableType,
   PromptStatus,
 } from '../entities/ai-prompt-template.entity';
 import { AIPromptExecution, ExecutionStatus } from '../entities/ai-prompt-execution.entity';

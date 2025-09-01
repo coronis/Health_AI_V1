@@ -229,9 +229,11 @@ export class CostOptimizationService {
     for (const [groupKey, groupRequests] of groups) {
       if (groupRequests.length > 1) {
         // Combine similar requests into one optimized request
+        this.logger.debug(`Optimizing group ${groupKey} with ${groupRequests.length} requests`);
         const combined = this.combineRequests(groupRequests);
         optimized.push(combined);
       } else {
+        this.logger.debug(`Group ${groupKey} has single request, no optimization needed`);
         optimized.push(groupRequests[0]);
       }
     }

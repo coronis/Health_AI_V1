@@ -7,7 +7,6 @@ import {
   Body,
   Param,
   Query,
-  UseGuards,
   Req,
   HttpStatus,
   HttpCode,
@@ -15,7 +14,6 @@ import {
   BadRequestException,
   ValidationPipe,
 } from '@nestjs/common';
-import { Request } from 'express';
 import { AuthenticatedRequest } from '../../auth/guards/optional-auth.guard';
 import '../../../types/express'; // Import type declarations
 import { ExerciseLibraryService } from '../services/exercise-library.service';
@@ -23,7 +21,6 @@ import {
   CreateExerciseDto,
   UpdateExerciseDto,
   ExerciseFilterDto,
-  ExerciseResponseDto,
   ExerciseStatsDto,
 } from '../dto/exercise.dto';
 import { Exercise } from '../entities/exercise.entity';
