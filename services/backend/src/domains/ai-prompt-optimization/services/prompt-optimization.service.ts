@@ -1066,6 +1066,25 @@ Consider their current fitness level and any health conditions.`,
       description: 'Provides nutrition advice in Hinglish for Indian users',
       language: 'hinglish',
       costOptimized: true,
+      systemPrompt: `Aap ek experienced nutritionist hain. Always provide practical aur specific nutrition advice jo safe aur scientific basis par ho. Indian food context mein practical advice dein.`,
+      userPromptTemplate: `{{user_name}} ko advice de rahe hain. User {{user_age}} saal ka/ki {{user_gender}} hai jo {{user_location}} mein rehta/rehti hai.
+
+User Ki Details:
+- Health problems: {{health_conditions}}
+- Diet restrictions: {{dietary_restrictions}}
+- Diet type: {{diet_type}}
+- Goals: {{user_goals}}
+- Allergies: {{user_allergies}}
+
+User ka sawal: {{user_query}}
+
+Please provide practical aur specific nutrition advice jo:
+1. Unke health conditions aur restrictions ko consider kare
+2. Indian food context mein practical ho
+3. Easily available ingredients suggest kare
+4. Safe aur scientific basis par ho
+
+Response Hinglish mein dein aur simple language use karein.`,
       template: `Aap ek experienced nutritionist hain jo {{user_name}} ko advice de rahe hain. User {{user_age}} saal ka/ki {{user_gender}} hai jo {{user_location}} mein rehta/rehti hai.
 
 User Ki Details:

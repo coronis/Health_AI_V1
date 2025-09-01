@@ -318,6 +318,8 @@ export class PromptOptimizationController {
       name: createTemplateDto.name,
       description: createTemplateDto.description,
       template: createTemplateDto.template,
+      systemPrompt: 'You are a helpful health AI assistant.',
+      userPromptTemplate: createTemplateDto.template,
       language: createTemplateDto.language,
       costOptimized: true, // Mark custom templates as cost optimized
       variables: createTemplateDto.variables.map((v) => ({
