@@ -180,7 +180,7 @@
     },
     {
       "parameters": {
-        "url": "={{$env.API_BASE_URL}}/fitness-planning/adapt-from-health-report", 
+        "url": "={{$env.API_BASE_URL}}/fitness-planning/adapt-from-health-report",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpBearerAuth",
         "sendHeaders": true,
@@ -280,7 +280,7 @@
         "message": "Health report processed successfully",
         "responseCode": 200
       },
-      "id": "success-response", 
+      "id": "success-response",
       "name": "Success Response",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,

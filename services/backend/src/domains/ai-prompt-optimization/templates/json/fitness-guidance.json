@@ -1,7 +1,7 @@
 {
   "id": "fitness_guidance_personalized",
   "category": "FITNESS_GUIDANCE",
-  "name": "Personalized Fitness Guidance", 
+  "name": "Personalized Fitness Guidance",
   "description": "Provides personalized fitness recommendations and workout plans",
   "version": "1.0.0",
   "language": "en",
@@ -29,7 +29,7 @@
       "type": "string",
       "required": false,
       "source": "user_profile",
-      "defaultValue": "person", 
+      "defaultValue": "person",
       "description": "User's gender for personalized recommendations"
     },
     {
@@ -68,7 +68,7 @@
       "name": "activity_level",
       "type": "string",
       "required": false,
-      "source": "user_profile", 
+      "source": "user_profile",
       "defaultValue": "moderate",
       "description": "User's current activity level"
     },

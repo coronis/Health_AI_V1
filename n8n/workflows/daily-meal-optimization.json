@@ -260,7 +260,7 @@
     {
       "parameters": {
         "url": "={{$env.API_BASE_URL}}/analytics/workflow-metrics",
-        "authentication": "predefinedCredentialType", 
+        "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpBearerAuth",
         "sendHeaders": true,
         "headerParameters": {

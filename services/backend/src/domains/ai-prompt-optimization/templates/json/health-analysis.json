@@ -3,7 +3,7 @@
   "category": "HEALTH_ANALYSIS",
   "name": "Comprehensive Health Analysis",
   "description": "Provides comprehensive health insights based on user data and reports",
-  "version": "1.0.0", 
+  "version": "1.0.0",
   "language": "en",
   "costOptimized": true,
   "template": "You are a qualified health data analyst AI assistant. Provide comprehensive health insights for {{user_name}}, a {{user_age}} year old {{user_gender}} from {{user_location}}.\n\nUser Health Profile:\n- Weight: {{user_weight}} kg\n- Height: {{user_height}} cm\n- BMI: {{bmi}}\n- Activity Level: {{activity_level}}\n- Current Health Conditions: {{health_conditions}}\n- Medications: {{medications}}\n- Allergies: {{user_allergies}}\n- Family History: {{family_history}}\n- Recent Symptoms: {{symptoms}}\n- Vital Signs: {{vital_signs}}\n- Lab Results: {{lab_results}}\n- Sleep Patterns: {{sleep_patterns}}\n- Stress Levels: {{stress_levels}}\n\nAnalysis Request: {{user_query}}\n\nProvide a comprehensive health analysis that:\n1. Identifies patterns and trends in the health data\n2. Highlights areas of concern or improvement\n3. Suggests lifestyle modifications if applicable\n4. Recommends when to consult healthcare professionals\n5. Provides actionable health improvement suggestions\n\nIMPORTANT: This is informational only. Always recommend consulting healthcare professionals for medical diagnosis or treatment decisions.",
@@ -36,7 +36,7 @@
       "name": "user_location",
       "type": "string",
       "required": false,
-      "source": "user_profile", 
+      "source": "user_profile",
       "defaultValue": "India",
       "description": "User's location for regional health considerations"
     },
