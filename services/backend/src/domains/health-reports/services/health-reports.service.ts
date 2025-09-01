@@ -337,6 +337,7 @@ export class HealthReportsService {
         metadata: {
           originalPath: storagePath,
           uploadDate: new Date().toISOString(),
+          bucket: bucket, // Add bucket info to metadata instead
         },
       },
     );

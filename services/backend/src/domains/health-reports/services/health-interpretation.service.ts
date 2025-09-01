@@ -370,7 +370,11 @@ Laboratory analysis reveals multiple cardiovascular and metabolic risk factors. 
       // Check for critical values that require immediate attention using thresholds
       const entityThreshold = riskThresholds[entity.entityName.toLowerCase()];
       const entityValue = entity.getValue();
-      if (entityThreshold && typeof entityValue === 'number' && entityValue > entityThreshold.high) {
+      if (
+        entityThreshold &&
+        typeof entityValue === 'number' &&
+        entityValue > entityThreshold.high
+      ) {
         redFlags.push({
           severity: 'urgent' as const,
           finding: `Critical ${entity.entityName}`,

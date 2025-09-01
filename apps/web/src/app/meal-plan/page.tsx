@@ -75,9 +75,8 @@ export default function MealPlanPage() {
     try {
       const plan = await generateMealPlan({
         userId,
-        preferences: mockUserProfile,
-        duration: 7,
-        planType: 'weekly',
+        userProfile: mockUserProfile,
+        planDuration: 7,
       });
 
       if (plan) {

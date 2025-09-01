@@ -74,7 +74,11 @@ export class WeatherService {
       const aqiResponse = await firstValueFrom(this.httpService.get<AirQualityResponse>(aqiUrl));
 
       // Process and save weather data
-      const weatherData = this.processWeatherData((weatherResponse as any).data, (aqiResponse as any).data, location);
+      const weatherData = this.processWeatherData(
+        (weatherResponse as any).data,
+        (aqiResponse as any).data,
+        location,
+      );
       return await this.weatherRepository.save(weatherData);
     } catch (error) {
       this.logger.error(`Error fetching weather data for ${latitude}, ${longitude}:`, error);

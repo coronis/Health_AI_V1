@@ -399,8 +399,12 @@ export class FitnessPlanGeneratorService {
     // Apply adaptations to workout constraints if available
     if (adaptations) {
       constraints.targetIntensity *= adaptations.intensityAdjustment || 1.0;
-      constraints.maxSetsPerWorkout = Math.round(constraints.maxSetsPerWorkout * (adaptations.volumeAdjustment || 1.0));
-      constraints.restBetweenSets = Math.round(constraints.restBetweenSets * (adaptations.restAdjustment || 1.0));
+      constraints.maxSetsPerWorkout = Math.round(
+        constraints.maxSetsPerWorkout * (adaptations.volumeAdjustment || 1.0),
+      );
+      constraints.restBetweenSets = Math.round(
+        constraints.restBetweenSets * (adaptations.restAdjustment || 1.0),
+      );
     }
 
     const workout = this.workoutRepository.create({

@@ -440,7 +440,7 @@ export class HealthDataService {
     const tokenEndpoint = 'https://oauth2.googleapis.com/token';
 
     this.logger.debug(
-      `Exchanging auth code ${authCode.substring(0, 8)}... using endpoint ${tokenEndpoint}`,
+      `Exchanging auth code ${authCode.substring(0, 8)}... using endpoint ${tokenEndpoint} with client ID ${config.clientId}`,
     );
 
     // In production, make actual HTTP request to Google

@@ -24,7 +24,7 @@ import { HealthReportType } from '../entities/health-report.entity';
 @Controller('health-reports')
 export class HealthReportsController {
   private readonly logger = new Logger(HealthReportsController.name);
-  
+
   constructor(
     private readonly healthReportsService: HealthReportsService,
     private readonly healthInterpretationService: HealthInterpretationService,

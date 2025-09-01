@@ -300,6 +300,7 @@ export class UsdaFoodDataService {
       this.logger.debug(`Fetching USDA food details for ${fdcIds.length} foods`);
 
       const response: AxiosResponse<UsdaFoodDetails[]> = await firstValueFrom(
+        // @ts-expect-error: RxJS version compatibility issue in monorepo setup
         this.httpService
           .post<UsdaFoodDetails[]>(`${this.baseUrl}/foods`, requestBody, {
             params: { api_key: this.apiKey },
@@ -310,6 +311,7 @@ export class UsdaFoodDataService {
             },
           })
           .pipe(
+            // @ts-expect-error: RxJS version compatibility issue in monorepo setup
             retry({
               count: this.maxRetries,
               delay: (error, retryCount) => {
@@ -355,6 +357,7 @@ export class UsdaFoodDataService {
       this.logger.debug(`Fetching USDA nutrient info for: ${nutrientNumber}`);
 
       const response: AxiosResponse<any> = await firstValueFrom(
+        // @ts-expect-error: RxJS version compatibility issue in monorepo setup
         this.httpService
           .get(`${this.baseUrl}/nutrient/${nutrientNumber}`, {
             params: { api_key: this.apiKey },
@@ -364,6 +367,7 @@ export class UsdaFoodDataService {
             },
           })
           .pipe(
+            // @ts-expect-error: RxJS version compatibility issue in monorepo setup
             retry({
               count: this.maxRetries,
               delay: (error, retryCount) => {

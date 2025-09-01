@@ -487,7 +487,9 @@ export class AIMealPlanningController {
   private async generateMockShoppingList(dto: GenerateShoppingListDto): Promise<any> {
     // Mock implementation using DTO parameters for shopping list generation
     const itemMultiplier = 1; // Use a default multiplier since weekCount is not defined
-    const budgetFactor = dto.budgetConstraints?.maxBudget ? dto.budgetConstraints.maxBudget / 1000 : 1;
+    const budgetFactor = dto.budgetConstraints?.maxBudget
+      ? dto.budgetConstraints.maxBudget / 1000
+      : 1;
 
     return {
       categorizedItems: {
