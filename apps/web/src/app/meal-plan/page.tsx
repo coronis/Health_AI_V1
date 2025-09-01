@@ -89,9 +89,9 @@ export default function MealPlanPage() {
       }
     }
     initializeMealPlan()
-  }, [mealPlanState.loading, mealPlanState.data, mealPlanState.error])
+  }, [mealPlanState.loading, mealPlanState.data, mealPlanState.error, handleGeneratePlan])
 
-  const handleGeneratePlan = async () => {
+  const handleGeneratePlan = useCallback(async () => {
     setIsGeneratingPlan(true)
     const result = await generateMealPlan({
       userId,
@@ -109,7 +109,7 @@ export default function MealPlanPage() {
       await refetchMealPlan()
     }
     setIsGeneratingPlan(false)
-  }
+  }, [generateMealPlan, userId, refetchMealPlan])
 
   const handleSwapMeal = async (mealType: string, dayIndex: number) => {
     if (!currentMealPlan) return
@@ -210,11 +210,11 @@ export default function MealPlanPage() {
           </div>
           <button
             onClick={handleGeneratePlan}
-            disabled={isGeneratingPlan}
+            disabled={isGeneratingPlan || generateState.loading}
             className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 disabled:opacity-50 flex items-center gap-2"
           >
             <ArrowPathIcon className="h-4 w-4" />
-            {isGeneratingPlan ? 'Generating...' : 'Regenerate Plan'}
+            {isGeneratingPlan || generateState.loading ? 'Generating...' : 'Regenerate Plan'}
           </button>
         </div>
       </div>
@@ -288,22 +288,33 @@ export default function MealPlanPage() {
                   <h3 className="text-lg font-semibold text-gray-900 font-display">
                     {mealEntry.mealType.charAt(0).toUpperCase() + mealEntry.mealType.slice(1)}
                   </h3>
-                  <p className="text-sm text-gray-600">{mealEntry.time}</p>
+                  <p className="text-sm text-gray-600">
+                    {mealTypes.find(mt => mt.id === mealEntry.mealType)?.time || mealEntry.time}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  {swapState.loading && showSwapOptions?.mealType === mealEntry.mealType ? (
+                  {(swapState.loading && showSwapOptions?.mealType === mealEntry.mealType) || applySwapState.loading ? (
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-emerald-600"></div>
-                      Finding alternatives...
+                      {applySwapState.loading ? 'Applying swap...' : 'Finding alternatives...'}
                     </div>
                   ) : (
                     <button
                       onClick={() => handleSwapMeal(mealEntry.mealType, selectedDay)}
-                      disabled={swapState.loading}
+                      disabled={swapState.loading || applySwapState.loading}
                       className="inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-primary-500"
                     >
                       <ArrowPathIcon className="h-4 w-4 mr-1" />
                       Swap
+                    </button>
+                  )}
+                  {showSwapOptions?.mealType === mealEntry.mealType && (
+                    <button
+                      onClick={() => handleApplySwap('alternative-recipe-id')}
+                      disabled={applySwapState.loading}
+                      className="inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500"
+                    >
+                      Apply Alternative
                     </button>
                   )}
                 </div>

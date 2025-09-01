@@ -310,8 +310,11 @@ export class HinglishNLPService {
       if (transliteration) {
         transliterations[word] = transliteration;
         words[i] = transliteration;
-        // Update processedText with the transliterated word
-        processedText = processedText.replace(new RegExp(`\\b${word}\\b`, 'g'), transliteration);
+        // Use string replaceAll with word boundaries for safer replacement
+        // Split on word boundaries and replace only complete words
+        const wordPattern = `\\b${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`;
+        const parts = processedText.split(new RegExp(wordPattern, 'g'));
+        processedText = parts.join(transliteration);
       }
     }
 
@@ -479,8 +482,11 @@ export class HinglishNLPService {
 
     let processedText = text;
     for (const [contraction, expansion] of Object.entries(contractions)) {
-      const regex = new RegExp(contraction, 'gi');
-      processedText = processedText.replace(regex, expansion);
+      // Use replaceAll for safer replacement avoiding dynamic RegExp
+      processedText = processedText.replaceAll(contraction, expansion);
+      // Also handle case-insensitive replacements
+      processedText = processedText.replaceAll(contraction.toLowerCase(), expansion);
+      processedText = processedText.replaceAll(contraction.toUpperCase(), expansion.toUpperCase());
     }
 
     return processedText;

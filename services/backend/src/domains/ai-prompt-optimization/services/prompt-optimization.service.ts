@@ -277,14 +277,15 @@ export class PromptOptimizationService {
       const value = await this.resolveVariable(variable, userContext, userInput);
 
       if (value !== undefined && value !== null) {
-        prompt = prompt.replace(new RegExp(placeholder, 'g'), String(value));
+        // Use replaceAll for safer replacement avoiding dynamic RegExp
+        prompt = prompt.replaceAll(placeholder, String(value));
       } else if (variable.required) {
         // Use default value or safe fallback for required variables
         const fallback = this.getFallbackValue(variable, userContext);
-        prompt = prompt.replace(new RegExp(placeholder, 'g'), fallback);
+        prompt = prompt.replaceAll(placeholder, fallback);
       } else {
         // Remove optional variable placeholders
-        prompt = prompt.replace(new RegExp(placeholder, 'g'), '');
+        prompt = prompt.replaceAll(placeholder, '');
       }
     }
 
@@ -452,8 +453,14 @@ export class PromptOptimizationService {
     if (variable.type === 'string') {
       const strValue = String(value);
       if (pattern) {
-        const regex = new RegExp(pattern);
-        if (!regex.test(strValue)) {
+        // Validate pattern safety before using in RegExp to prevent ReDoS
+        if (this.isValidRegexPattern(pattern)) {
+          const regex = new RegExp(pattern);
+          if (!regex.test(strValue)) {
+            return variable.defaultValue || '';
+          }
+        } else {
+          this.logger.warn(`Invalid or potentially unsafe regex pattern: ${pattern}`);
           return variable.defaultValue || '';
         }
       }
@@ -1318,5 +1325,28 @@ Response Hinglish mein dein aur simple language use karein.`,
       averageExecutionTime,
       costEffective,
     };
+  }
+
+  /**
+   * Validate regex pattern for safety to prevent ReDoS attacks
+   */
+  private isValidRegexPattern(pattern: string): boolean {
+    try {
+      // Basic checks for potentially dangerous patterns
+      if (pattern.includes('(.*)*') || pattern.includes('(.+)+') || pattern.includes('(.*)+')) {
+        return false; // Nested quantifiers can cause ReDoS
+      }
+
+      // Check for excessively long patterns that might cause issues
+      if (pattern.length > 100) {
+        return false;
+      }
+
+      // Try to compile the regex to ensure it's valid
+      new RegExp(pattern);
+      return true;
+    } catch {
+      return false; // Invalid regex pattern
+    }
   }
 }

@@ -288,8 +288,9 @@ export class AIPromptOptimizationService {
 
     // Replace variables in the format {{variableName}}
     for (const [key, value] of Object.entries(variables)) {
-      const placeholder = new RegExp(`{{${key}}}`, 'g');
-      prompt = prompt.replace(placeholder, String(value || ''));
+      const placeholder = `{{${key}}}`;
+      // Use replaceAll for safer replacement avoiding dynamic RegExp
+      prompt = prompt.replaceAll(placeholder, String(value || ''));
     }
 
     return prompt;

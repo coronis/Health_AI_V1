@@ -31,14 +31,14 @@ export default function ChatPage() {
   const userId = 'user_123'
 
   // Get current chat session
-  const [sessionState, { refetch: refetchSession }] = useAutoFetch(
+  const [sessionState, { refetch: refetchSession }] = useAutoFetch<ChatSession | null>(
     () => currentSessionId ? chatService.getSession(currentSessionId) : Promise.resolve(null),
     [],
     { enabled: !!currentSessionId, retryCount: 1 }
   )
 
   // Get suggested questions
-  const [suggestedQuestionsState] = useAutoFetch(
+  const [suggestedQuestionsState] = useAutoFetch<SuggestedQuestion[]>(
     () => chatService.getSuggestedQuestions(userId, {
       currentPage: 'chat',
       userGoals: ['weight_loss', 'muscle_gain']
@@ -86,20 +86,20 @@ export default function ChatPage() {
     if (!currentSessionId && !createSessionState.loading) {
       initializeSession()
     }
-  }, [currentSessionId, createSessionState.loading])
+  }, [currentSessionId, createSessionState.loading, initializeSession])
 
   // Auto-scroll to bottom with improved performance
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [processedMessages])
 
-  const initializeSession = async () => {
+  const initializeSession = useCallback(async () => {
     const session = await createSession(userId, 'general_health', sessionContext)
     
     if (session) {
       setCurrentSessionId(session.id)
     }
-  }
+  }, [createSession, userId, sessionContext])
 
   const handleSendMessage = async () => {
     if (!message.trim() || !currentSessionId || messageState.loading) return

@@ -197,10 +197,8 @@ export class DLPService {
     for (const match of matches) {
       const hash = this.generateHash(match);
       const redactedValue = this.generateRedactedValue(match, patternName);
-      processedText = processedText.replace(
-        new RegExp(this.escapeRegex(match), 'g'),
-        redactedValue,
-      );
+      // Use string replaceAll to avoid ReDoS vulnerability from dynamic RegExp
+      processedText = processedText.replaceAll(match, redactedValue);
       hashes.set(match, hash);
     }
 
@@ -221,7 +219,8 @@ export class DLPService {
     for (const match of matches) {
       const hash = this.generateHash(match);
       const pseudonym = this.generatePseudonym(match, patternName);
-      processedText = processedText.replace(new RegExp(this.escapeRegex(match), 'g'), pseudonym);
+      // Use string replaceAll to avoid ReDoS vulnerability from dynamic RegExp
+      processedText = processedText.replaceAll(match, pseudonym);
       hashes.set(match, hash);
     }
 
