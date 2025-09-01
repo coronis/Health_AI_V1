@@ -169,20 +169,17 @@ export class TokenManagementService {
     endDate?: Date,
     limit: number = 100,
   ): Promise<UserTokenUsage[]> {
-    const query = this.tokenUsageRepository
-      .createQueryBuilder('usage')
-      .where('usage.userId = :userId', { userId })
-      .orderBy('usage.createdAt', 'DESC')
-      .limit(limit);
+    const where: any = { userId };
 
     if (startDate && endDate) {
-      query.andWhere('usage.createdAt BETWEEN :startDate AND :endDate', {
-        startDate,
-        endDate,
-      });
+      where.createdAt = Between(startDate, endDate);
     }
 
-    return query.getMany();
+    return this.tokenUsageRepository.find({
+      where,
+      order: { createdAt: 'DESC' },
+      take: limit,
+    });
   }
 
   /**

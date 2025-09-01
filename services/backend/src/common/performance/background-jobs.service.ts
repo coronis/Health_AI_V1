@@ -311,12 +311,21 @@ export class BackgroundJobService {
 
   private async processDataCleanup(data: any): Promise<any> {
     // Clean up old data
-    this.logger.log('Processing data cleanup');
+    this.logger.log(`Processing data cleanup for: ${data?.type || 'general'}`);
+
+    // Determine cleanup scope from data
+    const cleanupType = data?.type || 'general';
+    const olderThan = data?.olderThan || 30; // days
 
     // Simulate processing
     await this.delay(3000);
 
-    return { deleted: 100, cleaned: true };
+    return {
+      deleted: 100,
+      cleaned: true,
+      type: cleanupType,
+      olderThan,
+    };
   }
 
   private async processNotificationSend(data: any): Promise<any> {
@@ -341,22 +350,38 @@ export class BackgroundJobService {
 
   private async processBackupData(data: any): Promise<any> {
     // Backup user data
-    this.logger.log('Processing data backup');
+    this.logger.log(`Processing data backup for: ${data?.userId || 'system'}`);
+
+    // Get backup scope from data
+    const userId = data?.userId;
+    const backupType = data?.type || 'incremental';
 
     // Simulate processing
     await this.delay(8000);
 
-    return { backupId: `backup_${Date.now()}`, size: '100MB' };
+    return {
+      backupId: `backup_${Date.now()}`,
+      size: '100MB',
+      userId,
+      type: backupType,
+    };
   }
 
   private async processCacheWarmup(data: any): Promise<any> {
     // Warm up cache
-    this.logger.log('Processing cache warmup');
+    this.logger.log(`Processing cache warmup for: ${data?.keys?.join(', ') || 'default keys'}`);
+
+    // Get cache keys to warm up from data
+    const keysToWarmup = data?.keys || ['user_profiles', 'templates', 'settings'];
 
     // Simulate processing
     await this.delay(2000);
 
-    return { warmedUp: true, keys: 50 };
+    return {
+      warmedUp: true,
+      keys: keysToWarmup.length,
+      processedKeys: keysToWarmup,
+    };
   }
 
   private delay(ms: number): Promise<void> {

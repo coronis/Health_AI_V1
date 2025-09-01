@@ -208,6 +208,18 @@ export class EnhancedNutritionService {
       cookedWeight = transformation.cookedWeight;
     }
 
+    // Calculate detailed nutrition using the nutrition calculation service
+    const nutritionInput: NutritionCalculationInput = {
+      foodId: ingredient.foodId,
+      quantity: ingredient.rawWeight,
+      unit: 'g',
+      cookingMethod: ingredient.cookingParams?.method,
+      includeMinerals: true,
+      includeVitamins: true,
+    };
+
+    const detailedNutrition = await this.nutritionService.calculateNutrition(nutritionInput);
+
     // Calculate nutrition contribution percentage
     const totalCalories = Object.values(ingredient.rawNutrients).reduce(
       (sum, val) => sum + (val || 0),

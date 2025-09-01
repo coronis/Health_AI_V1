@@ -139,14 +139,17 @@ export class CreateRecipeDto {
 
   @IsNumber()
   @Min(0)
+  @Max(10000) // Maximum reasonable preparation time in minutes (~7 days)
   prepTimeMinutes: number;
 
   @IsNumber()
   @Min(0)
+  @Max(1440) // Maximum 24 hours cooking time
   cookTimeMinutes: number;
 
   @IsNumber()
   @Min(1)
+  @Max(100) // Maximum reasonable servings
   servingsCount: number;
 
   @IsOptional()
@@ -184,6 +187,9 @@ export class CreateRecipeDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
+  @Transform(({ value }) =>
+    Array.isArray(value) ? value : value.split(',').map((tag: string) => tag.trim()),
+  )
   tags?: string[];
 
   @IsOptional()

@@ -113,6 +113,8 @@ export class DomainScopedChatService {
     private readonly chatSessionRepository: Repository<ChatSession>,
     @InjectRepository(ChatMessage)
     private readonly chatMessageRepository: Repository<ChatMessage>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     private readonly ragService: RAGService,
     private readonly hinglishNLPService: HinglishNLPService,
     private readonly chatSessionService: ChatSessionService,
@@ -131,8 +133,22 @@ export class DomainScopedChatService {
     this.logger.log(`Processing chat message for user ${userId}`);
 
     try {
+      // Fetch user for validation and token management
+      const user: User = await this.userRepository.findOne({ where: { id: userId } });
+      if (!user) {
+        throw new BadRequestException('User not found');
+      }
+
       // Get or create chat session
       const session = await this.getOrCreateSession(userId, request);
+
+      // Validate session status
+      if (
+        session.status === ChatSessionStatus.ARCHIVED ||
+        session.status === ChatSessionStatus.EXPIRED
+      ) {
+        throw new BadRequestException('Cannot send messages to archived or expired sessions');
+      }
 
       // Process the user's message with Hinglish NLP
       const processedMessage = await this.hinglishNLPService.processMessage(request.message);
@@ -211,7 +227,7 @@ export class DomainScopedChatService {
       );
 
       if (!aiResponse.usedFreeTier) {
-        await this.tokenManagementService.consumeTokens({
+        const tokenRequest: TokenConsumptionRequest = {
           userId,
           usageType: TokenUsageType.CHAT_MESSAGE,
           provider: this.mapAIProviderToTokenProvider(aiResponse.provider),
@@ -225,7 +241,8 @@ export class DomainScopedChatService {
             ragDocumentsUsed: ragContext.metadata.documentsRetrieved,
             languageDetected: processedMessage.languageDetection,
           },
-        });
+        };
+        await this.tokenManagementService.consumeTokens(tokenRequest);
       }
 
       // Create assistant message record
@@ -534,6 +551,7 @@ export class DomainScopedChatService {
       contextTokens: Math.ceil(message.length / 4), // Rough estimate
       maxResponseTokens: 1000,
       accuracyRequirement: routingLevel === 'L1' ? 0.95 : 0.85,
+      systemPrompt,
     };
   }
 
@@ -586,10 +604,21 @@ export class DomainScopedChatService {
     // Clean response of action markers
     const cleanedResponse = this.cleanResponseContent(response);
 
+    // Enhance response with context metadata
+    const responseMetadata = {
+      domain: domainClassification.domain,
+      confidence: domainClassification.confidence,
+      isInScope: domainClassification.isInScope,
+      sourcesUsed: ragContext?.sources?.length || 0,
+      contextRelevance: ragContext?.relevanceScore || 0,
+    };
+
     return {
       content: cleanedResponse,
       actionRequests,
       followUpQuestions,
+      metadata: responseMetadata,
+      ragSources: ragContext?.sources || [],
     };
   }
 
@@ -690,15 +719,18 @@ export class DomainScopedChatService {
     switch (action.actionType) {
       case 'log_meal':
         // Integrate with meal logging service
-        return { message: 'Meal logging integration pending' };
+        this.logger.debug(`Executing log_meal action for user ${userId}`, action);
+        return { message: 'Meal logging integration pending', userId };
 
       case 'update_profile':
         // Integrate with user profile service
-        return { message: 'Profile update integration pending' };
+        this.logger.debug(`Executing update_profile action for user ${userId}`, action);
+        return { message: 'Profile update integration pending', userId };
 
       case 'schedule_workout':
         // Integrate with fitness planning service
-        return { message: 'Workout scheduling integration pending' };
+        this.logger.debug(`Executing schedule_workout action for user ${userId}`, action);
+        return { message: 'Workout scheduling integration pending', userId };
 
       default:
         throw new Error(`Unknown action type: ${action.actionType}`);
