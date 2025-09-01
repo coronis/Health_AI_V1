@@ -1,8 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import {
-  NutritionCalculationService,
-  NutritionCalculationInput,
-} from './nutrition-calculation.service';
+import { NutritionCalculationService } from './nutrition-calculation.service';
 import {
   CookingTransformationService,
   NutrientContent,

@@ -17,7 +17,6 @@ import {
   CreateExerciseDto,
   UpdateExerciseDto,
   ExerciseFilterDto,
-  ExerciseResponseDto,
   ExerciseStatsDto,
 } from '../dto/exercise.dto';
 
@@ -363,8 +362,8 @@ export class ExerciseLibraryService {
 
     const maxLevel = levelOrder[userProfile.experienceLevel];
     const allowedLevels = Object.entries(levelOrder)
-      .filter(([_, value]) => value <= maxLevel)
-      .map(([key, _]) => key);
+      .filter(([, value]) => value <= maxLevel)
+      .map(([key]) => key);
 
     queryBuilder.andWhere('exercise.difficultyLevel IN (:...allowedLevels)', { allowedLevels });
 

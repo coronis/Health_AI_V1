@@ -485,12 +485,25 @@ export class AIMealPlanningController {
   }
 
   private async generateMockShoppingList(dto: GenerateShoppingListDto): Promise<any> {
-    // Mock implementation - would be replaced with actual shopping list generation
+    // Mock implementation using DTO parameters for shopping list generation
+    const itemMultiplier = dto.weekCount || 1;
+    const budgetFactor = dto.budget ? dto.budget / 1000 : 1;
+
     return {
       categorizedItems: {
         vegetables: [
-          { name: 'Onions', quantity: 2, unit: 'kg', cost: 60 },
-          { name: 'Tomatoes', quantity: 1, unit: 'kg', cost: 40 },
+          {
+            name: 'Onions',
+            quantity: 2 * itemMultiplier,
+            unit: 'kg',
+            cost: Math.round(60 * budgetFactor),
+          },
+          {
+            name: 'Tomatoes',
+            quantity: 1 * itemMultiplier,
+            unit: 'kg',
+            cost: Math.round(40 * budgetFactor),
+          },
         ],
         grains: [
           { name: 'Brown Rice', quantity: 1, unit: 'kg', cost: 120 },

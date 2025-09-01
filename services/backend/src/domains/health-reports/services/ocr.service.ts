@@ -312,7 +312,7 @@ export class OCRService {
     if (options?.costEffective && !options?.highAccuracy) {
       return costEffectiveChain;
     }
-    
+
     return highAccuracyChain;
   }
 

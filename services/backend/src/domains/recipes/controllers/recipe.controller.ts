@@ -19,7 +19,6 @@ import { RecipeService, PersonalizedRecipeOptions } from '../services/recipe.ser
 import { CreateRecipeDto } from '../dto/create-recipe.dto';
 import { UpdateRecipeDto } from '../dto/update-recipe.dto';
 import { RecipeFilterDto } from '../dto/recipe-filter.dto';
-import { Recipe, DietType } from '../entities/recipe.entity';
 import { PersonalizationRulesService } from '../services/personalization-rules.service';
 import { RecipeNutritionService } from '../services/recipe-nutrition.service';
 import { RecipeSeedingService } from '../services/recipe-seeding.service';

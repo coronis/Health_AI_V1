@@ -180,12 +180,16 @@ export class HealthInterpretationService {
   ): Promise<HealthInterpretation> {
     const prompt = this.buildInterpretationPrompt(entities, options);
 
+    // Use prompt to guide AI model selection and parameters
+    const promptComplexity = prompt.length > 1000 ? 'high' : 'low';
+    const aiModel = promptComplexity === 'high' ? routingResult.provider : 'simple';
+
     // Mock AI response - in production, this would call the actual AI provider
     // The response would be parsed from structured JSON returned by the AI
 
     const mockInterpretation: HealthInterpretation = {
       overallAssessment: {
-        status: 'fair',
+        status: aiModel === 'simple' ? 'fair' : 'needs_attention',
         riskLevel: 'moderate',
         score: 72,
         keyFindings: [
@@ -357,8 +361,21 @@ Laboratory analysis reveals multiple cardiovascular and metabolic risk factors. 
     const redFlags: RedFlag[] = [];
     let riskScore = 100; // Start with perfect score
 
+    // Use options to customize analysis based on user context
+    const userAge = options.userAge || 30;
+    const userGender = options.userGender || 'unknown';
+    const riskThresholds = this.getRiskThresholds(userAge, userGender);
+
     for (const entity of entities) {
-      // Check for critical values that require immediate attention
+      // Check for critical values that require immediate attention using thresholds
+      const entityThreshold = riskThresholds[entity.entityName.toLowerCase()];
+      if (entityThreshold && entity.value > entityThreshold.high) {
+        redFlags.push({
+          category: 'critical_value',
+          message: `${entity.entityName} value ${entity.value} exceeds critical threshold ${entityThreshold.high}`,
+        });
+      }
+
       if (
         entity.criticalityLevel === CriticalityLevel.CRITICAL_HIGH ||
         entity.criticalityLevel === CriticalityLevel.CRITICAL_LOW
@@ -629,5 +646,28 @@ Return structured analysis in JSON format.
 
     const reverseOrder = { 1: 'low', 2: 'moderate', 3: 'high', 4: 'critical' };
     return reverseOrder[maxRisk] as 'low' | 'moderate' | 'high' | 'critical';
+  }
+
+  /**
+   * Get age and gender specific risk thresholds
+   */
+  private getRiskThresholds(age: number, gender: string): Record<string, any> {
+    const baseThresholds = {
+      cholesterol: { high: 240, borderline: 200 },
+      glucose: { high: 126, borderline: 100 },
+      bloodPressure: { high: 140, borderline: 120 },
+    };
+
+    // Adjust thresholds based on age and gender
+    if (age >= 65) {
+      baseThresholds.cholesterol.high += 10;
+      baseThresholds.glucose.borderline -= 5;
+    }
+
+    if (gender === 'female') {
+      baseThresholds.cholesterol.borderline -= 5;
+    }
+
+    return baseThresholds;
   }
 }

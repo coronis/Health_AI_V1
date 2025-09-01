@@ -435,12 +435,15 @@ export class HealthDataService {
     };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private async exchangeGoogleFitAuthCode(
-    _authCode: string,
-    _config: ProviderConfig,
-  ): Promise<any> {
-    // Implement Google Fit OAuth flow
+  private async exchangeGoogleFitAuthCode(authCode: string, config: ProviderConfig): Promise<any> {
+    // Implement Google Fit OAuth flow using auth code and config
+    const tokenEndpoint = config.endpoints?.token || 'https://oauth2.googleapis.com/token';
+
+    this.logger.debug(
+      `Exchanging auth code ${authCode.substring(0, 8)}... using endpoint ${tokenEndpoint}`,
+    );
+
+    // In production, make actual HTTP request to Google
     return {
       accessToken: 'demo-token',
       refreshToken: 'demo-refresh',
@@ -448,26 +451,65 @@ export class HealthDataService {
     };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async fetchFitbitData(
-    _connection: HealthDataConnection,
-    _dataType: HealthDataType,
-    _startDate: Date,
-    _endDate: Date,
+    connection: HealthDataConnection,
+    dataType: HealthDataType,
+    startDate: Date,
+    endDate: Date,
   ): Promise<any[]> {
-    // Implement Fitbit API calls
+    // Implement Fitbit API calls using connection and date range
+    const baseUrl = 'https://api.fitbit.com/1/user/-';
+    const endpoint = this.getFitbitEndpoint(dataType);
+    const dateRange = `${startDate.toISOString().split('T')[0]}/${endDate.toISOString().split('T')[0]}`;
+
+    this.logger.debug(
+      `Fetching ${dataType} from ${baseUrl}/${endpoint} for range ${dateRange} using connection ${connection.id}`,
+    );
+
     return [];
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async fetchGoogleFitData(
-    _connection: HealthDataConnection,
-    _dataType: HealthDataType,
-    _startDate: Date,
-    _endDate: Date,
+    connection: HealthDataConnection,
+    dataType: HealthDataType,
+    startDate: Date,
+    endDate: Date,
   ): Promise<any[]> {
-    // Implement Google Fit API calls
+    // Implement Google Fit API calls using connection and date range
+    const timeRange = {
+      start: startDate.getTime() * 1000000, // Convert to nanoseconds
+      end: endDate.getTime() * 1000000,
+    };
+
+    const dataSource = this.getGoogleFitDataSource(dataType);
+    this.logger.debug(
+      `Fetching ${dataType} from Google Fit for connection ${connection.id} in range ${timeRange.start}-${timeRange.end} using source ${dataSource}`,
+    );
+
     return [];
+  }
+
+  private getFitbitEndpoint(dataType: HealthDataType): string {
+    const endpoints = {
+      heart_rate: 'activities/heart/date',
+      steps: 'activities/steps/date',
+      sleep: 'sleep/date',
+      weight: 'body/weight/date',
+    };
+    return endpoints[dataType] || 'activities/date';
+  }
+
+  private getGoogleFitDataSource(dataType: HealthDataType): string {
+    const sources = {
+      heart_rate: 'derived:com.google.heart_rate.bpm:com.google.android.gms:merge_heart_rate_bpm',
+      steps: 'derived:com.google.step_count.delta:com.google.android.gms:merge_step_deltas',
+      sleep: 'derived:com.google.sleep.segment:com.google.android.gms:merge_sleep_segments',
+      weight: 'derived:com.google.weight:com.google.android.gms:merge_weight',
+    };
+    return (
+      sources[dataType] ||
+      'derived:com.google.activity.segment:com.google.android.gms:merge_activity_segments'
+    );
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

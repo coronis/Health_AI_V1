@@ -331,6 +331,7 @@ export class HealthReportsService {
       file.originalName,
       {
         bucket,
+        path: storagePath, // Use the calculated storage path
         contentType: file.mimeType,
         encryption: true,
         metadata: {
