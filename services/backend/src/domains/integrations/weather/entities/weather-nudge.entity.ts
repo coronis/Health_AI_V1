@@ -92,6 +92,13 @@ export class WeatherNudge {
   @Column('jsonb', { nullable: true })
   triggerConditions?: Record<string, any>;
 
+  @Column({
+    type: 'enum',
+    enum: AQILevel,
+    nullable: true,
+  })
+  aqiLevel?: AQILevel;
+
   @Column('jsonb', { nullable: true })
   metadata?: Record<string, any>;
 

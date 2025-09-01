@@ -300,8 +300,34 @@ export class FitnessPlanService {
   }
 
   /**
-   * Activate a fitness plan
+   * Get fitness plans by date range with advanced filtering
    */
+  async getFitnessPlansByDateRange(
+    userId: string,
+    startDate: Date,
+    endDate: Date,
+    filters?: FitnessPlanFilterDto,
+  ): Promise<FitnessPlan[]> {
+    const whereOptions: FindOptionsWhere<FitnessPlan> = {
+      userId,
+      createdAt: Between(startDate, endDate),
+    };
+
+    // Add additional filters if provided
+    if (filters?.status) {
+      whereOptions.status = filters.status as FitnessPlanStatus;
+    }
+
+    if (filters?.planType) {
+      whereOptions.planType = filters.planType;
+    }
+
+    return await this.fitnessPlanRepository.find({
+      where: whereOptions,
+      relations: ['weeks', 'weeks.workouts', 'weeks.workouts.exercises'],
+      order: { createdAt: 'DESC' },
+    });
+  }
   async activateFitnessPlan(id: string, userId?: string): Promise<FitnessPlan> {
     const plan = await this.getFitnessPlanById(id, userId);
 
@@ -589,11 +615,156 @@ export class FitnessPlanService {
     return await this.fitnessPlanRepository.save(clonedPlan);
   }
 
-  // Private helper methods
+  /**
+   * Transform FitnessPlan entity to FitnessPlanResponseDto
+   */
+  private transformToResponseDto(plan: FitnessPlan): FitnessPlanResponseDto {
+    const responseDto: FitnessPlanResponseDto = {
+      id: plan.id,
+      userId: plan.userId,
+      planName: plan.planName,
+      planDescription: plan.planDescription,
+      planType: plan.planType,
+      status: plan.status,
+      experienceLevel: plan.experienceLevel,
+      startDate: plan.startDate,
+      endDate: plan.endDate,
+      durationWeeks: plan.durationWeeks,
+      workoutsPerWeek: plan.workoutsPerWeek,
+      restDaysPerWeek: plan.restDaysPerWeek,
+      targetWeightKg: plan.targetWeightKg,
+      targetBodyFatPercentage: plan.targetBodyFatPercentage,
+      targetMuscleGainKg: plan.targetMuscleGainKg,
+      targetStrengthIncreasePercentage: plan.targetStrengthIncreasePercentage,
+      weeklyCalorieBurnTarget: plan.weeklyCalorieBurnTarget,
+      availableEquipment: plan.availableEquipment,
+      workoutLocation: plan.workoutLocation,
+      maxWorkoutDurationMinutes: plan.maxWorkoutDurationMinutes,
+      preferredWorkoutTimes: plan.preferredWorkoutTimes,
+      healthConditions: plan.healthConditions,
+      physicalLimitations: plan.physicalLimitations,
+      injuryHistory: plan.injuryHistory,
+      exerciseRestrictions: plan.exerciseRestrictions,
+      preferredExerciseTypes: plan.preferredExerciseTypes,
+      dislikedExercises: plan.dislikedExercises,
+      focusAreas: plan.focusAreas,
+      workoutIntensityPreference: plan.workoutIntensityPreference,
+      generatedByAI: plan.generatedByAI,
+      aiModelVersion: plan.aiModelVersion,
+      adherenceScore: plan.adherenceScore,
+      satisfactionRating: plan.satisfactionRating,
+      effectivenessScore: plan.effectivenessScore,
+      completionPercentage: plan.completionPercentage,
+      totalWorkoutsCompleted: plan.totalWorkoutsCompleted,
+      totalCaloriesBurned: plan.totalCaloriesBurned,
+      totalWorkoutTimeMinutes: plan.totalWorkoutTimeMinutes,
+      progressiveOverloadEnabled: plan.progressiveOverloadEnabled,
+      autoProgressionRate: plan.autoProgressionRate,
+      deloadWeekFrequency: plan.deloadWeekFrequency,
+      adaptationCount: plan.adaptationCount,
+      lastAdaptedAt: plan.lastAdaptedAt,
+      formCheckReminders: plan.formCheckReminders,
+      warmUpRequired: plan.warmUpRequired,
+      coolDownRequired: plan.coolDownRequired,
+      restPeriodEnforcement: plan.restPeriodEnforcement,
+      isTemplate: plan.isTemplate,
+      templateCategory: plan.templateCategory,
+      createdByTrainer: plan.createdByTrainer,
+      trainerApproved: plan.trainerApproved,
+      tags: plan.tags,
+      createdAt: plan.createdAt,
+      updatedAt: plan.updatedAt,
+      activatedAt: plan.activatedAt,
+      completedAt: plan.completedAt,
+      
+      // Computed fields using entity methods
+      isActive: plan.isActive(),
+      daysRemaining: plan.getDaysRemaining(),
+      weeksRemaining: plan.getWeeksRemaining(),
+      currentWeek: plan.getCurrentWeek(),
+      totalPlannedWorkouts: plan.getTotalPlannedWorkouts(),
+      workoutCompletionRate: plan.getWorkoutCompletionRate(),
+      averageWorkoutDuration: plan.totalWorkoutsCompleted > 0 ? plan.totalWorkoutTimeMinutes / plan.totalWorkoutsCompleted : 0,
+      estimatedCaloriesBurnPerWorkout: plan.totalWorkoutsCompleted > 0 ? plan.totalCaloriesBurned / plan.totalWorkoutsCompleted : 0,
+    };
+      updatedAt: plan.updatedAt,
+      // Include related data if loaded
+      weeks: plan.weeks?.map((week) => ({
+        id: week.id,
+        weekNumber: week.weekNumber,
+        description: week.description,
+        workouts: week.workouts?.length || 0,
+      })),
+      totalWorkouts:
+        plan.weeks?.reduce((total, week) => total + (week.workouts?.length || 0), 0) || 0,
+      completedWorkouts:
+        plan.weeks?.reduce(
+          (total, week) => total + (week.workouts?.filter((w) => w.isCompleted)?.length || 0),
+          0,
+        ) || 0,
+    };
+
+    console.log(`Transformed fitness plan ${plan.id} to response DTO`);
+    return responseDto;
+  }
+
+  /**
+   * Get fitness plan with response DTO transformation
+   */
+  async getFitnessPlanAsDto(id: string, userId?: string): Promise<FitnessPlanResponseDto> {
+    const plan = await this.getFitnessPlanById(id, userId);
+    return this.transformToResponseDto(plan);
+  }
 
   private async getStrengthProgress(planId: string): Promise<any[]> {
-    // This would typically track weight progression over time
-    // For now, return empty array - would be implemented with exercise logging
-    return [];
+    // Query fitness plan exercises for strength progression tracking
+    const progressData = await this.exerciseRepository
+      .createQueryBuilder('exercise')
+      .leftJoin('exercise.planWorkout', 'workout')
+      .leftJoin('workout.planWeek', 'week')
+      .leftJoin('week.fitnessPlan', 'plan')
+      .where('plan.id = :planId', { planId })
+      .andWhere('exercise.actualWeightsKg IS NOT NULL')
+      .select([
+        'exercise.id',
+        'exercise.exerciseName',
+        'exercise.actualWeightsKg',
+        'exercise.actualRepsCompleted',
+        'exercise.completedAt',
+        'workout.scheduledDate',
+      ])
+      .orderBy('workout.scheduledDate', 'ASC')
+      .getRawMany();
+
+    // Group by exercise and calculate progression metrics
+    const progressByExercise = progressData.reduce((acc, record) => {
+      const exerciseName = record.exercise_exerciseName;
+      if (!acc[exerciseName]) {
+        acc[exerciseName] = [];
+      }
+      acc[exerciseName].push({
+        date: record.workout_scheduledDate,
+        weight: record.exercise_actualWeightsKg,
+        reps: record.exercise_actualRepsCompleted,
+        oneRepMax: this.calculateOneRepMax(
+          record.exercise_actualWeightsKg,
+          record.exercise_actualRepsCompleted,
+        ),
+      });
+      return acc;
+    }, {});
+
+    console.log(
+      `Retrieved strength progress for plan ${planId}: ${Object.keys(progressByExercise).length} exercises`,
+    );
+    return Object.values(progressByExercise);
+  }
+
+  /**
+   * Calculate estimated one rep max using Epley formula
+   */
+  private calculateOneRepMax(weight: number, reps: number): number {
+    if (reps === 1) return weight;
+    return Math.round(weight * (1 + reps / 30));
   }
 }

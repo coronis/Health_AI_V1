@@ -84,6 +84,11 @@ describe('JWTService', () => {
         email: 'test@example.com',
       } as User;
 
+      // Verify dependencies are properly injected
+      expect(sessionRepository).toBeDefined();
+      expect(jwtService).toBeDefined();
+      expect(auditService).toBeDefined();
+
       const sessionInfo = {
         deviceId: 'device-123',
         deviceName: 'iPhone',

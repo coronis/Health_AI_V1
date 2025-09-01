@@ -197,10 +197,8 @@ export class DLPService {
     for (const match of matches) {
       const hash = this.generateHash(match);
       const redactedValue = this.generateRedactedValue(match, patternName);
-      processedText = processedText.replace(
-        new RegExp(this.escapeRegex(match), 'g'),
-        redactedValue,
-      );
+      // Use string replaceAll to avoid ReDoS vulnerability from dynamic RegExp
+      processedText = processedText.replaceAll(match, redactedValue);
       hashes.set(match, hash);
     }
 
@@ -221,7 +219,8 @@ export class DLPService {
     for (const match of matches) {
       const hash = this.generateHash(match);
       const pseudonym = this.generatePseudonym(match, patternName);
-      processedText = processedText.replace(new RegExp(this.escapeRegex(match), 'g'), pseudonym);
+      // Use string replaceAll to avoid ReDoS vulnerability from dynamic RegExp
+      processedText = processedText.replaceAll(match, pseudonym);
       hashes.set(match, hash);
     }
 
@@ -240,6 +239,10 @@ export class DLPService {
    */
   private generateRedactedValue(value: string, patternName: string): string {
     const length = value.length;
+
+    // Use length-based redaction for some patterns
+    const generateMask = (char: string = '*') => char.repeat(Math.max(4, Math.min(length, 12)));
+
     switch (patternName) {
       case 'email':
         return '[EMAIL_REDACTED]';
@@ -252,6 +255,10 @@ export class DLPService {
         return '[PAN_REDACTED]';
       case 'medical_record':
         return '[MEDICAL_ID_REDACTED]';
+      case 'credit_card':
+        return generateMask('*');
+      case 'ssn':
+        return generateMask('#');
       default:
         return `[${patternName.toUpperCase()}_REDACTED]`;
     }

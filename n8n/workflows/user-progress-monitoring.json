@@ -102,7 +102,7 @@
             },
             {
               "id": "warning-alerts",
-              "name": "warningAlerts", 
+              "name": "warningAlerts",
               "value": "={{$json.alerts.filter(alert => alert.severity === 'warning')}}"
             },
             {

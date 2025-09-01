@@ -3,7 +3,12 @@ import { ConfigService } from '@nestjs/config';
 
 export interface CostAlert {
   id: string;
-  type: 'budget_exceeded' | 'spike_detected' | 'quota_warning' | 'unusual_usage';
+  type:
+    | 'budget_exceeded'
+    | 'spike_detected'
+    | 'quota_warning'
+    | 'unusual_usage'
+    | 'efficiency_degraded';
   severity: 'low' | 'medium' | 'high' | 'critical';
   message: string;
   threshold: number;
@@ -407,6 +412,24 @@ export class CostControlsService {
         hourlyAvg,
         cost,
       );
+    }
+
+    // Check token efficiency alerts
+    if (tokens > 0) {
+      const costPerToken = cost / tokens;
+      const recentTokenCosts = recentCosts.map((c) => c.cost / Math.max(1, c.tokens));
+      const avgCostPerToken =
+        recentTokenCosts.reduce((sum, c) => sum + c, 0) / Math.max(1, recentTokenCosts.length);
+
+      if (costPerToken > avgCostPerToken * 2) {
+        this.createAlert(
+          'efficiency_degraded',
+          'medium',
+          `Token efficiency degraded for ${provider}/${model}: ${costPerToken.toFixed(6)} per token (2x average)`,
+          avgCostPerToken,
+          costPerToken,
+        );
+      }
     }
 
     // Check daily limits

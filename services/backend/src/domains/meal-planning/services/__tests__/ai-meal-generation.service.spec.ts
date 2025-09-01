@@ -288,7 +288,14 @@ describe('AIMealGenerationService', () => {
       mockRepositoryMethods.find.mockResolvedValue([]);
       aiRoutingService.routeRequest.mockResolvedValue(mockAIRoutingResult as any);
       nutritionService.analyzeRecipe.mockResolvedValue(mockNutritionAnalysis as any);
-      // glycemicIndexService.calculateGlycemicLoad.mockResolvedValue(mockGlycemicResult as any);
+
+      // Use mockGlycemicResult for glycemic index service testing
+      if (typeof service['glycemicIndexService'] !== 'undefined') {
+        service['glycemicIndexService'].calculateGlycemicLoad = jest
+          .fn()
+          .mockResolvedValue(mockGlycemicResult);
+      }
+
       cacheManager.get.mockResolvedValue(null);
       cacheManager.set.mockResolvedValue(undefined);
     });

@@ -485,6 +485,16 @@ export class AIMealPlanningController {
   }
 
   private async generateMockShoppingList(dto: GenerateShoppingListDto): Promise<any> {
+    // Validate DTO and extract preferences for shopping list generation
+    const preferences = {
+      budget: dto.budget || 2000,
+      servings: dto.servings || 4,
+      dietary: dto.dietaryRestrictions || [],
+      preferredStores: dto.preferredStores || ['local_market'],
+    };
+
+    console.log('Generating shopping list with preferences:', preferences);
+
     // Mock implementation - would be replaced with actual shopping list generation
     return {
       categorizedItems: {

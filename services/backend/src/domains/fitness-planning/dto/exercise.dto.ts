@@ -39,16 +39,19 @@ export class CreateExerciseDto {
   @IsOptional()
   @IsArray()
   @IsEnum(MuscleGroup, { each: true })
+  @Type(() => String)
   secondaryMuscleGroups?: MuscleGroup[];
 
   @IsOptional()
   @IsArray()
   @IsEnum(EquipmentType, { each: true })
+  @Type(() => String)
   equipment?: EquipmentType[];
 
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
+  @Type(() => String)
   contraindications?: string[];
 
   @IsOptional()

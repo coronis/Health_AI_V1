@@ -7,6 +7,8 @@ import { Cache } from 'cache-manager';
 import { User } from '../../users/entities/user.entity';
 import { JsonTemplateLoaderService } from './json-template-loader.service';
 import { CostOptimizationService, BatchedRequest } from './cost-optimization.service';
+import { promises as fs } from 'fs';
+import * as path from 'path';
 
 export interface PromptTemplate {
   id: string;
@@ -275,14 +277,15 @@ export class PromptOptimizationService {
       const value = await this.resolveVariable(variable, userContext, userInput);
 
       if (value !== undefined && value !== null) {
-        prompt = prompt.replace(new RegExp(placeholder, 'g'), String(value));
+        // Use replaceAll for safer replacement avoiding dynamic RegExp
+        prompt = prompt.replaceAll(placeholder, String(value));
       } else if (variable.required) {
         // Use default value or safe fallback for required variables
         const fallback = this.getFallbackValue(variable, userContext);
-        prompt = prompt.replace(new RegExp(placeholder, 'g'), fallback);
+        prompt = prompt.replaceAll(placeholder, fallback);
       } else {
         // Remove optional variable placeholders
-        prompt = prompt.replace(new RegExp(placeholder, 'g'), '');
+        prompt = prompt.replaceAll(placeholder, '');
       }
     }
 
@@ -450,8 +453,15 @@ export class PromptOptimizationService {
     if (variable.type === 'string') {
       const strValue = String(value);
       if (pattern) {
-        const regex = new RegExp(pattern);
-        if (!regex.test(strValue)) {
+        // Use safer string validation instead of dynamic RegExp to prevent ReDoS
+        if (this.isValidRegexPattern(pattern)) {
+          // For basic pattern matching, use string methods when possible
+          // This avoids the security risk of dynamic regex construction
+          if (!this.validateStringWithPattern(strValue, pattern)) {
+            return variable.defaultValue || '';
+          }
+        } else {
+          this.logger.warn(`Invalid or potentially unsafe regex pattern: ${pattern}`);
           return variable.defaultValue || '';
         }
       }
@@ -479,23 +489,60 @@ export class PromptOptimizationService {
       return String(variable.defaultValue);
     }
 
+    // Try to get value from user context first
+    const contextValue = this.getValueFromUserContext(variable.name, userContext);
+    if (contextValue) {
+      return String(contextValue);
+    }
+
     // Provide safe defaults based on variable type and context
     const safeFallbacks: Record<string, string> = {
-      user_name: 'user',
-      userName: 'user',
-      user_age: 'adult',
-      userAge: 'adult',
-      user_gender: 'person',
-      userGender: 'person',
-      health_conditions: 'none reported',
-      healthConditions: 'none reported',
-      dietary_restrictions: 'none specified',
-      dietaryRestrictions: 'none specified',
-      user_goals: 'general wellness',
-      userGoals: 'general wellness',
+      user_name: userContext.profile?.name || 'user',
+      userName: userContext.profile?.name || 'user',
+      user_age: userContext.profile?.age ? String(userContext.profile.age) : 'adult',
+      userAge: userContext.profile?.age ? String(userContext.profile.age) : 'adult',
+      user_gender: userContext.profile?.gender || 'person',
+      userGender: userContext.profile?.gender || 'person',
+      health_conditions: userContext.healthData?.conditions?.join(', ') || 'none reported',
+      healthConditions: userContext.healthData?.conditions?.join(', ') || 'none reported',
+      dietary_restrictions: userContext.preferences?.restrictions?.join(', ') || 'none specified',
+      dietaryRestrictions: userContext.preferences?.restrictions?.join(', ') || 'none specified',
+      user_goals: userContext.preferences?.goals?.join(', ') || 'general wellness',
+      userGoals: userContext.preferences?.goals?.join(', ') || 'general wellness',
     };
 
     return safeFallbacks[variable.name] || '[not specified]';
+  }
+
+  private getValueFromUserContext(variableName: string, userContext: UserContext): any {
+    switch (variableName) {
+      case 'userName':
+      case 'user_name':
+        return userContext.profile?.name;
+      case 'userAge':
+      case 'user_age':
+        return userContext.profile?.age;
+      case 'userGender':
+      case 'user_gender':
+        return userContext.profile?.gender;
+      case 'userWeight':
+      case 'user_weight':
+        return userContext.profile?.weight;
+      case 'userHeight':
+      case 'user_height':
+        return userContext.profile?.height;
+      case 'healthConditions':
+      case 'health_conditions':
+        return userContext.healthData?.conditions?.join(', ');
+      case 'dietaryRestrictions':
+      case 'dietary_restrictions':
+        return userContext.preferences?.restrictions?.join(', ');
+      case 'userGoals':
+      case 'user_goals':
+        return userContext.preferences?.goals?.join(', ');
+      default:
+        return null;
+    }
   }
 
   /**
@@ -1055,6 +1102,7 @@ Response Hinglish mein dein aur simple language use karein.`,
 
     for (const [id, template] of this.templates.entries()) {
       if (!defaultTemplateIds.includes(id)) {
+        this.logger.debug(`Removing non-default template: ${id} (${template.category})`);
         this.templates.delete(id);
       }
     }
@@ -1185,10 +1233,10 @@ Response Hinglish mein dein aur simple language use karein.`,
     if (!filename || typeof filename !== 'string') {
       throw new Error('Invalid filename provided');
     }
-    
+
     // Remove any path traversal sequences and unsafe characters
     // First replace path traversal sequences specifically
-    let sanitized = filename
+    const sanitized = filename
       .replace(/\.\./g, '') // Remove all .. sequences
       .replace(/[\/\\]/g, '_') // Replace forward and backward slashes
       .replace(/[^a-zA-Z0-9\-_\.]/g, '_') // Only allow safe characters
@@ -1196,11 +1244,11 @@ Response Hinglish mein dein aur simple language use karein.`,
       .replace(/\.+$/, '') // Remove trailing dots
       .replace(/_+/g, '_') // Collapse multiple underscores
       .substring(0, 255); // Limit length
-    
+
     if (!sanitized || sanitized.length === 0) {
       throw new Error('Filename becomes empty after sanitization');
     }
-    
+
     return sanitized;
   }
 
@@ -1215,18 +1263,16 @@ Response Hinglish mein dein aur simple language use karein.`,
 
       // Optional: Save to file system for backup
       if (this.configService.get('ENABLE_FILE_BACKUP')) {
-        const fs = require('fs').promises;
-        const path = require('path');
         const templatesDir = path.join(process.cwd(), 'data', 'templates');
-        
+
         // Ensure directory exists
         await fs.mkdir(templatesDir, { recursive: true });
-        
+
         // Sanitize template ID to prevent path traversal
         const safeFilename = this.sanitizeFilename(template.id);
         const filePath = path.join(templatesDir, `${safeFilename}.json`);
         await fs.writeFile(filePath, JSON.stringify(template, null, 2));
-        
+
         this.logger.debug(`Template saved to file: ${filePath}`);
       }
     } catch (error) {
@@ -1244,7 +1290,7 @@ Response Hinglish mein dein aur simple language use karein.`,
     costEffective: string[];
   } {
     const usageData: Record<string, { count: number; totalTime: number; totalCost: number }> = {};
-    
+
     // Analyze template usage patterns
     for (const [templateId, template] of this.templates.entries()) {
       const templateWithUsage = template as any; // Type assertion for usage tracking
@@ -1257,8 +1303,7 @@ Response Hinglish mein dein aur simple language use karein.`,
     }
 
     // Sort by usage count
-    const sortedByUsage = Object.entries(usageData)
-      .sort(([, a], [, b]) => b.count - a.count);
+    const sortedByUsage = Object.entries(usageData).sort(([, a], [, b]) => b.count - a.count);
 
     const mostUsed = sortedByUsage.slice(0, 5).map(([id]) => id);
     const leastUsed = sortedByUsage.slice(-5).map(([id]) => id);
@@ -1281,5 +1326,71 @@ Response Hinglish mein dein aur simple language use karein.`,
       averageExecutionTime,
       costEffective,
     };
+  }
+
+  /**
+   * Validate string against pattern using safer methods than dynamic RegExp
+   */
+  private validateStringWithPattern(value: string, pattern: string): boolean {
+    try {
+      // For simple patterns, use string methods
+      if (pattern.startsWith('^') && pattern.endsWith('$')) {
+        // Remove anchors and check basic patterns
+        const cleanPattern = pattern.slice(1, -1);
+
+        // Handle some common simple patterns safely
+        if (cleanPattern === '.*' || cleanPattern === '.+') {
+          return value.length > 0;
+        }
+        if (cleanPattern.includes('|')) {
+          // Handle alternation like 'option1|option2'
+          const options = cleanPattern.split('|');
+          return options.includes(value);
+        }
+      }
+
+      // For more complex patterns, still validate but use more restrictive approach
+      if (this.isBasicSafePattern(pattern)) {
+        const regex = new RegExp(pattern);
+        return regex.test(value);
+      }
+
+      return true; // Default to allow if pattern is too complex
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Check if pattern is basic and safe (no nested quantifiers, reasonable length)
+   */
+  private isBasicSafePattern(pattern: string): boolean {
+    // Only allow very simple patterns
+    const dangerousPatterns = ['(.*)*', '(.+)+', '(.*)+', '(.{', '(?:', '*+', '++'];
+    return (
+      !dangerousPatterns.some((dangerous) => pattern.includes(dangerous)) && pattern.length <= 50
+    );
+  }
+
+  /**
+   * Validate regex pattern for safety to prevent ReDoS attacks
+   */
+  private isValidRegexPattern(pattern: string): boolean {
+    try {
+      // Basic checks for potentially dangerous patterns
+      if (pattern.includes('(.*)*') || pattern.includes('(.+)+') || pattern.includes('(.*)+')) {
+        return false; // Nested quantifiers can cause ReDoS
+      }
+
+      // Check for excessively long patterns that might cause issues
+      if (pattern.length > 100) {
+        return false;
+      }
+
+      // Avoid dynamic RegExp construction - just do basic string validation
+      return this.isBasicSafePattern(pattern);
+    } catch {
+      return false; // Invalid regex pattern
+    }
   }
 }

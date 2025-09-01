@@ -16,6 +16,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { AuthenticatedRequest } from '../../auth/guards/optional-auth.guard';
 import '../../../types/express'; // Import type declarations
 import { ExerciseLibraryService } from '../services/exercise-library.service';
@@ -37,14 +38,61 @@ export class ExerciseController {
    * POST /exercises
    */
   @Post()
+  @UseGuards(JwtAuthGuard) // Add authentication guard
   @HttpCode(HttpStatus.CREATED)
   async createExercise(
     @Body(ValidationPipe) createExerciseDto: CreateExerciseDto,
-    @Req() req: AuthenticatedRequest,
-  ): Promise<Exercise> {
+    @Req() req: Request & { user: any },
+  ): Promise<ExerciseResponseDto> {
     // In a real app, you'd extract user ID from JWT token
     const createdBy = req.user?.userId || 'system';
-    return await this.exerciseLibraryService.createExercise(createExerciseDto, createdBy);
+    const exercise = await this.exerciseLibraryService.createExercise(createExerciseDto, createdBy);
+
+    // Transform to response DTO
+    return {
+      id: exercise.id,
+      name: exercise.name,
+      description: exercise.description,
+      instructions: exercise.instructions,
+      category: exercise.category,
+      difficultyLevel: exercise.difficultyLevel,
+      primaryMuscleGroup: exercise.primaryMuscleGroup,
+      secondaryMuscleGroups: exercise.secondaryMuscleGroups,
+      equipment: exercise.equipment,
+      contraindications: exercise.contraindications,
+      healthConditionsToAvoid: exercise.healthConditionsToAvoid,
+      injuryWarnings: exercise.injuryWarnings,
+      safetyNotes: exercise.safetyNotes,
+      formCues: exercise.formCues,
+      videoUrl: exercise.videoUrl,
+      thumbnailUrl: exercise.thumbnailUrl,
+      imageUrls: exercise.imageUrls,
+      demoGifUrl: exercise.demoGifUrl,
+      defaultSets: exercise.defaultSets,
+      defaultRepsMin: exercise.defaultRepsMin,
+      defaultRepsMax: exercise.defaultRepsMax,
+      defaultDurationSeconds: exercise.defaultDurationSeconds,
+      defaultRestSeconds: exercise.defaultRestSeconds,
+      progressionExercises: exercise.progressionExercises,
+      regressionExercises: exercise.regressionExercises,
+      alternativeExercises: exercise.alternativeExercises,
+      substituteExercises: exercise.substituteExercises,
+      caloriesPerMinute: exercise.caloriesPerMinute,
+      metValue: exercise.metValue,
+      tags: exercise.tags,
+      workoutTypes: exercise.workoutTypes,
+      isCompound: exercise.isCompound,
+      isUnilateral: exercise.isUnilateral,
+      isBodyweight: exercise.isBodyweight,
+      isCardio: exercise.isCardio,
+      isActive: exercise.isActive,
+      isApproved: exercise.isApproved,
+      usageCount: exercise.usageCount,
+      averageRating: exercise.averageRating,
+      totalRatings: exercise.totalRatings,
+      createdAt: exercise.createdAt,
+      updatedAt: exercise.updatedAt,
+    };
   }
 
   /**

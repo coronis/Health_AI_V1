@@ -45,11 +45,20 @@ export class MealPlanService {
     }
 
     if (query.planType) {
+      // Validate plan type
+      if (!Object.values(MealPlanType).includes(query.planType as MealPlanType)) {
+        throw new BadRequestException(`Invalid plan type: ${query.planType}`);
+      }
       where.planType = query.planType;
     }
 
     if (query.active !== undefined) {
       where.isActive = query.active;
+    }
+
+    // Add date range filtering if provided
+    if (query.startDate && query.endDate) {
+      where.startDate = Between(new Date(query.startDate), new Date(query.endDate));
     }
 
     const options: FindManyOptions<MealPlan> = {

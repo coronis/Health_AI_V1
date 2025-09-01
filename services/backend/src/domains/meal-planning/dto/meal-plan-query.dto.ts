@@ -48,4 +48,14 @@ export class MealPlanQueryDto {
   @IsOptional()
   @IsString()
   search?: string;
+
+  @ApiProperty({ description: 'Filter by start date (YYYY-MM-DD)', required: false })
+  @IsOptional()
+  @IsString()
+  startDate?: string;
+
+  @ApiProperty({ description: 'Filter by end date (YYYY-MM-DD)', required: false })
+  @IsOptional()
+  @IsString()
+  endDate?: string;
 }

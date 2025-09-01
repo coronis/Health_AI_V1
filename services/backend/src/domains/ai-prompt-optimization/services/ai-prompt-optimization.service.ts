@@ -6,7 +6,6 @@ import { ConfigService } from '@nestjs/config';
 import {
   AIPromptTemplate,
   PromptCategory,
-  VariableType,
   PromptStatus,
 } from '../entities/ai-prompt-template.entity';
 import { AIPromptExecution, ExecutionStatus } from '../entities/ai-prompt-execution.entity';
@@ -289,8 +288,9 @@ export class AIPromptOptimizationService {
 
     // Replace variables in the format {{variableName}}
     for (const [key, value] of Object.entries(variables)) {
-      const placeholder = new RegExp(`{{${key}}}`, 'g');
-      prompt = prompt.replace(placeholder, String(value || ''));
+      const placeholder = `{{${key}}}`;
+      // Use replaceAll for safer replacement avoiding dynamic RegExp
+      prompt = prompt.replaceAll(placeholder, String(value || ''));
     }
 
     return prompt;

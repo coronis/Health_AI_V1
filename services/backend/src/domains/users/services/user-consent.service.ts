@@ -30,6 +30,8 @@ export class UserConsentService {
   constructor(
     @InjectRepository(UserConsent)
     private readonly userConsentRepository: Repository<UserConsent>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
   /**
@@ -310,8 +312,21 @@ export class UserConsentService {
     try {
       const consents = await this.findByUserId(userId);
 
+      // Get user information for complete export
+      const user: User | null = await this.userRepository.findOne({
+        where: { id: userId },
+        select: ['id', 'email', 'name', 'createdAt'],
+      });
+
       const consentData = {
         userId,
+        userInfo: user
+          ? {
+              email: user.email,
+              name: user.name || '',
+              accountCreated: user.createdAt,
+            }
+          : null,
         exportedAt: new Date().toISOString(),
         totalConsents: consents.length,
         consents: consents.map((consent) => ({
@@ -356,15 +371,21 @@ export class UserConsentService {
   }
 
   /**
-   * Get consent statistics
+   * Get consent statistics for specific consent types
    */
-  async getConsentStatistics(): Promise<Record<string, any>> {
-    const totalConsents = await this.userConsentRepository.count();
+  async getConsentStatistics(consentTypes?: ConsentType[]): Promise<Record<string, any>> {
+    const whereClause: any = {};
+
+    if (consentTypes && consentTypes.length > 0) {
+      whereClause.consentType = In(consentTypes);
+    }
+
+    const totalConsents = await this.userConsentRepository.count({ where: whereClause });
     const activeConsents = await this.userConsentRepository.count({
-      where: { status: ConsentStatus.GRANTED },
+      where: { ...whereClause, status: ConsentStatus.GRANTED },
     });
     const expiredConsents = await this.userConsentRepository.count({
-      where: { status: ConsentStatus.EXPIRED },
+      where: { ...whereClause, status: ConsentStatus.EXPIRED },
     });
 
     const consentsByType = await this.userConsentRepository

@@ -130,9 +130,11 @@ export class WeeklyAdaptationController {
   ): Promise<WeeklyAdaptationResponseDto> {
     // Enhanced admin role check with proper validation
     if (currentUser.role !== 'admin' && currentUser.role !== 'moderator') {
-      throw new ForbiddenException('Admin or moderator access required to trigger user adaptations');
+      throw new ForbiddenException(
+        'Admin or moderator access required to trigger user adaptations',
+      );
     }
-    
+
     // Additional validation for production safety
     if (currentUser.id === userId) {
       this.logger.warn(`Admin ${currentUser.id} triggering adaptation for their own account`);

@@ -16,6 +16,7 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { AuthenticatedRequest } from '../../auth/guards/optional-auth.guard';
 import '../../../types/express'; // Import type declarations
 import { FitnessPlanService } from '../services/fitness-plan.service';
@@ -45,13 +46,42 @@ export class FitnessPlanController {
    * POST /fitness-plans
    */
   @Post()
+  @UseGuards(JwtAuthGuard) // Add authentication guard
   @HttpCode(HttpStatus.CREATED)
   async createFitnessPlan(
     @Body(ValidationPipe) createDto: CreateFitnessPlanDto,
-    @Req() req: AuthenticatedRequest,
-  ): Promise<FitnessPlan> {
+    @Req() req: Request & { user: any },
+  ): Promise<FitnessPlanResponseDto> {
     const userId = req.user?.userId || 'test-user';
-    return await this.fitnessPlanService.createFitnessPlan(userId, createDto);
+    const plan = await this.fitnessPlanService.createFitnessPlan(userId, createDto);
+
+    // Transform to response DTO
+    return {
+      id: plan.id,
+      planName: plan.planName,
+      planDescription: plan.planDescription,
+      planType: plan.planType,
+      status: plan.status,
+      experienceLevel: plan.experienceLevel,
+      startDate: plan.startDate,
+      endDate: plan.endDate,
+      durationWeeks: plan.durationWeeks,
+      workoutsPerWeek: plan.workoutsPerWeek,
+      restDaysPerWeek: plan.restDaysPerWeek,
+      targetWeightKg: plan.targetWeightKg,
+      targetBodyFatPercentage: plan.targetBodyFatPercentage,
+      targetMuscleGainKg: plan.targetMuscleGainKg,
+      targetStrengthIncreasePercentage: plan.targetStrengthIncreasePercentage,
+      weeklyCalorieBurnTarget: plan.weeklyCalorieBurnTarget,
+      availableEquipment: plan.availableEquipment,
+      workoutLocation: plan.workoutLocation,
+      maxWorkoutDurationMinutes: plan.maxWorkoutDurationMinutes,
+      preferredWorkoutTimes: plan.preferredWorkoutTimes,
+      healthConditions: plan.healthConditions,
+      isActive: plan.isActive(),
+      createdAt: plan.createdAt,
+      updatedAt: plan.updatedAt,
+    };
   }
 
   /**

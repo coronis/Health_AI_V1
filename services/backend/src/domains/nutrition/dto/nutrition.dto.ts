@@ -3,11 +3,11 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  IsObject,
   ValidateNested,
   IsArray,
   Min,
   Max,
+  IsBoolean,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -372,6 +372,3 @@ export class RecipeOptimizationGoalsDto {
   @IsBoolean()
   preserveVitamins?: boolean;
 }
-
-// Add IsBoolean import
-import { IsBoolean } from 'class-validator';

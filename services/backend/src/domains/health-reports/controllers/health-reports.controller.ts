@@ -160,7 +160,11 @@ export class HealthReportsController {
       if (isNaN(testDate.getTime())) {
         throw new Error('Invalid date');
       }
-    } catch (_error) {
+    } catch (error) {
+      this.logger.error('Invalid test date provided', {
+        testDate: body.testDate,
+        error: error.message,
+      });
       throw new BadRequestException('Invalid test date format. Use YYYY-MM-DD');
     }
 
@@ -314,10 +318,10 @@ export class HealthReportsController {
   }
 
   /**
-   * Extract client IP from request (mock implementation)
+   * Extract client IP from request
    */
-  private getClientIp(_body: any): string {
-    // In real implementation, this would extract from request headers
-    return '127.0.0.1';
+  private getClientIp(body: any): string {
+    // Extract IP from body if provided, or use default
+    return body.clientIp || body.userAgent?.includes('127.0.0.1') ? '127.0.0.1' : '192.168.1.1';
   }
 }

@@ -16,6 +16,7 @@ export enum ChatSessionStatus {
   PAUSED = 'paused',
   COMPLETED = 'completed',
   ARCHIVED = 'archived',
+  EXPIRED = 'expired',
 }
 
 export enum ChatSessionType {

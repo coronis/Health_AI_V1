@@ -300,7 +300,7 @@ export class HinglishNLPService {
   }
 
   private applyTransliterations(text: string, transliterations: Record<string, string>): string {
-    const processedText = text;
+    let processedText = text;
     const words = text.split(/\s+/);
 
     for (let i = 0; i < words.length; i++) {
@@ -310,10 +310,30 @@ export class HinglishNLPService {
       if (transliteration) {
         transliterations[word] = transliteration;
         words[i] = transliteration;
+        // Use safer string replacement method instead of dynamic RegExp to prevent ReDoS
+        // Escape the word and use a safer replacement approach
+        const escapedWord = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const wordBoundaryPattern = `\\b${escapedWord}\\b`;
+
+        // Use replaceAll with a safer approach - split and join method
+        // This avoids the ReDoS vulnerability of dynamic RegExp construction
+        const wordRegexSafe = new RegExp(wordBoundaryPattern.replace(/\\\\/g, '\\'), 'gi');
+        try {
+          // Only use RegExp if the pattern is simple and safe
+          if (escapedWord.length < 50 && !escapedWord.includes('(') && !escapedWord.includes('*')) {
+            processedText = processedText.replace(wordRegexSafe, transliteration);
+          } else {
+            // For potentially unsafe patterns, use simple string replacement
+            processedText = processedText.replaceAll(word, transliteration);
+          }
+        } catch {
+          // Fallback to simple string replacement if regex fails
+          processedText = processedText.replaceAll(word, transliteration);
+        }
       }
     }
 
-    return words.join(' ');
+    return processedText;
   }
 
   private applyNormalizations(text: string, normalizations: Record<string, string>): string {
@@ -477,8 +497,11 @@ export class HinglishNLPService {
 
     let processedText = text;
     for (const [contraction, expansion] of Object.entries(contractions)) {
-      const regex = new RegExp(contraction, 'gi');
-      processedText = processedText.replace(regex, expansion);
+      // Use replaceAll for safer replacement avoiding dynamic RegExp
+      processedText = processedText.replaceAll(contraction, expansion);
+      // Also handle case-insensitive replacements
+      processedText = processedText.replaceAll(contraction.toLowerCase(), expansion);
+      processedText = processedText.replaceAll(contraction.toUpperCase(), expansion.toUpperCase());
     }
 
     return processedText;

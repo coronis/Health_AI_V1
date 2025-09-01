@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { UserOTP, OTPType, OTPStatus } from '../entities/user-otp.entity';
 import { AuditService } from './audit.service';
 import { AuditEventType } from '../entities/audit-log.entity';
-import * as crypto from 'crypto';
+import { randomBytes, createHmac } from 'crypto';
 
 // Create TooManyRequestsException since it's not exported from @nestjs/common
 class TooManyRequestsException extends HttpException {
@@ -252,10 +252,23 @@ export class OTPService {
   }
 
   /**
-   * Generate random OTP code
+   * Generate cryptographically secure random OTP code
    */
   private generateOTPCode(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+    // Use cryptographically secure random number generation
+    const buffer = randomBytes(4);
+    const randomValue = buffer.readUInt32BE(0);
+    const otp = (randomValue % 900000) + 100000;
+    return otp.toString();
+  }
+
+  /**
+   * Generate secure hash for OTP verification
+   */
+  private generateOTPHash(code: string, phone: string, timestamp: number): string {
+    const secret = this.configService.get('OTP_SECRET') || 'default-secret';
+    const data = `${code}:${phone}:${timestamp}`;
+    return createHmac('sha256', secret).update(data).digest('hex');
   }
 
   /**
@@ -277,33 +290,44 @@ export class OTPService {
       const accountSid = this.configService.get('TWILIO_ACCOUNT_SID');
       const authToken = this.configService.get('TWILIO_AUTH_TOKEN');
       const fromNumber = this.configService.get('TWILIO_FROM_NUMBER');
-      
+
       // Check if we have valid Twilio configuration
-      if (accountSid && authToken && fromNumber && 
-          accountSid.startsWith('AC') && authToken.length > 10) {
+      if (
+        accountSid &&
+        authToken &&
+        fromNumber &&
+        accountSid.startsWith('AC') &&
+        authToken.length > 10
+      ) {
         try {
-          const client = require('twilio')(accountSid, authToken);
-          
+          // Use dynamic import for Twilio to avoid require()
+          const { default: Twilio } = await import('twilio');
+          const client = Twilio(accountSid, authToken);
+
           await client.messages.create({
             body: message,
             from: fromNumber,
             to: phone,
           });
-          
+
           this.logger.log(`SMS sent via Twilio to ${this.maskPhone(phone)}`);
           return;
         } catch (twilioError) {
           this.logger.error('Twilio SMS failed, falling back to logging', twilioError);
         }
       }
-      
+
       // Fallback for production when Twilio not configured or fails
-      this.logger.log(`SMS sent to ${this.maskPhone(phone)} with OTP: ${otpCode.substring(0, 2)}****`);
+      this.logger.log(
+        `SMS sent to ${this.maskPhone(phone)} with OTP: ${otpCode.substring(0, 2)}****`,
+      );
       this.logger.warn(`Twilio not configured properly. Using fallback logging for OTP delivery.`);
     } catch (error) {
       this.logger.error('Failed to send OTP SMS', error);
       // Don't throw error for SMS delivery issues - OTP is still generated and stored
-      this.logger.log(`SMS sent to ${this.maskPhone(phone)} with OTP: ${otpCode.substring(0, 2)}****`);
+      this.logger.log(
+        `SMS sent to ${this.maskPhone(phone)} with OTP: ${otpCode.substring(0, 2)}****`,
+      );
     }
   }
 

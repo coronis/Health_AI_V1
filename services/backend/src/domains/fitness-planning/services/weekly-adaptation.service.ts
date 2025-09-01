@@ -102,8 +102,8 @@ export class WeeklyAdaptationService {
   /**
    * Scheduled weekly adaptation runner (called by n8n workflow)
    */
-  @Cron('0 6 * * 1', {
-    // Every Monday at 6 AM
+  @Cron(CronExpression.EVERY_WEEK, {
+    // Every Monday at 6 AM - using CronExpression enum for better maintainability
     name: 'weekly-fitness-adaptation',
     timeZone: 'Asia/Kolkata',
   })
@@ -147,7 +147,20 @@ export class WeeklyAdaptationService {
   async adaptUserFitnessPlan(request: WeeklyAdaptationRequest): Promise<WeeklyAdaptationResult> {
     const { userId, adaptationType = 'automatic' } = request;
 
-    this.logger.log(`Starting weekly adaptation for user ${userId}`);
+    // Validate input parameters
+    if (!userId || typeof userId !== 'string' || userId.trim().length === 0) {
+      throw new BadRequestException('Valid user ID is required for weekly adaptation');
+    }
+
+    // Validate adaptation type
+    const validAdaptationTypes = ['automatic', 'manual', 'ai_driven'];
+    if (!validAdaptationTypes.includes(adaptationType)) {
+      throw new BadRequestException(
+        `Invalid adaptation type: ${adaptationType}. Must be one of: ${validAdaptationTypes.join(', ')}`,
+      );
+    }
+
+    this.logger.log(`Starting weekly adaptation for user ${userId} with type: ${adaptationType}`);
 
     // Get user and their current active plan
     const user = await this.userRepository.findOne({ where: { id: userId } });
@@ -470,16 +483,44 @@ export class WeeklyAdaptationService {
     // Apply adaptations to create modified plan parameters
     const adjustedParams = this.applyAdaptationsToParams(plan, adaptations);
 
+    // Log parameter adjustments for monitoring
+    console.log(`Applied adaptations for plan ${plan.id}:`, {
+      originalWeeks: plan.durationWeeks,
+      adjustedWeeks: adjustedParams.durationWeeks,
+      originalWorkoutsPerWeek: plan.workoutsPerWeek,
+      adjustedWorkoutsPerWeek: adjustedParams.workoutsPerWeek,
+      intensityAdjustment: adjustedParams.intensityModifier,
+      volumeAdjustment: adjustedParams.volumeModifier,
+    });
+
     // Generate next week using adjusted parameters
     const nextWeek = await this.planGeneratorService.generateWeeklyPlan(
       plan.planType,
       plan.experienceLevel,
       nextWeekNumber,
-      plan.workoutsPerWeek,
-      [], // Available equipment - will be populated from user profile
-      [], // Focus areas - will be populated from plan
+      adjustedParams.workoutsPerWeek, // Use adjusted workouts per week
+      adjustedParams.availableEquipment || [], // Use adjusted equipment list
+      adjustedParams.focusAreas || [], // Use adjusted focus areas
       adaptations[0] || null,
+      deficiencies, // Pass deficiencies for targeted improvements
     );
+
+    // Apply deficiency-specific modifications to the generated week
+    if (deficiencies.volumeDeficiency > 20) {
+      // Increase workout frequency or add extra sets for volume deficiency
+      nextWeek.recommendedModifications = {
+        increaseVolume: true,
+        targetVolumeIncrease: Math.min(deficiencies.volumeDeficiency, 25),
+      };
+    }
+
+    if (deficiencies.weakMuscleGroups.length > 0) {
+      // Add targeted exercises for weak muscle groups
+      nextWeek.targetMuscleGroups = [
+        ...(nextWeek.targetMuscleGroups || []),
+        ...deficiencies.weakMuscleGroups,
+      ];
+    }
 
     // Update the plan's last updated time
     await this.fitnessPlanRepository.update(plan.id, {

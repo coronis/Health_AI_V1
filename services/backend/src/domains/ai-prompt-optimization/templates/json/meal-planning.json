@@ -1,6 +1,6 @@
 {
   "id": "meal_planning_personalized",
-  "category": "MEAL_PLANNING", 
+  "category": "MEAL_PLANNING",
   "name": "Personalized Meal Planning",
   "description": "Creates detailed meal plans based on user goals, preferences, and health data",
   "version": "1.0.0",
@@ -18,7 +18,7 @@
     },
     {
       "name": "user_age",
-      "type": "number", 
+      "type": "number",
       "required": false,
       "source": "user_profile",
       "defaultValue": "adult",
@@ -28,7 +28,7 @@
       "name": "user_gender",
       "type": "string",
       "required": false,
-      "source": "user_profile", 
+      "source": "user_profile",
       "defaultValue": "person",
       "description": "User's gender for caloric needs"
     },
@@ -49,7 +49,7 @@
       "description": "User's current weight for portion calculation"
     },
     {
-      "name": "user_height", 
+      "name": "user_height",
       "type": "number",
       "required": false,
       "source": "health_data",
@@ -108,7 +108,7 @@
       "name": "budget_preference",
       "type": "string",
       "required": false,
-      "source": "preferences", 
+      "source": "preferences",
       "defaultValue": "moderate",
       "description": "User's budget preference for meals"
     },

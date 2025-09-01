@@ -84,6 +84,10 @@ describe('OTPService', () => {
       mockRepository.create.mockReturnValue(mockOTP);
       mockRepository.save.mockResolvedValue(mockOTP);
 
+      // Verify dependencies are properly injected
+      expect(repository).toBeDefined();
+      expect(auditService).toBeDefined();
+
       const result = await service.generateOTP(phone, OTPType.LOGIN, userId);
 
       expect(result).toEqual({

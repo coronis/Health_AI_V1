@@ -183,6 +183,27 @@ export class SafetyValidationService {
       }
     }
 
+    // Use totalReps for workout volume analysis and recommendations
+    const workoutVolumeAnalysis = {
+      totalReps,
+      volumeRating: this.assessWorkoutVolume(totalReps, exercises.length),
+      recommendedRestBetweenSets: this.calculateRestBasedOnVolume(totalReps),
+    };
+
+    console.log(
+      `Workout volume analysis - Total reps: ${totalReps}, Rating: ${workoutVolumeAnalysis.volumeRating}`,
+    );
+
+    // Add volume considerations to safety warnings
+    if (totalReps > 200) {
+      safetyWarnings.push({
+        type: 'volume',
+        severity: 'moderate',
+        message: `High workout volume detected (${totalReps} total reps). Consider reducing sets or splitting into multiple sessions.`,
+        recommendation: 'Monitor fatigue levels and ensure adequate recovery between sessions.',
+      });
+    }
+
     result.totalVolume = totalSets;
     result.intensityScore =
       exercises.reduce((sum, ex) => sum + (ex.intensityLevel || 5), 0) / exercises.length;
@@ -595,6 +616,31 @@ export class SafetyValidationService {
       );
     }
 
+    // Check lower body movement balance
+    if (squattingMovements === 0 && hingingMovements === 0) {
+      warnings.push('No lower body exercises detected - consider adding squats or deadlifts');
+    } else if (squattingMovements > hingingMovements * 2) {
+      warnings.push(
+        'Heavy emphasis on squatting movements - consider adding hip hinge exercises for posterior chain balance',
+      );
+    } else if (hingingMovements > squattingMovements * 2) {
+      warnings.push(
+        'Heavy emphasis on hip hinge movements - consider adding squatting exercises for quad development',
+      );
+    }
+
+    // Log movement pattern analysis
+    const movementAnalysis = {
+      pushing: pushingMovements,
+      pulling: pullingMovements,
+      squatting: squattingMovements,
+      hinging: hingingMovements,
+      upperLowerRatio:
+        (pushingMovements + pullingMovements) / (squattingMovements + hingingMovements || 1),
+    };
+
+    console.log('Movement pattern analysis:', movementAnalysis);
+
     return { warnings };
   }
 
@@ -623,11 +669,63 @@ export class SafetyValidationService {
     const warnings: string[] = [];
     const recommendations: string[] = [];
 
-    // This would check if the plan type aligns with user's stated goals
-    // Implementation would depend on how user goals are structured
+    // Validate plan alignment with user profile goals and characteristics
+    console.log(
+      `Validating goals alignment for user profile: ${userProfile.id}, plan type: ${plan.planType}`,
+    );
 
+    // Check plan type alignment with user goals
     if (plan.planType === FitnessPlanType.WEIGHT_LOSS && plan.workoutsPerWeek < 4) {
       warnings.push('Weight loss goals typically benefit from 4+ workouts per week');
+    }
+
+    // Validate based on user's experience level and goals
+    if (userProfile.experienceLevel === ExperienceLevel.BEGINNER) {
+      if (plan.workoutsPerWeek > 4) {
+        warnings.push('Beginners should start with 3-4 workouts per week to allow proper recovery');
+      }
+
+      if (plan.planType === FitnessPlanType.STRENGTH_TRAINING) {
+        recommendations.push(
+          'Focus on compound movements and form perfection for strength building as a beginner',
+        );
+      }
+    }
+
+    // Check if plan difficulty matches user experience
+    if (
+      userProfile.experienceLevel === ExperienceLevel.ADVANCED &&
+      plan.difficultyLevel < DifficultyLevel.INTERMEDIATE
+    ) {
+      warnings.push('This plan may be too easy for your advanced experience level');
+    }
+
+    // Validate goal-specific requirements
+    if (
+      userProfile.fitnessGoals?.includes('muscle_gain') &&
+      plan.planType === FitnessPlanType.CARDIO
+    ) {
+      warnings.push('Cardio-focused plans may not be optimal for muscle gain goals');
+      recommendations.push(
+        'Consider strength training or hypertrophy-focused plans for muscle gain',
+      );
+    }
+
+    if (
+      userProfile.fitnessGoals?.includes('endurance') &&
+      plan.planType === FitnessPlanType.STRENGTH_TRAINING
+    ) {
+      recommendations.push('Add cardio components or consider hybrid training for endurance goals');
+    }
+
+    // Time availability validation
+    if (userProfile.weeklyTimeAvailability && plan.estimatedDurationMinutes) {
+      const weeklyTimeNeeded = plan.estimatedDurationMinutes * plan.workoutsPerWeek;
+      if (weeklyTimeNeeded > userProfile.weeklyTimeAvailability) {
+        warnings.push(
+          `Plan requires ${weeklyTimeNeeded} minutes/week but you have ${userProfile.weeklyTimeAvailability} minutes available`,
+        );
+      }
     }
 
     if (plan.planType === FitnessPlanType.MUSCLE_GAIN && plan.workoutsPerWeek > 5) {
@@ -642,19 +740,54 @@ export class SafetyValidationService {
   }
 
   /**
+   * Assess workout volume based on total reps and exercise count
+   */
+  private assessWorkoutVolume(totalReps: number, exerciseCount: number): string {
+    const repsPerExercise = totalReps / exerciseCount;
+
+    // Use reps per exercise for more accurate volume assessment
+    console.log(
+      `Volume assessment: ${totalReps} total reps, ${repsPerExercise.toFixed(1)} reps per exercise`,
+    );
+
+    if (totalReps < 50 || repsPerExercise < 8) return 'low';
+    if (totalReps < 120 || repsPerExercise < 15) return 'moderate';
+    if (totalReps < 200 || repsPerExercise < 25) return 'high';
+    return 'very_high';
+  }
+
+  /**
+   * Calculate recommended rest time based on workout volume
+   */
+  private calculateRestBasedOnVolume(totalReps: number): number {
+    // Base rest of 60 seconds, increase with volume
+    let baseRest = 60;
+
+    if (totalReps > 150) baseRest += 30; // Add 30s for high volume
+    if (totalReps > 200) baseRest += 30; // Add another 30s for very high volume
+
+    return Math.min(baseRest, 180); // Cap at 3 minutes
+  }
+
+  /**
    * Validate fitness adaptation for safety and reasonableness
    */
   async validateAdaptation(adaptation: any, userProfile: UserProfile): Promise<boolean> {
     // Basic validation for adaptation parameters
     if (!adaptation || typeof adaptation !== 'object') {
-      return false;
+      throw new BadRequestException('Invalid adaptation data provided');
+    }
+
+    // Validate user profile is provided for safety checks
+    if (!userProfile) {
+      throw new BadRequestException('User profile is required for adaptation validation');
     }
 
     // Check if adaptation contains required fields
     const requiredFields = ['type', 'adjustments'];
     for (const field of requiredFields) {
       if (!(field in adaptation)) {
-        return false;
+        throw new BadRequestException(`Missing required field: ${field} in adaptation data`);
       }
     }
 
