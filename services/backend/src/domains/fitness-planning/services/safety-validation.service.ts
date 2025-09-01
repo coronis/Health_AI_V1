@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Exercise, DifficultyLevel, ExerciseCategory } from '../entities/exercise.entity';
 import { FitnessPlan, ExperienceLevel, FitnessPlanType } from '../entities/fitness-plan.entity';
 import { FitnessPlanWorkout } from '../entities/fitness-plan-workout.entity';

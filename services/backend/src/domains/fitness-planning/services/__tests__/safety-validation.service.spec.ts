@@ -8,7 +8,7 @@ import {
 } from '../../entities/exercise.entity';
 import { FitnessPlan, ExperienceLevel, FitnessPlanType } from '../../entities/fitness-plan.entity';
 import { FitnessPlanWorkout } from '../../entities/fitness-plan-workout.entity';
-import { FitnessPlanExercise, ExerciseType } from '../../entities/fitness-plan-exercise.entity';
+import { FitnessPlanExercise } from '../../entities/fitness-plan-exercise.entity';
 
 describe('SafetyValidationService', () => {
   let service: SafetyValidationService;

@@ -5,7 +5,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere, Like, ILike, In } from 'typeorm';
+import { Repository, ILike, In } from 'typeorm';
 import {
   Exercise,
   ExerciseCategory,

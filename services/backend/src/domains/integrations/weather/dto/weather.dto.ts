@@ -1,5 +1,5 @@
 import { IsOptional, IsString, IsNumber, IsDateString, IsEnum } from 'class-validator';
-import { AQILevel, WeatherCondition } from '../entities/weather-data.entity';
+import { AQILevel } from '../entities/weather-data.entity';
 import { NudgeType } from '../entities/weather-nudge.entity';
 
 export class GetWeatherDto {
