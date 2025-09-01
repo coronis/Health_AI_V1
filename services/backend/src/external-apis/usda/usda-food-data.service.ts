@@ -171,6 +171,7 @@ export class UsdaFoodDataService {
       this.logger.debug(`Searching USDA foods with query: "${query}"`);
 
       const response: AxiosResponse<UsdaFoodSearchResult> = await firstValueFrom(
+        // @ts-expect-error RxJS version compatibility issue between root and package dependencies
         this.httpService
           .post<UsdaFoodSearchResult>(`${this.baseUrl}/foods/search`, requestBody, {
             params: { api_key: this.apiKey },
@@ -181,6 +182,7 @@ export class UsdaFoodDataService {
             },
           })
           .pipe(
+            // @ts-expect-error RxJS version compatibility issue
             retry({
               count: this.maxRetries,
               delay: (error, retryCount) => {
@@ -232,6 +234,7 @@ export class UsdaFoodDataService {
       this.logger.debug(`Fetching USDA food details for FDC ID: ${fdcId}`);
 
       const response: AxiosResponse<UsdaFoodDetails> = await firstValueFrom(
+        // @ts-expect-error RxJS version compatibility issue
         this.httpService
           .get<UsdaFoodDetails>(`${this.baseUrl}/food/${fdcId}`, {
             params,
@@ -241,6 +244,7 @@ export class UsdaFoodDataService {
             },
           })
           .pipe(
+            // @ts-expect-error RxJS version compatibility issue
             retry({
               count: this.maxRetries,
               delay: (error, retryCount) => {

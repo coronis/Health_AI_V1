@@ -437,7 +437,7 @@ export class HealthDataService {
 
   private async exchangeGoogleFitAuthCode(authCode: string, config: ProviderConfig): Promise<any> {
     // Implement Google Fit OAuth flow using auth code and config
-    const tokenEndpoint = config.endpoints?.token || 'https://oauth2.googleapis.com/token';
+    const tokenEndpoint = 'https://oauth2.googleapis.com/token';
 
     this.logger.debug(
       `Exchanging auth code ${authCode.substring(0, 8)}... using endpoint ${tokenEndpoint}`,

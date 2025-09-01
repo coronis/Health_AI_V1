@@ -338,8 +338,6 @@ export class HealthReportsService {
           originalPath: storagePath,
           uploadDate: new Date().toISOString(),
         },
-        category: 'health-reports',
-        userId,
       },
     );
 
