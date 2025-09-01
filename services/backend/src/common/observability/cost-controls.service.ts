@@ -409,6 +409,24 @@ export class CostControlsService {
       );
     }
 
+    // Check token efficiency alerts
+    if (tokens > 0) {
+      const costPerToken = cost / tokens;
+      const recentTokenCosts = recentCosts.map((c) => c.cost / Math.max(1, c.tokens));
+      const avgCostPerToken =
+        recentTokenCosts.reduce((sum, c) => sum + c, 0) / Math.max(1, recentTokenCosts.length);
+
+      if (costPerToken > avgCostPerToken * 2) {
+        this.createAlert(
+          'efficiency_degraded',
+          'medium',
+          `Token efficiency degraded for ${provider}/${model}: ${costPerToken.toFixed(6)} per token (2x average)`,
+          avgCostPerToken,
+          costPerToken,
+        );
+      }
+    }
+
     // Check daily limits
     const policy = this.providerPolicies.get(provider);
     if (policy && policy.dailyLimits[model]) {

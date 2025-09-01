@@ -37,6 +37,8 @@ export class AuthRateLimitInterceptor implements NestInterceptor {
   private readonly requestMap = new Map<string, { count: number; resetTime: number }>();
 
   constructor(
+    @InjectRepository(AuditLog)
+    private readonly auditRepository: Repository<AuditLog>,
     private readonly auditService: AuditService,
     private readonly config: RateLimitConfig = {
       windowMs: 15 * 60 * 1000, // 15 minutes
@@ -72,7 +74,26 @@ export class AuthRateLimitInterceptor implements NestInterceptor {
 
     // Check if limit exceeded
     if (rateLimitData.count > this.config.maxRequests) {
-      // Log security event
+      // Log security event to database for persistence
+      const auditLog = this.auditRepository.create({
+        eventType: AuditEventType.RATE_LIMIT_EXCEEDED,
+        description: `Rate limit exceeded for ${endpoint}`,
+        severity: AuditSeverity.HIGH,
+        metadata: {
+          ipAddress,
+          userAgent,
+          endpoint,
+          requests: rateLimitData.count,
+          windowMs: this.config.windowMs,
+          maxRequests: this.config.maxRequests,
+        },
+        ipAddress,
+        userAgent,
+        createdAt: new Date(),
+      });
+      await this.auditRepository.save(auditLog);
+
+      // Also log to audit service
       await this.auditService.logSecurityEvent(
         AuditEventType.RATE_LIMIT_EXCEEDED,
         `Rate limit exceeded for ${endpoint}`,

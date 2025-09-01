@@ -374,7 +374,7 @@ export class UserConsentService {
    * Get consent statistics for specific consent types
    */
   async getConsentStatistics(consentTypes?: ConsentType[]): Promise<Record<string, any>> {
-    let whereClause: any = {};
+    const whereClause: any = {};
 
     if (consentTypes && consentTypes.length > 0) {
       whereClause.consentType = In(consentTypes);

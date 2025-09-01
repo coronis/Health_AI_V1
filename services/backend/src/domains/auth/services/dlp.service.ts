@@ -240,6 +240,10 @@ export class DLPService {
    */
   private generateRedactedValue(value: string, patternName: string): string {
     const length = value.length;
+
+    // Use length-based redaction for some patterns
+    const generateMask = (char: string = '*') => char.repeat(Math.max(4, Math.min(length, 12)));
+
     switch (patternName) {
       case 'email':
         return '[EMAIL_REDACTED]';
@@ -252,6 +256,10 @@ export class DLPService {
         return '[PAN_REDACTED]';
       case 'medical_record':
         return '[MEDICAL_ID_REDACTED]';
+      case 'credit_card':
+        return generateMask('*');
+      case 'ssn':
+        return generateMask('#');
       default:
         return `[${patternName.toUpperCase()}_REDACTED]`;
     }

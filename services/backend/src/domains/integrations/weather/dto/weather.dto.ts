@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsNumber, IsDateString, IsEnum } from 'class-validator';
+import { IsOptional, IsString, IsNumber, IsDateString, IsEnum, IsBoolean } from 'class-validator';
 import { AQILevel, WeatherCondition } from '../entities/weather-data.entity';
 import { NudgeType } from '../entities/weather-nudge.entity';
 
@@ -22,6 +22,10 @@ export class GetWeatherDto {
   @IsOptional()
   @IsDateString()
   endDate?: string;
+
+  @IsOptional()
+  @IsEnum(WeatherCondition)
+  condition?: WeatherCondition;
 }
 
 export class WeatherNudgeQueryDto {
@@ -63,7 +67,7 @@ export class UpdateUserLocationDto {
 
 export class WeatherAlertSettingsDto {
   @IsOptional()
-  @IsString()
+  @IsBoolean()
   enableAQIAlerts?: boolean;
 
   @IsOptional()
@@ -71,11 +75,11 @@ export class WeatherAlertSettingsDto {
   aqiThreshold?: AQILevel;
 
   @IsOptional()
-  @IsString()
+  @IsBoolean()
   enableWeatherAlerts?: boolean;
 
   @IsOptional()
-  @IsString()
+  @IsBoolean()
   enableUVAlerts?: boolean;
 
   @IsOptional()

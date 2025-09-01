@@ -73,6 +73,9 @@ describe('AIRoutingService', () => {
     }).compile();
 
     service = module.get<AIRoutingService>(AIRoutingService);
+    repository = module.get<Repository<AIRoutingDecision>>(getRepositoryToken(AIRoutingDecision));
+    cacheManager = module.get<any>(CACHE_MANAGER);
+    configService = module.get<ConfigService>(ConfigService);
 
     // Reset mocks
     jest.clearAllMocks();
@@ -80,6 +83,9 @@ describe('AIRoutingService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+    expect(repository).toBeDefined();
+    expect(cacheManager).toBeDefined();
+    expect(configService).toBeDefined();
   });
 
   describe('routeRequest', () => {

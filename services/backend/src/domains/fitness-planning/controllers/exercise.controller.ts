@@ -16,6 +16,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { AuthenticatedRequest } from '../../auth/guards/optional-auth.guard';
 import '../../../types/express'; // Import type declarations
 import { ExerciseLibraryService } from '../services/exercise-library.service';
@@ -37,14 +38,34 @@ export class ExerciseController {
    * POST /exercises
    */
   @Post()
+  @UseGuards(JwtAuthGuard) // Add authentication guard
   @HttpCode(HttpStatus.CREATED)
   async createExercise(
     @Body(ValidationPipe) createExerciseDto: CreateExerciseDto,
-    @Req() req: AuthenticatedRequest,
-  ): Promise<Exercise> {
+    @Req() req: Request & { user: any },
+  ): Promise<ExerciseResponseDto> {
     // In a real app, you'd extract user ID from JWT token
     const createdBy = req.user?.userId || 'system';
-    return await this.exerciseLibraryService.createExercise(createExerciseDto, createdBy);
+    const exercise = await this.exerciseLibraryService.createExercise(createExerciseDto, createdBy);
+    
+    // Transform to response DTO
+    return {
+      id: exercise.id,
+      name: exercise.name,
+      description: exercise.description,
+      category: exercise.category,
+      targetMuscles: exercise.targetMuscles,
+      equipmentRequired: exercise.equipmentRequired,
+      difficultyLevel: exercise.difficultyLevel,
+      estimatedDuration: exercise.estimatedDuration,
+      instructions: exercise.instructions,
+      videoUrl: exercise.videoUrl,
+      imageUrl: exercise.imageUrl,
+      safetyTips: exercise.safetyTips,
+      modifications: exercise.modifications,
+      createdAt: exercise.createdAt,
+      updatedAt: exercise.updatedAt,
+    };
   }
 
   /**

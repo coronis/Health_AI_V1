@@ -115,16 +115,23 @@ export class AICacheService {
         return { hit: false };
       }
 
+      // Apply tier-specific cache behavior
+      const tierConfig = this.getTierSpecificConfig(config, userTier);
+      if (!tierConfig.enabled) {
+        this.logger.debug(`Cache disabled for tier ${userTier} on ${requestType}`);
+        return { hit: false };
+      }
+
       // Try exact match first
       let cacheEntry = await this.cacheManager.get<CacheEntry>(cacheKey);
 
       // If no exact match and smart matching is enabled, try similarity search
-      if (!cacheEntry && config.smartMatching && config.similarityThreshold < 1.0) {
+      if (!cacheEntry && tierConfig.smartMatching && tierConfig.similarityThreshold < 1.0) {
         cacheEntry = await this.findSimilarCacheEntry(
           requestType,
           prompt,
           context,
-          config.similarityThreshold,
+          tierConfig.similarityThreshold,
         );
       }
 
@@ -411,5 +418,34 @@ export class AICacheService {
     // and cache them for faster access
 
     this.logger.log('Cache preload completed');
+  }
+
+  /**
+   * Get tier-specific cache configuration
+   */
+  private getTierSpecificConfig(baseConfig: any, userTier: string): any {
+    const tierOverrides = {
+      free: {
+        enabled: true,
+        smartMatching: false,
+        similarityThreshold: 0.9,
+        maxTtl: 30 * 60 * 1000, // 30 minutes
+      },
+      premium: {
+        enabled: true,
+        smartMatching: true,
+        similarityThreshold: 0.8,
+        maxTtl: 60 * 60 * 1000, // 1 hour
+      },
+      enterprise: {
+        enabled: true,
+        smartMatching: true,
+        similarityThreshold: 0.7,
+        maxTtl: 24 * 60 * 60 * 1000, // 24 hours
+      },
+    };
+
+    const tierConfig = tierOverrides[userTier] || tierOverrides.free;
+    return { ...baseConfig, ...tierConfig };
   }
 }

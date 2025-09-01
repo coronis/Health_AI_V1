@@ -372,5 +372,3 @@ export class RecipeOptimizationGoalsDto {
   @IsBoolean()
   preserveVitamins?: boolean;
 }
-
-
