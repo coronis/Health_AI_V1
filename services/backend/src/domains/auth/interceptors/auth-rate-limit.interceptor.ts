@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { AuditService } from '../services/audit.service';
+import { AuditEventType, AuditSeverity } from '../entities/audit-log.entity';
 
 export interface RateLimitConfig {
   windowMs: number; // Time window in milliseconds

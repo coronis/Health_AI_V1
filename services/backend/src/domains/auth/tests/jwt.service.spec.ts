@@ -64,9 +64,6 @@ describe('JWTService', () => {
     }).compile();
 
     service = module.get<JWTService>(JWTService);
-    sessionRepository = module.get<Repository<UserSession>>(getRepositoryToken(UserSession));
-    jwtService = module.get<NestJwtService>(NestJwtService);
-    auditService = module.get<AuditService>(AuditService);
   });
 
   afterEach(() => {

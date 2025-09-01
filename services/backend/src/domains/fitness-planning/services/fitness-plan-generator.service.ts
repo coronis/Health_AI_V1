@@ -398,9 +398,9 @@ export class FitnessPlanGeneratorService {
 
     // Apply adaptations to workout constraints if available
     if (adaptations) {
-      constraints.intensityModifier = adaptations.intensityAdjustment || 1.0;
-      constraints.volumeModifier = adaptations.volumeAdjustment || 1.0;
-      constraints.restModifier = adaptations.restAdjustment || 1.0;
+      constraints.targetIntensity *= adaptations.intensityAdjustment || 1.0;
+      constraints.maxSetsPerWorkout = Math.round(constraints.maxSetsPerWorkout * (adaptations.volumeAdjustment || 1.0));
+      constraints.restBetweenSets = Math.round(constraints.restBetweenSets * (adaptations.restAdjustment || 1.0));
     }
 
     const workout = this.workoutRepository.create({
@@ -637,9 +637,9 @@ export class FitnessPlanGeneratorService {
           );
         }
         // Apply progression to weight recommendations if available
-        if (exercise.recommendedWeight) {
-          exercise.recommendedWeight =
-            Math.round(exercise.recommendedWeight * adjustedProgressionFactor * 100) / 100; // Round to 2 decimal places
+        if (exercise.targetWeightKg) {
+          exercise.targetWeightKg =
+            Math.round(exercise.targetWeightKg * adjustedProgressionFactor * 100) / 100; // Round to 2 decimal places
         }
         await this.exerciseRepository.save(exercise);
       }

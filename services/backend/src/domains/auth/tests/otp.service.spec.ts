@@ -55,8 +55,6 @@ describe('OTPService', () => {
     }).compile();
 
     service = module.get<OTPService>(OTPService);
-    repository = module.get<Repository<UserOTP>>(getRepositoryToken(UserOTP));
-    auditService = module.get<AuditService>(AuditService);
   });
 
   afterEach(() => {

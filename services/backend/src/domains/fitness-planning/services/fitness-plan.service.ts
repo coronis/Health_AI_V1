@@ -600,7 +600,7 @@ export class FitnessPlanService {
     // Calculate progress based on exercise completion and weight increases
     return exercises.map((exercise) => ({
       exerciseName: exercise.exerciseName,
-      progress: exercise.recommendedWeight || 0,
+      progress: exercise.targetWeightKg || 0,
       completionRate: exercise.status === 'completed' ? 100 : 0,
     }));
   }
